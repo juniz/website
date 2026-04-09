@@ -1,0 +1,110 @@
+/* ============================================================
+   ADMIN PREMIUM THEME — Azure Blue Clinical
+   RS Bhayangkara Nganjuk
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+:root {
+  /* Core Palette */
+  --azure-primary: #1E6FBF;
+  --azure-surface: #F1F5F9;
+  --azure-dark: #0F172A;
+  
+  /* Status Colors from Mockup */
+  --status-info: #1E6FBF;
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-critical: #EF4444;
+
+  /* Clinical Surface */
+  --admin-bg: #FFFFFF;
+  --admin-surface: #F8FAFC;
+  --admin-card-bg: #FFFFFF;
+  --admin-border: #E2E8F0;
+  --admin-text-main: #0F172A;
+  --admin-text-muted: #64748B;
+  
+  /* Layout */
+  --sidebar-width: 260px;
+}
+
+body {
+  background-color: var(--admin-bg);
+  color: var(--admin-text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.admin-card {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.admin-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+}
+
+.admin-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748B;
+  transition: all 0.15s ease;
+}
+
+.admin-sidebar-item:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.admin-sidebar-item.active {
+  background-color: #EFF6FF;
+  color: var(--azure-primary);
+  border-right: 3px solid var(--azure-primary);
+  border-radius: 8px 0 0 8px;
+}
+
+/* Custom Scrollbar */
+.admin-scrollable::-webkit-scrollbar {
+  width: 5px;
+}
+.admin-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-scrollable::-webkit-scrollbar-thumb {
+  background: #E2E8F0;
+  border-radius: 4px;
+}
+
+/* Dashboard Metric Text Colors */
+.text-metric-blue { color: #1E6FBF; }
+.text-metric-green { color: #10B981; }
+.text-metric-orange { color: #F59E0B; }
+.text-metric-red { color: #EF4444; }
+
+/* Stagger Animation */
+.stagger-in > * {
+  opacity: 0;
+  transform: translateY(4px);
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-in > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-in > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-in > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-in > *:nth-child(4) { animation-delay: 0.2s; }
