@@ -12,7 +12,6 @@ export async function getSchedules() {
   const { data: schedules } = await supabase
     .from('schedules')
     .select('*, doctor:doctors(*)')
-    .gte('date', today.toISOString())
     .order('time', { ascending: true });
     
   const items = schedules || [];

@@ -13,9 +13,10 @@ export default function NewsCard({ article, featured = false }) {
     categoryColor,
     categoryBg,
     author,
-    publishedAt,
-    readTime,
+    date,
+    read_time,
     coverBg,
+    image,
   } = article;
 
   return (
@@ -40,7 +41,7 @@ export default function NewsCard({ article, featured = false }) {
         {/* Cover image placeholder */}
         <div
           style={{
-            background: coverBg,
+            background: image ? `url(${image}) center/cover no-repeat` : coverBg,
             height: featured ? '200px' : '160px',
             position: 'relative',
             display: 'flex',
@@ -59,19 +60,21 @@ export default function NewsCard({ article, featured = false }) {
             }}
           />
           {/* RS logo watermark */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%,-50%)',
-              opacity: 0.12,
-            }}
-          >
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="white">
-              <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H9a1 1 0 1 1 0-2h2V7a1 1 0 0 1 1-1z"/>
-            </svg>
-          </div>
+          {!image && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%,-50%)',
+                opacity: 0.12,
+              }}
+            >
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="white">
+                <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H9a1 1 0 1 1 0-2h2V7a1 1 0 0 1 1-1z"/>
+              </svg>
+            </div>
+          )}
           {/* Category badge on image */}
           <span
             style={{
@@ -150,7 +153,7 @@ export default function NewsCard({ article, featured = false }) {
                 color: 'var(--color-neutral-600)',
               }}
             >
-              {formatDateId(publishedAt)}
+              {date ? formatDateId(new Date(date).toISOString()) : ''}
             </span>
             <span
               style={{
@@ -165,7 +168,7 @@ export default function NewsCard({ article, featured = false }) {
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>
               </svg>
-              {readTime}
+              {read_time}
             </span>
           </div>
         </div>

@@ -4,10 +4,15 @@ import { getSchedules, getScheduleStatus } from '@/lib/data/schedule';
 
 export default async function SchedulePreview() {
   const allSchedules = await getSchedules();
-  const todaySchedule = allSchedules.slice(0, 5); // Just take first 5
+  
+  const dayNamesFull = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const today = new Date();
+  const todayDayName = dayNamesFull[today.getDay()];
+  
+  // Filter only schedules whose day matches today
+  const todaySchedule = allSchedules.filter(s => s.date === todayDayName).slice(0, 5);
   
   // Format today's date in Indonesian
-  const today = new Date();
   const todayStr = today.toLocaleDateString('id-ID', {
     weekday: 'long',
     day: 'numeric',

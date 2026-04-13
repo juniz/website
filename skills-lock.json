@@ -11,6 +11,16 @@
       "sourceType": "github",
       "computedHash": "873c67922d80775a9fdf596db7964b579f0408c30ec6e3d11989f6055bbec89f"
     },
+    "shadcn-layouts": {
+      "source": "jwynia/agent-skills",
+      "sourceType": "github",
+      "computedHash": "b02329636d023f822a8b41b01251d43d11e34bf805537a2811e49ddb711a20d4"
+    },
+    "shadcn-ui-expert": {
+      "source": "majesteitbart/talentmatcher",
+      "sourceType": "github",
+      "computedHash": "969ad2b851208dedb57a59eadd52fc86a8a8bf6bcb728c660c82dfa2045c8e90"
+    },
     "supabase-postgres-best-practices": {
       "source": "supabase/agent-skills",
       "sourceType": "github",

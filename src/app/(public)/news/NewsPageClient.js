@@ -91,7 +91,13 @@ export default function NewsPageClient({ initialNews = [] }) {
                 {filtered.map((article) => (
                   <Link key={article.id} href={`/news/${article.slug}`} style={{ textDecoration: 'none', display: 'block' }} className="news-card-link">
                     <article style={{ background: '#fff', border: '1px solid var(--color-neutral-200)', borderRadius: '12px', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', transition: 'border-color 150ms, box-shadow 200ms, transform 150ms' }} className="news-card">
-                      <div style={{ background: article.coverBg, height: '160px', display: 'flex', alignItems: 'flex-end', padding: '0.875rem' }}>
+                      <div style={{ 
+                        background: article.image ? `url(${article.image}) center/cover no-repeat` : article.coverBg, 
+                        height: '160px', 
+                        display: 'flex', 
+                        alignItems: 'flex-end', 
+                        padding: '0.875rem' 
+                      }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.6875rem', fontWeight: 600, background: article.categoryBg, color: article.categoryColor }}>
                           {article.category}
                         </span>
@@ -104,10 +110,10 @@ export default function NewsPageClient({ initialNews = [] }) {
                           {article.excerpt}
                         </p>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '0.5px solid var(--color-neutral-200)', gap: '0.5rem', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '0.6875rem', color: 'var(--color-neutral-600)' }}>{formatDateId(article.publishedAt)}</span>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--color-neutral-600)' }}>{article.date ? formatDateId(new Date(article.date).toISOString()) : ''}</span>
                           <span style={{ fontSize: '0.6875rem', color: 'var(--color-neutral-600)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            {article.readTime}
+                            {article.read_time}
                           </span>
                         </div>
                       </div>

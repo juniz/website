@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
       title: article.title,
       description: article.excerpt,
       type: 'article',
-      publishedTime: article.publishedAt,
+      publishedTime: article.date,
     },
   };
 }
@@ -37,13 +37,6 @@ export default async function NewsDetailPage({ params }) {
 
   // Related articles (exclude current)
   const related = allNews.filter((a) => a.slug !== slug).slice(0, 2);
-
-  // Dummy body paragraphs for demonstration
-  const bodyParagraphs = [
-    article.excerpt,
-    'Perubahan gaya hidup yang sederhana namun konsisten terbukti memberikan dampak yang signifikan terhadap kualitas kesehatan jangka panjang. Para ahli merekomendasikan pendekatan holistik yang mencakup aspek fisik, mental, dan sosial.',
-    'RS Bhayangkara Nganjuk menyediakan layanan konsultasi preventif yang dapat membantu Anda merancang program kesehatan personal bersama dokter spesialis kami. Hubungi kami atau daftar online untuk informasi lebih lanjut.',
-  ];
 
   return (
     <>
@@ -78,11 +71,11 @@ export default async function NewsDetailPage({ params }) {
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: 'var(--color-primary-200)' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              {formatDateId(article.publishedAt)}
+              {article.date ? formatDateId(new Date(article.date).toISOString()) : ''}
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: 'var(--color-primary-200)' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              {article.readTime} baca
+              {article.read_time}
             </span>
           </div>
         </div>
@@ -94,23 +87,37 @@ export default async function NewsDetailPage({ params }) {
         <article>
           {/* Cover image */}
           <div
-            style={{ background: article.coverBg, height: '260px', borderRadius: '12px', marginBottom: '2rem', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ 
+              background: article.image ? `url(${article.image}) center/cover no-repeat` : article.coverBg, 
+              height: 'auto', 
+              minHeight: '260px',
+              aspectRatio: '16/9',
+              borderRadius: '12px', 
+              marginBottom: '2rem', 
+              position: 'relative', 
+              overflow: 'hidden', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              border: article.image ? '1px solid var(--color-neutral-200)' : 'none'
+            }}
             aria-hidden="true"
           >
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="white" style={{ opacity: 0.15 }}>
-              <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H9a1 1 0 1 1 0-2h2V7a1 1 0 0 1 1-1z"/>
-            </svg>
+            {!article.image && (
+              <>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="white" style={{ opacity: 0.15 }}>
+                  <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H9a1 1 0 1 1 0-2h2V7a1 1 0 0 1 1-1z"/>
+                </svg>
+              </>
+            )}
           </div>
 
-          {/* Body */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {bodyParagraphs.map((para, i) => (
-              <p key={i} style={{ fontSize: '0.9375rem', color: 'var(--color-neutral-900)', lineHeight: 1.75 }}>
-                {para}
-              </p>
-            ))}
-          </div>
+          {/* HTML Body */}
+          <div 
+            className="article-content" 
+            dangerouslySetInnerHTML={{ __html: article.content }} 
+          />
 
           {/* Tags / bottom meta */}
           <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-neutral-200)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -160,12 +167,15 @@ export default async function NewsDetailPage({ params }) {
                     }}
                     className="related-link"
                   >
-                    <div style={{ width: '44px', height: '44px', borderRadius: '6px', background: rel.coverBg, flexShrink: 0 }} aria-hidden="true" />
+                    <div style={{ 
+                      width: '44px', height: '44px', borderRadius: '6px', flexShrink: 0,
+                      background: rel.image ? `url(${rel.image}) center/cover no-repeat` : rel.coverBg
+                    }} aria-hidden="true" />
                     <div>
                       <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-neutral-900)', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '0.25rem' }}>
                         {rel.title}
                       </p>
-                      <span style={{ fontSize: '0.6875rem', color: 'var(--color-neutral-600)' }}>{formatDateId(rel.publishedAt)}</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--color-neutral-600)' }}>{rel.date ? formatDateId(new Date(rel.date).toISOString()) : ''}</span>
                     </div>
                   </Link>
                 ))}
@@ -178,6 +188,57 @@ export default async function NewsDetailPage({ params }) {
       <style>{`
         .news-cta-btn:hover { background: var(--color-primary-600) !important; }
         .related-link:hover { background: var(--color-neutral-50) !important; }
+
+        /* Article HTML Content Styling */
+        .article-content {
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+          color: var(--color-neutral-900);
+          font-size: 1rem;
+          line-height: 1.75;
+        }
+        .article-content p {
+          margin: 0;
+        }
+        .article-content h1,
+        .article-content h2,
+        .article-content h3 {
+          color: var(--color-primary-900);
+          font-weight: 700;
+          line-height: 1.3;
+          margin-top: 1rem;
+          margin-bottom: 0.25rem;
+        }
+        .article-content h1 { font-size: 1.75rem; }
+        .article-content h2 { font-size: 1.5rem; }
+        .article-content h3 { font-size: 1.25rem; }
+        .article-content ul,
+        .article-content ol {
+          padding-left: 1.5rem;
+          margin: 0;
+        }
+        .article-content li {
+          margin-bottom: 0.5rem;
+        }
+        .article-content blockquote {
+          border-left: 4px solid var(--color-primary-400);
+          background: var(--color-neutral-50);
+          padding: 1rem 1.25rem;
+          margin: 0.5rem 0;
+          font-style: italic;
+          border-radius: 0 8px 8px 0;
+          color: var(--color-neutral-700);
+        }
+        .article-content strong {
+          font-weight: 700;
+          color: var(--color-neutral-900);
+        }
+        .article-content a {
+          color: var(--color-primary-600);
+          text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
           #news-detail-grid { grid-template-columns: 1fr !important; }
         }
