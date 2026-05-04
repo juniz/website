@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 const navLinks = [
@@ -10,9 +11,10 @@ const navLinks = [
   { href: '/doctors',  label: 'Dokter',   key: 'doctors' },
   { href: '/schedule', label: 'Jadwal',   key: 'schedule' },
   { href: '/news',     label: 'Berita',   key: 'news' },
+  { href: '/faq',      label: 'FAQ',      key: 'faq' },
 ];
 
-export default function Navbar() {
+export default function Navbar({ data }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -86,23 +88,27 @@ export default function Navbar() {
               flexShrink: 0,
             }}
           >
-            {/* Medical cross SVG */}
+            {/* Medical cross SVG / Logo RS */}
             <div
               style={{
                 width: '34px',
                 height: '34px',
                 borderRadius: '8px',
-                background: 'var(--color-primary-600)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
+                overflow: 'hidden'
               }}
               aria-hidden="true"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                <path d="M12 2C11.45 2 11 2.45 11 3V11H3C2.45 11 2 11.45 2 12C2 12.55 2.45 13 3 13H11V21C11 21.55 11.45 22 12 22C12.55 22 13 21.55 13 21V13H21C21.55 13 22 12.55 22 12C22 11.45 21.55 11 21 11H13V3C13 2.45 12.55 2 12 2Z"/>
-              </svg>
+              <Image 
+                src="/images/logo/rs.png" 
+                alt="Logo RS" 
+                width={34} 
+                height={34} 
+                style={{ objectFit: 'contain' }} 
+              />
             </div>
             <div>
               <div
@@ -114,7 +120,7 @@ export default function Navbar() {
                   lineHeight: 1.2,
                 }}
               >
-                RS Bhayangkara
+                {data?.logo_text || 'RS Bhayangkara'}
               </div>
               <div
                 style={{
@@ -123,7 +129,7 @@ export default function Navbar() {
                   lineHeight: 1.2,
                 }}
               >
-                Nganjuk
+                {data?.logo_subtext || 'Nganjuk'}
               </div>
             </div>
           </Link>
@@ -158,6 +164,7 @@ export default function Navbar() {
                 </Link>
               );
             })}
+
 
             {/* CTA */}
             <Link

@@ -1,9 +1,13 @@
 /**
  * Badge component
- * @param {'success'|'warning'|'danger'|'info'} variant
+ * @param {'success'|'warning'|'danger'|'info'|'neutral'} variant
+ * @param {string} color — alias for variant
  * @param {boolean} dot — show colored dot indicator
  */
-export default function Badge({ variant = 'info', dot = false, children, className = '' }) {
+export function Badge({ variant = 'info', color, dot = false, children, className = '' }) {
+  // Use color as variant if provided (for backward compatibility or convenience)
+  const activeVariant = color || variant;
+  
   const variantStyles = {
     success: {
       background: 'var(--color-accent-teal-light)',
@@ -21,6 +25,10 @@ export default function Badge({ variant = 'info', dot = false, children, classNa
       background: 'var(--color-primary-50)',
       color: 'var(--color-primary-800)',
     },
+    neutral: {
+      background: '#f3f4f6',
+      color: '#374151',
+    },
   };
 
   const dotColors = {
@@ -28,9 +36,10 @@ export default function Badge({ variant = 'info', dot = false, children, classNa
     warning: 'var(--color-warning)',
     danger: 'var(--color-danger)',
     info: 'var(--color-primary-400)',
+    neutral: '#9ca3af',
   };
 
-  const style = variantStyles[variant] ?? variantStyles.info;
+  const style = variantStyles[activeVariant] ?? variantStyles.info;
 
   return (
     <span
@@ -56,7 +65,7 @@ export default function Badge({ variant = 'info', dot = false, children, classNa
             width: '6px',
             height: '6px',
             borderRadius: '50%',
-            backgroundColor: dotColors[variant],
+            backgroundColor: dotColors[activeVariant],
             flexShrink: 0,
           }}
         />
@@ -65,3 +74,5 @@ export default function Badge({ variant = 'info', dot = false, children, classNa
     </span>
   );
 }
+
+export default Badge;

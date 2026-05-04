@@ -62,7 +62,9 @@ function ServiceIcon({ name, color }) {
   return icons[name] ?? icons.heart;
 }
 
-export default function ServiceGrid() {
+export default function ServiceGrid({ data = [] }) {
+  const displayServices = data.length > 0 ? data : [];
+
   return (
     <section
       aria-labelledby="services-heading"
@@ -109,10 +111,10 @@ export default function ServiceGrid() {
             gap: '1rem',
           }}
         >
-          {services.map((service) => (
+          {displayServices.map((service) => (
             <Link
               key={service.slug}
-              href={`/services/${service.slug}`}
+              href={`/doctors?specialization=${service.slug}`}
               style={{ textDecoration: 'none', display: 'block' }}
               className="service-card-link"
             >
@@ -136,14 +138,14 @@ export default function ServiceGrid() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '8px',
-                    background: service.bgColor,
+                    background: service.bg_color_code || '#f0f0f0',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}
                 >
-                  <ServiceIcon name={service.icon} color={service.color} />
+                  <ServiceIcon name={service.icon_name} color={service.color_code || 'var(--color-primary-500)'} />
                 </div>
 
                 <div>
@@ -165,7 +167,7 @@ export default function ServiceGrid() {
                       marginTop: '0.2rem',
                     }}
                   >
-                    {service.count}
+                    {service.count_info}
                   </p>
                 </div>
               </article>

@@ -14,6 +14,14 @@ import {
   LogOut,
   X,
   Menu,
+  Activity,
+  Building2,
+  MessageSquareQuote,
+  HelpCircle,
+  Handshake,
+  Mail,
+  Settings2,
+  BookOpen,
 } from 'lucide-react';
 import { doLogout } from '@/app/actions/auth';
 
@@ -31,7 +39,7 @@ const NAV_ITEMS = [
     ],
   },
   {
-    group: 'Kelola Konten',
+    group: 'Konten Medis',
     items: [
       {
         href: '/admin/dokter',
@@ -52,10 +60,68 @@ const NAV_ITEMS = [
         description: 'Pasien & status',
       },
       {
+        href: '/admin/layanan',
+        label: 'Layanan',
+        icon: Activity,
+        description: 'Poli & layanan medis',
+      },
+      {
+        href: '/admin/fasilitas',
+        label: 'Fasilitas',
+        icon: Building2,
+        description: 'Fasilitas & alat medis',
+      },
+    ],
+  },
+  {
+    group: 'Informasi & Publik',
+    items: [
+      {
+        href: '/admin/tentang',
+        label: 'Tentang Kami',
+        icon: BookOpen,
+        description: 'Profil, visi-misi & timeline',
+      },
+      {
         href: '/admin/berita',
         label: 'Berita & Artikel',
         icon: Newspaper,
-        description: 'Kelola konten berita',
+        description: 'Update info & kesehatan',
+      },
+      {
+        href: '/admin/testimoni',
+        label: 'Testimoni',
+        icon: MessageSquareQuote,
+        description: 'Ulasan pasien',
+      },
+      {
+        href: '/admin/faq',
+        label: 'FAQ',
+        icon: HelpCircle,
+        description: 'Tanya jawab umum',
+      },
+      {
+        href: '/admin/partner',
+        label: 'Partner',
+        icon: Handshake,
+        description: 'Asuransi & kerjasama',
+      },
+    ],
+  },
+  {
+    group: 'Sistem & Pesan',
+    items: [
+      {
+        href: '/admin/pesan',
+        label: 'Pesan Masuk',
+        icon: Mail,
+        description: 'Formulir kontak',
+      },
+      {
+        href: '/admin/pengaturan',
+        label: 'Pengaturan Situs',
+        icon: Settings2,
+        description: 'Header, Hero, & SEO',
       },
     ],
   },

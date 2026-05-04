@@ -18,8 +18,37 @@ const services = [
   'IGD 24 Jam',
 ];
 
-export default function Footer() {
+export default function Footer({ data }) {
   const currentYear = new Date().getFullYear();
+
+  const footerInfo = [
+    {
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      ),
+      text: data?.address || 'Nganjuk, Jawa Timur 64418',
+    },
+    {
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12 19.79 19.79 0 0 1 1.93 3.44 2 2 0 0 1 3.9 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9l.4.4A19 19 0 0 0 19 20.5l.31-.43a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+      ),
+      text: data?.phone || '(0358) XXXXXX',
+    },
+    {
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      ),
+      text: data?.business_hours || 'IGD: 24 Jam · Poli: Sen–Jum 07.00–21.00',
+    },
+  ];
 
   return (
     <footer
@@ -76,46 +105,21 @@ export default function Footer() {
               </div>
               <div>
                 <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-primary-50)', fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)', lineHeight: 1.2 }}>
-                  RS Bhayangkara
+                  {data?.logo_text || 'RS Bhayangkara'}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-primary-200)', lineHeight: 1.2 }}>Nganjuk</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-primary-200)', lineHeight: 1.2 }}>
+                  {data?.logo_subtext || 'Nganjuk'}
+                </div>
               </div>
             </Link>
 
             <p style={{ fontSize: '0.8125rem', color: 'var(--color-primary-200)', lineHeight: 1.65, marginBottom: '1.25rem', maxWidth: '260px' }}>
-              Rumah sakit terakreditasi Madya yang melayani masyarakat Nganjuk dengan standar medis terpercaya.
+              {data?.tagline || 'Rumah sakit terakreditasi Madya yang melayani masyarakat Nganjuk dengan standar medis terpercaya.'}
             </p>
 
             {/* Contact info */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-              {[
-                {
-                  icon: (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                      <circle cx="12" cy="10" r="3"/>
-                    </svg>
-                  ),
-                  text: 'Nganjuk, Jawa Timur 64418',
-                },
-                {
-                  icon: (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12 19.79 19.79 0 0 1 1.93 3.44 2 2 0 0 1 3.9 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9l.4.4A19 19 0 0 0 19 20.5l.31-.43a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                  ),
-                  text: '(0358) XXXXXX',
-                },
-                {
-                  icon: (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                      <circle cx="12" cy="12" r="10"/>
-                      <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                  ),
-                  text: 'IGD: 24 Jam · Poli: Sen–Jum 07.00–21.00',
-                },
-              ].map((item, i) => (
+              {footerInfo.map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: 'var(--color-primary-200)', fontSize: '0.8125rem', lineHeight: 1.5 }}>
                   <span style={{ marginTop: '1px', flexShrink: 0 }}>{item.icon}</span>
                   <span>{item.text}</span>
