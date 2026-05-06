@@ -69,113 +69,7 @@ async function compressIcon(file) {
   });
 }
 
-// ── Icon catalogue — sama persis dengan ServiceGrid.js ────────────────────────
-const ICON_CATALOG = [
-  {
-    name: 'heart',
-    label: 'Jantung',
-    tags: ['jantung', 'heart', 'kardio', 'cinta'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'users',
-    label: 'Pasien / Tim',
-    tags: ['pasien', 'tim', 'orang', 'rawat', 'users', 'people', 'poli umum'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'activity',
-    label: 'Aktivitas / EKG',
-    tags: ['ekg', 'ecg', 'aktivitas', 'monitor', 'jantung', 'activity', 'detak', 'poli penyakit dalam'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'monitor',
-    label: 'Monitor / Radiologi',
-    tags: ['monitor', 'radiologi', 'rontgen', 'ct scan', 'layar', 'komputer', 'imaging'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'zap',
-    label: 'Kilat / Darurat',
-    tags: ['darurat', 'igd', 'emergency', 'kilat', 'cepat', 'zap', 'urgent'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'shield',
-    label: 'Perisai / Perlindungan',
-    tags: ['perisai', 'proteksi', 'perlindungan', 'imunisasi', 'vaksin', 'shield', 'aman'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'eye',
-    label: 'Mata / Optalmologi',
-    tags: ['mata', 'optalmologi', 'eye', 'penglihatan', 'poli mata', 'vision'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-        <circle cx="12" cy="12" r="3"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'ear',
-    label: 'Telinga / THT',
-    tags: ['telinga', 'tht', 'ear', 'pendengaran', 'poli tht', 'hidung', 'tenggorokan'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 0 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 0 0 4 0"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'bone',
-    label: 'Tulang / Ortopedi',
-    tags: ['tulang', 'ortopedi', 'bone', 'sendi', 'reumatologi', 'poli ortopedi'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 5 0c0-.81-.7-1.8 0-2.5l7-7z"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'ambulance',
-    label: 'Ambulans / UGD',
-    tags: ['ambulans', 'ugd', 'ambulance', 'emergency', 'gawat darurat', 'igd', 'transport'],
-    svg: (color) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="3" width="15" height="13" rx="1"/>
-        <path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-        <path d="M8 11V7m-2 2h4" strokeWidth="1.75"/>
-      </svg>
-    ),
-  },
-];
+
 
 // Warna-warna yang umum dipakai untuk icon layanan
 const COLOR_PRESETS = [
@@ -207,18 +101,16 @@ export default function LayananForm({ mode = 'create', service = null }) {
   const [toast, setToast]     = useState(null);
   const [slugEdited, setSlugEdited] = useState(mode === 'edit');
 
-  const [iconSearch, setIconSearch] = useState('');
-  const [useCustomIcon, setUseCustomIcon] = useState(!!service?.imageUrl);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(getImageUrl(service?.imageUrl) || '');
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [form, setForm] = useState({
     name:           service?.name           || '',
     slug:           service?.slug           || '',
     description:    service?.description    || '',
-    count_info:     service?.count_info     || '',
-    icon_name:      service?.icon_name      || 'heart',
+    count_info:     service?.countInfo      || '',
     image_url:      service?.imageUrl       || '',
     color_code:     service?.color_code     || '#185FA5',
     bg_color_code:  service?.bg_color_code  || '#EBF2FA',
@@ -226,15 +118,7 @@ export default function LayananForm({ mode = 'create', service = null }) {
     is_active:      service?.is_active      ?? true,
   });
 
-  const filteredIcons = useMemo(() => {
-    const q = iconSearch.toLowerCase().trim();
-    if (!q) return ICON_CATALOG;
-    return ICON_CATALOG.filter(
-      (ic) => ic.label.toLowerCase().includes(q) || ic.tags.some((t) => t.includes(q))
-    );
-  }, [iconSearch]);
 
-  const selectedIcon = ICON_CATALOG.find((ic) => ic.name === form.icon_name) ?? ICON_CATALOG[0];
 
   /* ── Handlers ───────────────────────────────────────── */
   function handleChange(e) {
@@ -255,8 +139,13 @@ export default function LayananForm({ mode = 'create', service = null }) {
   }
 
   async function handleImageChange(e) {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0] || e.dataTransfer?.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Hanya file gambar yang diperbolehkan.', 'error');
+      return;
+    }
 
     setIsCompressing(true);
     try {
@@ -269,6 +158,25 @@ export default function LayananForm({ mode = 'create', service = null }) {
     } finally {
       setIsCompressing(false);
     }
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    handleImageChange(e);
   }
 
   function clearImage() {
@@ -300,7 +208,6 @@ export default function LayananForm({ mode = 'create', service = null }) {
       slug:          form.slug.trim(),
       description:   form.description.trim() || null,
       countInfo:     form.count_info.trim()  || null,
-      iconName:      form.icon_name,
       imageUrl:      imageFile || form.image_url || null,
       colorCode:     form.color_code,
       bgColorCode:   form.bg_color_code,
@@ -463,116 +370,44 @@ export default function LayananForm({ mode = 'create', service = null }) {
             <p className="lf-legend-hint">Gunakan ikon dari katalog atau unggah ikon kustom (PNG/WebP transparan).</p>
 
             <div className="lf-fields">
-              {/* Tab Toggle */}
-              <div className="lf-icon-type-tabs">
-                <button
-                  type="button"
-                  className={`lf-icon-tab ${!useCustomIcon ? 'lf-icon-tab-active' : ''}`}
-                  onClick={() => setUseCustomIcon(false)}
-                >
-                  Katalog Ikon
-                </button>
-                <button
-                  type="button"
-                  className={`lf-icon-tab ${useCustomIcon ? 'lf-icon-tab-active' : ''}`}
-                  onClick={() => setUseCustomIcon(true)}
-                >
-                  Ikon Kustom (Gambar)
-                </button>
-              </div>
-
-              {!useCustomIcon ? (
-                <>
-                  {/* Search */}
-                  <div className="lf-form-group">
-                    <label className="lf-label" htmlFor="icon-search">Cari Ikon</label>
-                    <div className="lf-input-icon-wrap">
-                      <span className="lf-input-icon"><Search size={14} /></span>
-                      <input
-                        id="icon-search"
-                        type="text"
-                        className="lf-input lf-input-with-icon"
-                        value={iconSearch}
-                        onChange={(e) => setIconSearch(e.target.value)}
-                        placeholder="Cari: jantung, mata, IGD, ortopedi…"
-                        autoComplete="off"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Icon Grid */}
-                  <div className="lf-icon-grid" role="listbox" aria-label="Pilih ikon layanan">
-                    {filteredIcons.length === 0 ? (
-                      <p className="lf-icon-no-result">Tidak ada ikon yang cocok dengan pencarian &ldquo;{iconSearch}&rdquo;</p>
+              <div className="lf-custom-icon-upload">
+                <div className="lf-form-group">
+                  <label className="lf-label">Unggah Gambar Ikon</label>
+                  <div 
+                    className={`lf-upload-container ${isDragging ? 'lf-upload-dragging' : ''}`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    {imagePreview ? (
+                      <div className="lf-preview-box">
+                        <img src={imagePreview} alt="Preview Ikon" className="lf-custom-icon-preview-img" />
+                        <button type="button" className="lf-remove-img" onClick={clearImage}>
+                          <X size={14} />
+                        </button>
+                      </div>
                     ) : (
-                      filteredIcons.map((icon) => {
-                        const isActive = form.icon_name === icon.name;
-                        return (
-                          <button
-                            key={icon.name}
-                            type="button"
-                            role="option"
-                            aria-selected={isActive}
-                            className={`lf-icon-card ${isActive ? 'lf-icon-card-active' : ''}`}
-                            onClick={() => setForm(prev => ({ ...prev, icon_name: icon.name }))}
-                            title={icon.label}
-                          >
-                            <div
-                              className="lf-icon-card-preview"
-                              style={{
-                                background: isActive ? form.bg_color_code : 'var(--admin-surface-2)',
-                                color: isActive ? form.color_code : 'var(--admin-text-m)',
-                              }}
-                            >
-                              {icon.svg(isActive ? form.color_code : 'currentColor')}
-                            </div>
-                            <span className="lf-icon-card-label">{icon.label}</span>
-                            {isActive && (
-                              <span className="lf-icon-card-check">
-                                <CheckCircle2 size={12} />
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })
+                      <label className="lf-upload-label">
+                        <Upload size={24} className={isDragging ? 'animate-bounce' : ''} />
+                        <span>{isDragging ? 'Lepaskan untuk Unggah' : 'Pilih atau Tarik Gambar PNG/WebP'}</span>
+                        <span className="lf-helper">Direkomendasikan latar belakang transparan</span>
+                        <input
+                          type="file"
+                          accept="image/png,image/webp"
+                          onChange={handleImageChange}
+                          className="lf-hidden-input"
+                        />
+                      </label>
+                    )}
+                    {isCompressing && (
+                      <div className="lf-compress-overlay">
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>Mengoptimalkan...</span>
+                      </div>
                     )}
                   </div>
-                </>
-              ) : (
-                <div className="lf-custom-icon-upload">
-                  <div className="lf-form-group">
-                    <label className="lf-label">Unggah Gambar Ikon</label>
-                    <div className="lf-upload-container">
-                      {imagePreview ? (
-                        <div className="lf-preview-box">
-                          <img src={imagePreview} alt="Preview Ikon" className="lf-custom-icon-preview-img" />
-                          <button type="button" className="lf-remove-img" onClick={clearImage}>
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="lf-upload-label">
-                          <Upload size={24} />
-                          <span>Pilih Gambar PNG/WebP</span>
-                          <span className="lf-helper">Direkomendasikan latar belakang transparan</span>
-                          <input
-                            type="file"
-                            accept="image/png,image/webp"
-                            onChange={handleImageChange}
-                            className="lf-hidden-input"
-                          />
-                        </label>
-                      )}
-                      {isCompressing && (
-                        <div className="lf-compress-overlay">
-                          <Loader2 size={16} className="animate-spin" />
-                          <span>Mengoptimalkan...</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
-              )}
+              </div>
 
               {/* Selected badge */}
               <div className="lf-icon-selected-info">
@@ -580,23 +415,16 @@ export default function LayananForm({ mode = 'create', service = null }) {
                   className="lf-icon-selected-preview"
                   style={{ background: form.bg_color_code, color: form.color_code }}
                 >
-                  {useCustomIcon && imagePreview ? (
+                  {imagePreview ? (
                     <img src={imagePreview} alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
                   ) : (
-                    selectedIcon.svg(form.color_code)
+                    <ImageIcon size={22} />
                   )}
                 </div>
                 <div>
                   <p className="lf-label" style={{ marginBottom: 1 }}>Ikon Aktif</p>
                   <p className="lf-helper">
-                    {useCustomIcon ? (
-                      imagePreview ? 'Ikon Gambar Kustom' : 'Belum ada gambar'
-                    ) : (
-                      <>
-                        <code style={{ fontFamily: 'monospace', background: 'var(--admin-border-soft)', padding: '1px 5px', borderRadius: 4 }}>{form.icon_name}</code>
-                        &nbsp;·&nbsp;{selectedIcon.label}
-                      </>
-                    )}
+                    {imagePreview ? 'Ikon Gambar Kustom' : 'Belum ada gambar'}
                   </p>
                 </div>
               </div>
@@ -698,10 +526,10 @@ export default function LayananForm({ mode = 'create', service = null }) {
                     Preview
                   </label>
                   <div className="lf-icon-preview" style={previewStyle} aria-label="Preview ikon layanan">
-                    {useCustomIcon && imagePreview ? (
+                    {imagePreview ? (
                       <img src={imagePreview} alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
                     ) : (
-                      selectedIcon.svg(form.color_code || '#185FA5')
+                      <ImageIcon size={22} />
                     )}
                     <span className="lf-preview-name">
                       {form.name || 'Nama Layanan'}
@@ -835,6 +663,13 @@ export default function LayananForm({ mode = 'create', service = null }) {
           align-items: center;
           justify-content: center;
           overflow: hidden;
+          transition: all 200ms ease;
+        }
+
+        .lf-upload-dragging {
+          border-color: var(--admin-primary);
+          background: var(--admin-primary-l);
+          transform: scale(1.01);
         }
 
         .lf-upload-label {

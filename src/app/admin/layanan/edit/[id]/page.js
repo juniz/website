@@ -12,12 +12,9 @@ async function getService(id) {
   
   const data = res.data.data || res.data;
   
-  // Map camelCase backend ke snake_case yang diharapkan LayananForm lama
+  // Map camelCase backend ke snake_case yang diharapkan LayananForm
   return {
     ...data,
-    icon_name: data.iconName,
-    color_code: data.colorCode,
-    bg_color_code: data.bgColorCode,
     count_info: data.countInfo,
     is_active: data.isActive,
     sort_order: data.sortOrder

@@ -47,7 +47,6 @@ export async function upsertService(id, data) {
     body.append('slug', data.slug);
     if (data.description) body.append('description', data.description);
     if (data.countInfo)   body.append('countInfo', data.countInfo);
-    body.append('iconName', data.iconName || 'heart');
     body.append('colorCode', data.colorCode || '#185FA5');
     body.append('bgColorCode', data.bgColorCode || '#EBF2FA');
     body.append('sortOrder', String(data.sortOrder || 0));
