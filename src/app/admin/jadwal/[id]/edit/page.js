@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import JadwalForm from '../../JadwalForm';
 
@@ -7,13 +6,14 @@ export const metadata = { title: 'Edit Jadwal' };
 
 export default async function EditJadwalPage({ params }) {
   const { id } = await params;
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
 
-  const [{ data: schedule }, { data: doctors }] = await Promise.all([
-    supabase.from('schedules').select('*').eq('id', id).single(),
-    supabase.from('doctors').select('id, name, specialization').eq('is_available', true).order('name'),
+  const [scheduleRes, doctorsRes] = await Promise.all([
+    api.get(`/schedules/${id}`),
+    api.get('/doctors')
   ]);
+
+  const schedule = scheduleRes.success ? (scheduleRes.data.data || scheduleRes.data) : null;
+  const doctors = doctorsRes.success ? (doctorsRes.data.data || doctorsRes.data) : [];
 
   if (!schedule) notFound();
 
@@ -25,7 +25,7 @@ export default async function EditJadwalPage({ params }) {
           <p className="admin-section-desc">Perbarui informasi jadwal.</p>
         </div>
       </div>
-      <JadwalForm mode="edit" schedule={schedule} doctors={doctors || []} />
+      <JadwalForm mode="edit" schedule={schedule} doctors={doctors} />
     </div>
   );
 }

@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import Link from 'next/link';
 import {
   Stethoscope,
@@ -13,49 +12,63 @@ import {
 export const metadata = { title: 'Dashboard' };
 
 async function getDashboardStats() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  try {
+    // Kita bisa ambil semua data dan hitung, atau jika backend punya endpoint stats lebih baik.
+    // Untuk saat ini, kita fetch beberapa sekaligus.
+    const [doctorsRes, schedulesRes, registrationsRes, newsRes] = await Promise.all([
+      api.get('/doctors'),
+      api.get('/schedules'),
+      api.get('/registrations'),
+      api.get('/news'),
+    ]);
 
-  const [
-    { count: totalDoctors },
-    { count: availableDoctors },
-    { count: totalSchedules },
-    { count: totalRegistrations },
-    { count: pendingRegistrations },
-    { count: totalNews },
-  ] = await Promise.all([
-    supabase.from('doctors').select('*', { count: 'exact', head: true }),
-    supabase.from('doctors').select('*', { count: 'exact', head: true }).eq('is_available', true),
-    supabase.from('schedules').select('*', { count: 'exact', head: true }),
-    supabase.from('registrations').select('*', { count: 'exact', head: true }),
-    supabase.from('registrations').select('*', { count: 'exact', head: true }).eq('status', 'Pending'),
-    supabase.from('news').select('*', { count: 'exact', head: true }),
-  ]);
+    const doctors = doctorsRes.success ? (doctorsRes.data.data || doctorsRes.data || []) : [];
+    const schedules = schedulesRes.success ? (schedulesRes.data.data || schedulesRes.data || []) : [];
+    const registrations = registrationsRes.success ? (registrationsRes.data.data || registrationsRes.data || []) : [];
+    const news = newsRes.success ? (newsRes.data.data || newsRes.data || []) : [];
 
-  return {
-    totalDoctors: totalDoctors || 0,
-    availableDoctors: availableDoctors || 0,
-    totalSchedules: totalSchedules || 0,
-    totalRegistrations: totalRegistrations || 0,
-    pendingRegistrations: pendingRegistrations || 0,
-    totalNews: totalNews || 0,
-  };
+    return {
+      totalDoctors: doctors.length,
+      availableDoctors: doctors.filter(d => d.isAvailable).length,
+      totalSchedules: schedules.length,
+      totalRegistrations: registrations.length,
+      pendingRegistrations: registrations.filter(r => r.status === 'Pending').length,
+      totalNews: news.length,
+    };
+  } catch (err) {
+    console.error('Error fetching dashboard stats:', err);
+    return {
+      totalDoctors: 0,
+      availableDoctors: 0,
+      totalSchedules: 0,
+      totalRegistrations: 0,
+      pendingRegistrations: 0,
+      totalNews: 0,
+    };
+  }
 }
 
 async function getRecentActivity() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const res = await api.get('/registrations');
+  if (!res.success) return [];
 
-  const { data: recentRegs } = await supabase
-    .from('registrations')
-    .select(`
-      id, patient_name, status, created_at,
-      schedules ( time, date, doctors ( name, specialization ) )
-    `)
-    .order('created_at', { ascending: false })
-    .limit(5);
-
-  return recentRegs || [];
+  const items = res.data.data || res.data || [];
+  
+  // Ambil 5 terbaru dan map
+  return items.slice(0, 5).map(r => ({
+    id: r.id,
+    patient_name: r.patientName,
+    status: r.status,
+    created_at: r.createdAt,
+    schedules: r.schedule ? {
+      time: r.schedule.time,
+      date: r.schedule.date,
+      doctors: r.schedule.doctor ? {
+        name: r.schedule.doctor.name,
+        specialization: r.schedule.doctor.specialization
+      } : null
+    } : null
+  }));
 }
 
 const STATUS_CFG = {

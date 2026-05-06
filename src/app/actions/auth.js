@@ -1,33 +1,29 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
-import { cookies } from 'next/headers';
+import { api } from '@/lib/api';
+import { setAuthToken, removeAuthToken } from '@/lib/auth-utils';
 import { redirect } from 'next/navigation';
 
 export async function checkLogin(prevState, formData) {
   const email = formData.get('email');
   const password = formData.get('password');
   
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const result = await api.post('/auth/login', { email, password });
 
-  if (error) {
-    console.error('Supabase Auth Error:', error.message, error.status);
+  if (!result.success) {
     return 'Email atau password salah.';
   }
 
-  console.log('Login successful for:', data.user.email);
+  // Karena backend NestJS kita memiliki TransformInterceptor yang membungkus response di dalam { data: ... }
+  // maka struktur datanya adalah result.data.data.access_token
+  const token = result.data.data?.access_token || result.data.access_token;
+  
+  await setAuthToken(token);
+  
   redirect('/admin');
 }
 
 export async function doLogout() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  await supabase.auth.signOut();
+  await removeAuthToken();
   redirect('/login');
 }

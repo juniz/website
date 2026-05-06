@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 
 const quickLinks = [
   { href: '/doctors',  label: 'Profil Dokter' },
@@ -18,34 +19,32 @@ const services = [
   'IGD 24 Jam',
 ];
 
-export default function Footer({ data }) {
+export default function Footer({ data, pageStatuses = [] }) {
   const currentYear = new Date().getFullYear();
+
+  // Helper to check if a route is active
+  const isPageActive = (href) => {
+    const status = pageStatuses.find(s => s.route === href);
+    return status ? status.isActive : true; // Default to true if not found
+  };
+
+  const filteredQuickLinks = quickLinks.filter(link => isPageActive(link.href));
 
   const footerInfo = [
     {
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
-        </svg>
-      ),
+      icon: <MapPin size={14} />,
       text: data?.address || 'Nganjuk, Jawa Timur 64418',
     },
     {
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12 19.79 19.79 0 0 1 1.93 3.44 2 2 0 0 1 3.9 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9l.4.4A19 19 0 0 0 19 20.5l.31-.43a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-        </svg>
-      ),
+      icon: <Phone size={14} />,
       text: data?.phone || '(0358) XXXXXX',
     },
     {
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
-        </svg>
-      ),
+      icon: <Mail size={14} />,
+      text: data?.email || 'info@rsbhayangkara-nganjuk.id',
+    },
+    {
+      icon: <Clock size={14} />,
       text: data?.business_hours || 'IGD: 24 Jam · Poli: Sen–Jum 07.00–21.00',
     },
   ];
@@ -135,7 +134,7 @@ export default function Footer({ data }) {
             </h3>
             <nav aria-label="Tautan footer">
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {quickLinks.map((link) => (
+                {filteredQuickLinks.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
@@ -202,6 +201,35 @@ export default function Footer({ data }) {
               </div>
             </div>
           </div>
+
+          {/* Column 4: Social Media */}
+          <div>
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-primary-50)', marginBottom: '1rem', fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)' }}>
+              Ikuti Kami
+            </h3>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              {data?.instagram && (
+                <a href={data.instagram} target="_blank" rel="noopener noreferrer" className="social-link" title="Instagram">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                </a>
+              )}
+              {data?.facebook && (
+                <a href={data.facebook} target="_blank" rel="noopener noreferrer" className="social-link" title="Facebook">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                </a>
+              )}
+              {data?.twitter && (
+                <a href={data.twitter} target="_blank" rel="noopener noreferrer" className="social-link" title="Twitter / X">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+                </a>
+              )}
+              {data?.youtube && (
+                <a href={data.youtube} target="_blank" rel="noopener noreferrer" className="social-link" title="YouTube">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.4 5.58a2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.89 23 12 23 12s0-3.89-.4-5.58z"></path><path d="M9.75 15.02l5.75-3.02-5.75-3.02v6.04z"></path></svg>
+                </a>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -244,6 +272,22 @@ export default function Footer({ data }) {
       <style>{`
         .footer-link:hover {
           color: var(--color-primary-50) !important;
+        }
+        .social-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.08);
+          color: var(--color-primary-200);
+          transition: all 150ms ease-out;
+        }
+        .social-link:hover {
+          background: var(--color-primary-400);
+          color: #fff;
+          transform: translateY(-2px);
         }
       `}</style>
     </footer>

@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { MessageSquareQuote, Plus, Edit2, Star, User } from 'lucide-react';
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/Badge';
 
 export const metadata = {
@@ -9,20 +9,23 @@ export const metadata = {
 };
 
 async function getTestimonials() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data, error } = await supabase
-    .from('testimonials')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching testimonials:', error);
+  const res = await api.get('/testimonials');
+  
+  if (!res.success) {
+    console.error('Error fetching testimonials:', res.error);
     return [];
   }
 
-  return data;
+  const items = res.data.data || res.data || [];
+  
+  // Map camelCase backend ke snake_case yang diharapkan UI
+  return items.map(t => ({
+    ...t,
+    patient_name: t.name,
+    patient_role: t.role,
+    avatar_url: t.avatarUrl,
+    is_visible: t.isActive
+  }));
 }
 
 export default async function TestimonialsAdminPage() {
@@ -48,7 +51,7 @@ export default async function TestimonialsAdminPage() {
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 font-bold overflow-hidden">
                   {testi.avatar_url ? (
-                    <img src={testi.avatar_url} alt={testi.patient_name} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(testi.avatar_url)} alt={testi.patient_name} className="w-full h-full object-cover" />
                   ) : (
                     <User size={20} />
                   )}

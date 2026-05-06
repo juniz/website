@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createDokter, updateDokter } from '@/app/actions/admin/dokter';
 import { Upload, Image as ImageIcon, Trash2, CheckCircle2, Loader2 } from 'lucide-react';
+import { getImageUrl } from '@/lib/utils';
 
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 800;
@@ -70,16 +71,15 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
 
-  const [slugEdited, setSlugEdited] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(doctor?.image || '');
+  const [imagePreview, setImagePreview] = useState(doctor?.image ? getImageUrl(doctor.image) : '');
   const [isDragging, setIsDragging] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
 
   const [form, setForm] = useState({
     name: doctor?.name || '',
     specialization: doctor?.specialization || '',
-    is_available: doctor?.is_available ?? true,
+    isAvailable: doctor?.isAvailable ?? true,
   });
 
   async function processSelectedFile(file) {
@@ -192,7 +192,6 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
           </div>
           <div className="admin-card-body">
             <div className="admin-form-grid cols-2">
-              {/* Name */}
               <div className="admin-form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="admin-label" htmlFor="name">
                   Nama Dokter <span className="required" aria-hidden="true">*</span>
@@ -217,7 +216,6 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
                 )}
               </div>
 
-              {/* Specialization */}
               <div className="admin-form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="admin-label" htmlFor="specialization">
                   Spesialisasi <span className="required" aria-hidden="true">*</span>
@@ -242,7 +240,6 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
                 )}
               </div>
 
-              {/* Beautified Image Upload */}
               <div className="admin-form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="admin-label">Foto Profil Dokter</label>
                 
@@ -313,24 +310,23 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
                 </div>
               </div>
 
-              {/* Availability Toggle */}
               <div className="admin-form-group">
-                <label className="admin-label" htmlFor="is_available">Status Ketersediaan</label>
+                <label className="admin-label" htmlFor="isAvailable">Status Ketersediaan</label>
                 <label className="admin-toggle" style={{ marginTop: '4px' }}>
                   <div className="admin-toggle-track">
                     <input
-                      id="is_available"
-                      name="is_available"
+                      id="isAvailable"
+                      name="isAvailable"
                       type="checkbox"
                       className="admin-toggle-input"
-                      checked={form.is_available}
+                      checked={form.isAvailable}
                       onChange={handleChange}
                       aria-describedby="avail-help"
                     />
                     <span className="admin-toggle-thumb" />
                   </div>
                   <span style={{ fontSize: '0.875rem', color: 'var(--admin-text-b)' }}>
-                    {form.is_available ? 'Tersedia untuk praktek' : 'Sedang tidak tersedia'}
+                    {form.isAvailable ? 'Tersedia untuk praktek' : 'Sedang tidak tersedia'}
                   </span>
                 </label>
                 <span id="avail-help" className="admin-helper">
@@ -341,7 +337,6 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
           <Link href="/admin/dokter" className="admin-btn admin-btn-ghost">
             Batal
@@ -360,7 +355,6 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
         </div>
       </form>
 
-      {/* Toast */}
       {toast && (
         <div className="admin-toast-container" role="status" aria-live="polite">
           <div className={`admin-toast ${toast.type}`}>{toast.msg}</div>

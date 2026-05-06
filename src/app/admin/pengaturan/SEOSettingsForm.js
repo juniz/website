@@ -22,6 +22,7 @@ export default function SEOSettingsForm({ initialData }) {
       meta_title: item.meta_title || '',
       meta_description: item.meta_description || '',
       meta_keywords: item.meta_keywords?.join(', ') || '',
+      is_active: item.is_active ?? true,
     });
   };
 
@@ -44,6 +45,7 @@ export default function SEOSettingsForm({ initialData }) {
       meta_title: formData.meta_title,
       meta_description: formData.meta_description,
       meta_keywords: formData.meta_keywords.split(',').map(k => k.trim()).filter(k => k !== ''),
+      is_active: formData.is_active,
     };
 
     const res = await updatePageSEO(editingId, formattedData);
@@ -112,6 +114,23 @@ export default function SEOSettingsForm({ initialData }) {
                 </div>
 
                 <div className="seo-edit-fields">
+                  {/* Status Toggle */}
+                  <div className="seo-status-toggle-row">
+                    <div className="seo-status-info">
+                      <span className="seo-status-label">Status Halaman</span>
+                      <span className="seo-status-hint">Jika dimatikan, halaman ini tidak bisa diakses publik.</span>
+                    </div>
+                    <label className="seo-switch">
+                      <input
+                        type="checkbox"
+                        name="is_active"
+                        checked={formData.is_active}
+                        onChange={(e) => setFormData(p => ({ ...p, is_active: e.target.checked }))}
+                      />
+                      <span className="seo-slider"></span>
+                    </label>
+                  </div>
+
                   {/* Meta Title */}
                   <div className="settings-form-group">
                     <label className="settings-label" htmlFor={`meta_title_${item.id}`}>
@@ -210,13 +229,16 @@ export default function SEOSettingsForm({ initialData }) {
               </form>
             ) : (
               /* ─── View Mode ─────────────────────────────────── */
-              <div className="seo-view-row">
+              <div className={`seo-view-row ${!item.is_active ? 'seo-view-inactive' : ''}`}>
                 <div className="seo-view-info">
                   <div className="seo-view-route-wrap">
                     <span className="seo-view-route">
                       <ChevronRight size={12} />
                       {getRouteLabel(item.route)}
                     </span>
+                    {!item.is_active && (
+                      <span className="seo-badge-inactive">Non-aktif</span>
+                    )}
                     <a
                       href={item.route}
                       target="_blank"
@@ -681,6 +703,91 @@ export default function SEOSettingsForm({ initialData }) {
         .settings-btn-save:disabled {
           opacity: 0.65;
           cursor: not-allowed;
+        }
+        .seo-view-inactive {
+          opacity: 0.7;
+          background: var(--admin-surface-2);
+        }
+
+        .seo-badge-inactive {
+          font-size: 0.625rem;
+          font-weight: 700;
+          color: #d94040;
+          background: #fff0f0;
+          padding: 2px 8px;
+          border-radius: 4px;
+          text-transform: uppercase;
+          border: 1px solid #f9d8d8;
+        }
+
+        .seo-status-toggle-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 16px;
+          background: var(--admin-surface-2);
+          border: 1px solid var(--admin-border-soft);
+          border-radius: var(--admin-radius-md);
+          margin-bottom: 20px;
+        }
+
+        .seo-status-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .seo-status-label {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: var(--admin-text-b);
+        }
+
+        .seo-status-hint {
+          font-size: 0.6875rem;
+          color: var(--admin-text-s);
+        }
+
+        .seo-switch {
+          position: relative;
+          width: 38px;
+          height: 20px;
+          flex-shrink: 0;
+        }
+
+        .seo-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .seo-slider {
+          position: absolute;
+          cursor: pointer;
+          inset: 0;
+          background-color: var(--admin-border);
+          transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+          border-radius: 20px;
+        }
+
+        .seo-slider:before {
+          position: absolute;
+          content: "";
+          height: 14px;
+          width: 14px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+          border-radius: 50%;
+        }
+
+        .seo-switch input:checked + .seo-slider {
+          background-color: var(--admin-primary);
+        }
+
+        .seo-switch input:checked + .seo-slider:before {
+          transform: translateX(18px);
         }
       `}</style>
     </div>

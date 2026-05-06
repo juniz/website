@@ -4,6 +4,7 @@ import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { upsertFacilityAction } from '@/app/actions/admin/facility';
+import { getImageUrl } from '@/lib/utils';
 import {
   Save, Loader2, Building2, Type, Info,
   CheckCircle2, AlertCircle, ArrowLeft,
@@ -259,7 +260,7 @@ export default function FasilitasForm({ mode = 'create', facility = null }) {
                 
                 {imagePreview ? (
                   <div className="ff-preview-container">
-                    <img src={imagePreview} alt="Preview" className="ff-preview-img" />
+                    <img src={getImageUrl(imagePreview)} alt="Preview" className="ff-preview-img" />
                     <div className="ff-preview-overlay">
                       <div className="ff-preview-actions">
                         <button 

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/utils';
 import Image from 'next/image';
 import { getInitials } from '@/lib/data/doctors';
 
@@ -34,7 +35,7 @@ export default function DoctorCard({ doctor }) {
       <div className="doctor-card-photo-wrap">
         {image ? (
           <Image
-            src={image}
+            src={getImageUrl(image)}
             alt={`Foto dr. ${name}`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 260px"

@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import FAQForm from '../FAQForm';
 
 export const metadata = {
@@ -7,15 +6,11 @@ export const metadata = {
 };
 
 async function getExistingCategories() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  const { data } = await supabase
-    .from('faqs')
-    .select('category')
-    .order('category', { ascending: true });
-
-  if (!data) return [];
-  return [...new Set(data.map((d) => d.category).filter(Boolean))];
+  const res = await api.get('/faqs');
+  if (!res.success) return [];
+  
+  const items = res.data.data || res.data || [];
+  return [...new Set(items.map((d) => d.category).filter(Boolean))];
 }
 
 export default async function TambahFAQPage({ searchParams }) {

@@ -3,15 +3,23 @@ import JsonLd from '@/components/JsonLd';
 import FAQSection from '@/components/FAQSection';
 import { getPublicFAQs } from '@/app/actions/public';
 
-export const metadata = {
-  title: 'FAQ — Pertanyaan yang Sering Diajukan',
-  description:
-    'Temukan jawaban atas pertanyaan umum seputar layanan, pendaftaran, jadwal dokter, dan fasilitas RS Bhayangkara Nganjuk.',
-  openGraph: {
-    title: 'FAQ RS Bhayangkara Nganjuk',
-    description: 'Pertanyaan yang sering diajukan seputar layanan RS Bhayangkara Nganjuk.',
-  },
-};
+import { getPageSEO } from '@/app/actions/public';
+import { notFound } from 'next/navigation';
+
+export async function generateMetadata() {
+  const seo = await getPageSEO('/faq');
+  
+  return {
+    title: seo?.meta_title || 'FAQ — RS Bhayangkara Nganjuk',
+    description: seo?.meta_description || 'Temukan jawaban atas pertanyaan umum seputar layanan, pendaftaran, jadwal dokter, dan fasilitas RS Bhayangkara Nganjuk.',
+    keywords: seo?.meta_keywords || ['faq rs bhayangkara nganjuk', 'pertanyaan umum rumah sakit'],
+    openGraph: {
+      title: seo?.meta_title,
+      description: seo?.meta_description,
+      images: [{ url: seo?.og_image || '/og-faq.jpg' }],
+    },
+  };
+}
 
 const faqSchema = (faqs) => ({
   '@context': 'https://schema.org',
@@ -27,7 +35,14 @@ const faqSchema = (faqs) => ({
 });
 
 export default async function FAQPage() {
-  const faqs = await getPublicFAQs();
+  const [faqs, seo] = await Promise.all([
+    getPublicFAQs(),
+    getPageSEO('/faq')
+  ]);
+
+  if (seo && seo.isActive === false) {
+    notFound();
+  }
 
   return (
     <>

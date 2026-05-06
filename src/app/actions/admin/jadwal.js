@@ -1,67 +1,82 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { api } from '@/lib/api';
+import { getAuthToken } from '@/lib/auth-utils';
 
-async function getSupabase() {
-  const cookieStore = await cookies();
-  return createClient(cookieStore);
+async function getHeaders() {
+  const token = await getAuthToken();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
-export async function createJadwal(formData) {
-  const supabase = await getSupabase();
-  let insertData;
+export async function createJadwal(data) {
+  try {
+    const headers = await getHeaders();
+    
+    // Support array of dates for bulk creation
+    if (Array.isArray(data.dates) && data.dates.length > 0) {
+      for (const date of data.dates) {
+        const result = await api.post('/schedules', {
+          doctorId: data.doctor_id,
+          date: date,
+          time: data.time.trim(),
+          totalQuota: parseInt(data.total_quota, 10),
+          filledQuota: 0,
+        }, { headers });
 
-  // Support array of dates for bulk creation
-  if (Array.isArray(formData.dates) && formData.dates.length > 0) {
-    insertData = formData.dates.map((date) => ({
-      doctor_id: formData.doctor_id,
-      date: date,
-      time: formData.time.trim(),
-      total_quota: parseInt(formData.total_quota, 10),
-      filled_quota: 0,
-    }));
-  } else {
-    // Fallback for single creation
-    insertData = {
-      doctor_id: formData.doctor_id,
-      date: formData.date,
-      time: formData.time.trim(),
-      total_quota: parseInt(formData.total_quota, 10),
-      filled_quota: 0,
-    };
+        if (!result.success) return { error: `Gagal pada hari ${date}: ${result.error}` };
+      }
+    } else {
+      const result = await api.post('/schedules', {
+        doctorId: data.doctor_id,
+        date: data.date,
+        time: data.time.trim(),
+        totalQuota: parseInt(data.total_quota, 10),
+        filledQuota: 0,
+      }, { headers });
+
+      if (!result.success) return { error: result.error };
+    }
+
+    revalidatePath('/admin/jadwal');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
   }
-
-  const { error } = await supabase.from('schedules').insert(insertData);
-  if (error) return { error: error.message };
-  revalidatePath('/admin/jadwal');
-  revalidatePath('/');
-  return { success: true };
 }
 
-export async function updateJadwal(id, formData) {
-  const supabase = await getSupabase();
-  const { error } = await supabase
-    .from('schedules')
-    .update({
-      doctor_id: formData.doctor_id,
-      date: formData.date,
-      time: formData.time.trim(),
-      total_quota: parseInt(formData.total_quota, 10),
-    })
-    .eq('id', id);
-  if (error) return { error: error.message };
-  revalidatePath('/admin/jadwal');
-  revalidatePath('/');
-  return { success: true };
+export async function updateJadwal(id, data) {
+  try {
+    const headers = await getHeaders();
+    const result = await api.patch(`/schedules/${id}`, {
+      doctorId: data.doctor_id,
+      date: data.date,
+      time: data.time.trim(),
+      totalQuota: parseInt(data.total_quota, 10),
+    }, { headers });
+
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/jadwal');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
 }
 
 export async function deleteJadwal(id) {
-  const supabase = await getSupabase();
-  const { error } = await supabase.from('schedules').delete().eq('id', id);
-  if (error) return { error: error.message };
-  revalidatePath('/admin/jadwal');
-  revalidatePath('/');
-  return { success: true };
+  try {
+    const headers = await getHeaders();
+    const result = await api.delete(`/schedules/${id}`, { headers });
+
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/jadwal');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
 }

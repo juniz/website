@@ -1,5 +1,3 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
 import { BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import AboutEditor from './AboutEditor';

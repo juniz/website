@@ -1,33 +1,41 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { api } from '@/lib/api';
+import { getAuthToken } from '@/lib/auth-utils';
 
-async function getSupabase() {
-  const cookieStore = await cookies();
-  return createClient(cookieStore);
+async function getHeaders() {
+  const token = await getAuthToken();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
 export async function updateStatusPendaftaran(id, status) {
-  const VALID_STATUSES = ['Pending', 'Confirmed', 'Done', 'Cancelled'];
-  if (!VALID_STATUSES.includes(status)) return { error: 'Status tidak valid.' };
+  try {
+    const VALID_STATUSES = ['Pending', 'Confirmed', 'Done', 'Cancelled'];
+    if (!VALID_STATUSES.includes(status)) return { error: 'Status tidak valid.' };
 
-  const supabase = await getSupabase();
-  const { error } = await supabase
-    .from('registrations')
-    .update({ status })
-    .eq('id', id);
+    const headers = await getHeaders();
+    const result = await api.patch(`/registrations/${id}`, { status }, { headers });
 
-  if (error) return { error: error.message };
-  revalidatePath('/admin/pendaftaran');
-  return { success: true };
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/pendaftaran');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
 }
 
 export async function deletePendaftaran(id) {
-  const supabase = await getSupabase();
-  const { error } = await supabase.from('registrations').delete().eq('id', id);
-  if (error) return { error: error.message };
-  revalidatePath('/admin/pendaftaran');
-  return { success: true };
+  try {
+    const headers = await getHeaders();
+    const result = await api.delete(`/registrations/${id}`, { headers });
+
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/pendaftaran');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
 }

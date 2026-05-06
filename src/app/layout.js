@@ -40,9 +40,6 @@ export const metadata = {
     index: true,
     follow: true,
   },
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({ children }) {
@@ -50,6 +47,7 @@ export default function RootLayout({ children }) {
     <html
       lang="id"
       className={`${inter.variable} ${figtree.variable}`}
+      data-scroll-behavior="smooth"
     >
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
         {children}

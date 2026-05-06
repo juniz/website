@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import DokterTable from './DokterTable';
@@ -7,15 +6,10 @@ import DokterTable from './DokterTable';
 export const metadata = { title: 'Kelola Dokter' };
 
 export default async function AdminDokterPage() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data: doctors, error } = await supabase
-    .from('doctors')
-    .select('*')
-    .order('name', { ascending: true });
-
-  const items = doctors || [];
+  const result = await api.get('/doctors');
+  
+  // Karena backend ada TransformInterceptor, data asli ada di dalam property 'data'
+  const items = result.success ? (result.data.data || result.data) : [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

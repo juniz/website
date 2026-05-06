@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { updateSiteSettings, uploadHeroImage } from '@/app/actions/admin/settings';
+import { getImageUrl } from '@/lib/utils';
 import {
   Save, Loader2, Award, Type, AlignLeft, BarChart3, Image as ImageIcon,
   Upload, CheckCircle2, AlertCircle, MousePointerClick, Link2, Sparkles, X
@@ -338,7 +339,7 @@ export default function HeroSettingsForm({ initialData }) {
               >
                 {data.image_url ? (
                   <>
-                    <img src={data.image_url} alt="Preview gambar hero" className="hero-preview-img" />
+                    <img src={getImageUrl(data.image_url)} alt="Preview gambar hero" className="hero-preview-img" />
                     <div className="hero-dropzone-overlay">
                       <Upload size={20} />
                       <span>{isDragging ? 'Lepas untuk ganti' : 'Klik atau drag untuk ganti'}</span>
@@ -398,7 +399,7 @@ export default function HeroSettingsForm({ initialData }) {
                       <input
                         id="image_url"
                         className="settings-input"
-                        type="url"
+                        type="text"
                         name="image_url"
                         value={data.image_url}
                         onChange={handleChange}

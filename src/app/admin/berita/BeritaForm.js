@@ -101,7 +101,7 @@ export default function BeritaForm({ mode = 'create', article = null }) {
     content:   article?.content   || '',
     category:  article?.category  || CATEGORIES[0],
     author:    article?.author    || 'Tim RS Bhayangkara',
-    read_time: article?.read_time || '3 menit baca',
+    read_time: article?.readTime || '3 menit baca',
     date:      article?.date
       ? new Date(article.date).toISOString().slice(0, 10)
       : new Date().toISOString().slice(0, 10),

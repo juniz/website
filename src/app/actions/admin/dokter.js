@@ -1,98 +1,80 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { api } from '@/lib/api';
+import { getAuthToken } from '@/lib/auth-utils';
 
-async function getSupabase() {
-  const cookieStore = await cookies();
-  return createClient(cookieStore);
-}
-
-async function handleImageUpload(supabase, imageFile, prefix = 'doctor') {
-  // Return null if no file or empty file
-  if (!imageFile || typeof imageFile === 'string' || imageFile.size === 0) {
-    return null;
-  }
-
-  const fileExt = imageFile.name.split('.').pop() || 'jpg';
-  // Santize filename
-  const fileName = `${Date.now()}-${prefix}.${fileExt}`.replace(/[^a-zA-Z0-9.-]/g, '');
-
-  const { error } = await supabase.storage
-    .from('doctor-images')
-    .upload(fileName, imageFile, {
-      cacheControl: '3600',
-      upsert: false,
-    });
-
-  if (error) {
-    console.error('Supabase Storage Error:', error);
-    throw new Error('Gagal mengupload foto dokter: ' + error.message);
-  }
-
-  const { data: publicUrlData } = supabase.storage
-    .from('doctor-images')
-    .getPublicUrl(fileName);
-
-  return publicUrlData.publicUrl;
+async function getHeaders() {
+  const token = await getAuthToken();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
 export async function createDokter(formData) {
-  const supabase = await getSupabase();
-  
   try {
-    const imageUrl = await handleImageUpload(supabase, formData.get('image'), 'dr');
+    const headers = await getHeaders();
+    
+    // Pastikan kita hanya mengirim field yang diperbolehkan oleh DTO NestJS
+    const body = new FormData();
+    body.append('name', formData.get('name'));
+    body.append('specialization', formData.get('specialization'));
+    body.append('isAvailable', formData.get('isAvailable'));
+    
+    const image = formData.get('image');
+    if (image && typeof image !== 'string' && image.size > 0) {
+      body.append('image', image);
+    }
 
-    const { error } = await supabase.from('doctors').insert({
-      name: formData.get('name').trim(),
-      specialization: formData.get('specialization').trim(),
-      image: imageUrl || formData.get('existing_image') || null,
-      is_available: formData.get('is_available') === 'true',
-    });
+    const result = await api.post('/doctors', body, { headers });
 
-    if (error) return { error: error.message };
+    if (!result.success) return { error: result.error };
+    
+    revalidatePath('/admin/dokter');
+    revalidatePath('/');
+    return { success: true };
   } catch (err) {
     return { error: err.message };
   }
-
-  revalidatePath('/admin/dokter');
-  revalidatePath('/');
-  return { success: true };
 }
 
 export async function updateDokter(id, formData) {
-  const supabase = await getSupabase();
-  
   try {
-    let imageUrl = await handleImageUpload(supabase, formData.get('image'), 'dr');
-    imageUrl = imageUrl || formData.get('existing_image') || null;
+    const headers = await getHeaders();
+    
+    // Pick only allowed fields for NestJS DTO
+    const body = new FormData();
+    body.append('name', formData.get('name'));
+    body.append('specialization', formData.get('specialization'));
+    body.append('isAvailable', formData.get('isAvailable'));
+    
+    const image = formData.get('image');
+    // Hanya kirim field image jika ada file baru yang diunggah
+    if (image && typeof image !== 'string' && image.size > 0) {
+      body.append('image', image);
+    }
 
-    const { error } = await supabase
-      .from('doctors')
-      .update({
-        name: formData.get('name').trim(),
-        specialization: formData.get('specialization').trim(),
-        image: imageUrl,
-        is_available: formData.get('is_available') === 'true',
-      })
-      .eq('id', id);
+    const result = await api.patch(`/doctors/${id}`, body, { headers });
 
-    if (error) return { error: error.message };
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/dokter');
+    revalidatePath('/');
+    return { success: true };
   } catch (err) {
     return { error: err.message };
   }
-
-  revalidatePath('/admin/dokter');
-  revalidatePath('/');
-  return { success: true };
 }
 
 export async function deleteDokter(id) {
-  const supabase = await getSupabase();
-  const { error } = await supabase.from('doctors').delete().eq('id', id);
-  if (error) return { error: error.message };
-  revalidatePath('/admin/dokter');
-  revalidatePath('/');
-  return { success: true };
+  try {
+    const headers = await getHeaders();
+    const result = await api.delete(`/doctors/${id}`, { headers });
+
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/dokter');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
 }

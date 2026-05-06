@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { HelpCircle, Plus, Edit2, MessageCircleQuestion, Layers, ListOrdered } from 'lucide-react';
 import Link from 'next/link';
 
@@ -8,21 +7,21 @@ export const metadata = {
 };
 
 async function getFAQs() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data, error } = await supabase
-    .from('faqs')
-    .select('*')
-    .order('category', { ascending: true })
-    .order('sort_order', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching FAQs:', error);
+  const res = await api.get('/faqs');
+  
+  if (!res.success) {
+    console.error('Error fetching FAQs:', res.error);
     return [];
   }
 
-  return data;
+  const items = res.data.data || res.data || [];
+  
+  // Map camelCase backend ke snake_case yang diharapkan UI
+  return items.map(f => ({
+    ...f,
+    sort_order: f.sortOrder,
+    is_active: f.isActive
+  }));
 }
 
 export default async function FAQsAdminPage() {
@@ -99,7 +98,7 @@ export default async function FAQsAdminPage() {
           </div>
           <div>
             <h3 className="faq-empty-title">Belum Ada FAQ</h3>
-            <p className="faq-empty-desc">Mulai tambahkan pertanyaan umum untuk membantu pasien.</p>
+            <p className="faq-empty-desc">Tambahkan pertanyaan yang sering diajukan pasien untuk membantu mereka.</p>
           </div>
           <Link href="/admin/faq/tambah" className="faq-add-btn">
             <Plus size={15} />
@@ -107,44 +106,39 @@ export default async function FAQsAdminPage() {
           </Link>
         </div>
       ) : (
-        /* Category Groups */
-        <div className="faq-categories">
-          {categoryList.map(([cat, items]) => (
-            <div key={cat} className="faq-category-group">
-              {/* Category Header */}
+        /* FAQ Grid (Grouped by Category) */
+        <div className="faq-categories-grid">
+          {categoryList.map(([catName, items]) => (
+            <div key={catName} className="faq-category-card">
               <div className="faq-category-header">
-                <div className="faq-category-header-left">
-                  <div className="faq-category-dot" />
-                  <h2 className="faq-category-title">{cat}</h2>
-                  <span className="faq-category-count">{items.length}</span>
+                <div className="faq-category-info">
+                  <span className="faq-category-badge">{catName}</span>
+                  <span className="faq-category-count">{items.length} Pertanyaan</span>
                 </div>
-                <Link
-                  href={`/admin/faq/tambah?category=${encodeURIComponent(cat)}`}
-                  className="faq-category-add-btn"
-                  title={`Tambah FAQ ke kategori ${cat}`}
-                >
-                  <Plus size={13} />
-                  Tambah
-                </Link>
               </div>
 
-              {/* FAQ Items */}
               <div className="faq-items-list">
-                {items.map((faq, index) => (
-                  <div key={faq.id} className="faq-item">
-                    <div className="faq-item-index">{index + 1}</div>
-                    <div className="faq-item-content">
-                      <h3 className="faq-item-question">{faq.question}</h3>
+                {items.map((faq) => (
+                  <div key={faq.id} className={`faq-item ${!faq.is_active ? 'faq-item-inactive' : ''}`}>
+                    <div className="faq-item-main">
+                      <h4 className="faq-item-question">
+                        {!faq.is_active && <span className="faq-item-hidden-label">Draft:</span>}
+                        {faq.question}
+                      </h4>
                       <p className="faq-item-answer">{faq.answer}</p>
                     </div>
+                    
                     <div className="faq-item-actions">
+                      <div className="faq-item-meta">
+                        <span className="faq-item-order">#{faq.sort_order}</span>
+                      </div>
                       <Link
                         href={`/admin/faq/edit/${faq.id}`}
-                        className="faq-item-edit-btn"
-                        aria-label={`Edit FAQ: ${faq.question}`}
+                        className="faq-edit-btn"
+                        aria-label="Edit FAQ"
                       >
-                        <Edit2 size={14} />
-                        <span>Edit</span>
+                        <Edit2 size={13} />
+                        Edit
                       </Link>
                     </div>
                   </div>
@@ -156,14 +150,14 @@ export default async function FAQsAdminPage() {
       )}
 
       <style>{`
-        /* ── Page Layout ────────────────────────────────── */
+        /* ── Page Layout ─────────────────────────────────── */
         .faq-page {
           display: flex;
           flex-direction: column;
           gap: 20px;
         }
 
-        /* ── Page Header ────────────────────────────────── */
+        /* ── Header ──────────────────────────────────────── */
         .faq-page-header {
           display: flex;
           align-items: center;
@@ -181,33 +175,27 @@ export default async function FAQsAdminPage() {
           display: flex;
           align-items: center;
           gap: 16px;
-          min-width: 0;
         }
 
         .faq-page-icon {
-          width: 44px;
-          height: 44px;
+          width: 44px; height: 44px;
           border-radius: var(--admin-radius-md);
           background: var(--admin-primary-l);
           color: var(--admin-primary);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
         }
 
         .faq-page-title {
           font-size: 1.125rem;
           font-weight: 700;
           color: var(--admin-text-h);
-          font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
+          font-family: var(--font-figtree, 'Figtree', sans-serif);
           margin-bottom: 2px;
         }
 
         .faq-page-desc {
           font-size: 0.8125rem;
           color: var(--admin-text-s);
-          line-height: 1.5;
         }
 
         /* ── Add Button ─────────────────────────────────── */
@@ -218,356 +206,142 @@ export default async function FAQsAdminPage() {
           padding: 9px 18px;
           background: var(--admin-primary);
           color: #fff;
-          border: none;
           border-radius: var(--admin-radius-sm);
           font-size: 0.875rem;
           font-weight: 600;
-          cursor: pointer;
-          font-family: inherit;
           text-decoration: none;
-          transition: background 150ms, box-shadow 150ms, transform 100ms;
-          min-height: 40px;
-          white-space: nowrap;
-          flex-shrink: 0;
+          transition: all 150ms;
         }
 
         .faq-add-btn:hover {
           background: var(--admin-primary-h);
-          box-shadow: 0 3px 10px rgba(24, 95, 165, 0.28);
+          box-shadow: 0 4px 12px rgba(24, 95, 165, 0.25);
         }
 
-        .faq-add-btn:active {
-          transform: scale(0.98);
-        }
-
-        /* ── Stats Bar ──────────────────────────────────── */
+        /* ── Stats Bar ───────────────────────────────────── */
         .faq-stats-bar {
           display: flex;
-          align-items: center;
-          gap: 0;
           background: var(--admin-surface);
           border: 1px solid var(--admin-border);
           border-radius: var(--admin-radius-lg);
           box-shadow: var(--admin-shadow-xs);
-          overflow: hidden;
+          flex-wrap: wrap;
         }
 
         .faq-stat-item {
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 14px 20px;
-          flex: 1;
-        }
-
-        .faq-stat-divider {
-          width: 1px;
-          height: 32px;
-          background: var(--admin-border-soft);
-          flex-shrink: 0;
-        }
-
-        .faq-stat-icon {
-          width: 30px;
-          height: 30px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .faq-stat-icon-blue {
-          background: var(--admin-primary-l);
-          color: var(--admin-primary);
-        }
-
-        .faq-stat-icon-purple {
-          background: #EDE9FE;
-          color: #7C3AED;
-        }
-
-        .faq-stat-icon-green {
-          background: var(--admin-success-l);
-          color: var(--admin-success);
-        }
-
-        .faq-stat-value {
-          font-size: 1.25rem;
-          font-weight: 800;
-          color: var(--admin-text-h);
-          font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
-          line-height: 1;
-          font-variant-numeric: tabular-nums;
-        }
-
-        .faq-stat-label {
-          font-size: 0.75rem;
-          color: var(--admin-text-s);
-          line-height: 1.4;
-        }
-
-        /* ── Categories Container ───────────────────────── */
-        .faq-categories {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        /* ── Category Group ─────────────────────────────── */
-        .faq-category-group {
-          background: var(--admin-surface);
-          border: 1px solid var(--admin-border);
-          border-radius: var(--admin-radius-lg);
-          box-shadow: var(--admin-shadow-xs);
-          overflow: hidden;
-        }
-
-        /* ── Category Header ────────────────────────────── */
-        .faq-category-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
           gap: 12px;
           padding: 14px 20px;
-          background: var(--admin-surface-2);
-          border-bottom: 1px solid var(--admin-border-soft);
-        }
-
-        .faq-category-header-left {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          min-width: 0;
-        }
-
-        .faq-category-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: var(--admin-primary);
-          flex-shrink: 0;
-        }
-
-        .faq-category-title {
-          font-size: 0.875rem;
-          font-weight: 700;
-          color: var(--admin-text-h);
-          font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
-          letter-spacing: -0.01em;
-        }
-
-        .faq-category-count {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 22px;
-          height: 22px;
-          padding: 0 6px;
-          background: var(--admin-primary-l);
-          color: var(--admin-primary);
-          border-radius: 999px;
-          font-size: 0.6875rem;
-          font-weight: 700;
-          font-variant-numeric: tabular-nums;
-        }
-
-        .faq-category-add-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 5px 11px;
-          border: 1px solid var(--admin-border);
-          border-radius: var(--admin-radius-sm);
-          background: var(--admin-surface);
-          color: var(--admin-text-m);
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-decoration: none;
-          font-family: inherit;
-          transition: all 150ms;
-          white-space: nowrap;
-          flex-shrink: 0;
-        }
-
-        .faq-category-add-btn:hover {
-          background: var(--admin-primary-l);
-          border-color: var(--admin-primary);
-          color: var(--admin-primary);
-        }
-
-        /* ── FAQ Items List ─────────────────────────────── */
-        .faq-items-list {
-          display: flex;
-          flex-direction: column;
-        }
-
-        /* ── FAQ Item ───────────────────────────────────── */
-        .faq-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 14px;
-          padding: 14px 20px;
-          border-bottom: 1px solid var(--admin-border-soft);
-          transition: background 150ms;
-          position: relative;
-        }
-
-        .faq-item:last-child {
-          border-bottom: none;
-        }
-
-        .faq-item:hover {
-          background: var(--admin-surface-2);
-        }
-
-        .faq-item:hover .faq-item-actions {
-          opacity: 1;
-        }
-
-        .faq-item-index {
-          width: 24px;
-          height: 24px;
-          border-radius: 6px;
-          background: var(--admin-border-soft);
-          color: var(--admin-text-s);
-          font-size: 0.6875rem;
-          font-weight: 700;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          margin-top: 2px;
-          font-variant-numeric: tabular-nums;
-          font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
-        }
-
-        .faq-item-content {
           flex: 1;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
+          min-width: 160px;
         }
 
-        .faq-item-question {
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--admin-text-h);
-          line-height: 1.5;
+        .faq-stat-divider { width: 1px; height: 32px; background: var(--admin-border-soft); margin: auto 0; }
+        
+        .faq-stat-icon {
+          width: 32px; height: 32px;
+          border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
         }
+        .faq-stat-icon-blue   { background: var(--admin-primary-l); color: var(--admin-primary); }
+        .faq-stat-icon-purple { background: #F3E8FF; color: #7E22CE; }
+        .faq-stat-icon-green  { background: var(--admin-success-l); color: var(--admin-success); }
 
-        .faq-item-answer {
-          font-size: 0.8125rem;
-          color: var(--admin-text-m);
-          line-height: 1.6;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
+        .faq-stat-value { font-size: 1.25rem; font-weight: 800; color: var(--admin-text-h); line-height: 1; }
+        .faq-stat-label { font-size: 0.75rem; color: var(--admin-text-s); }
 
-        /* ── Item Actions ───────────────────────────────── */
-        .faq-item-actions {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          opacity: 0;
-          transition: opacity 150ms;
-          flex-shrink: 0;
-        }
-
-        .faq-item-edit-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          padding: 6px 12px;
-          border: 1px solid var(--admin-border);
-          border-radius: var(--admin-radius-sm);
-          background: var(--admin-surface);
-          color: var(--admin-text-m);
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-decoration: none;
-          font-family: inherit;
-          cursor: pointer;
-          transition: all 150ms;
-          white-space: nowrap;
-          min-height: 32px;
-        }
-
-        .faq-item-edit-btn:hover {
-          background: var(--admin-primary-l);
-          border-color: var(--admin-primary);
-          color: var(--admin-primary);
-        }
-
-        /* ── Mobile: always show actions ─────────────────── */
-        @media (max-width: 640px) {
-          .faq-item-actions {
-            opacity: 1;
-          }
-
-          .faq-item-edit-btn span {
-            display: none;
-          }
-
-          .faq-item-edit-btn {
-            padding: 6px;
-            min-width: 32px;
-            justify-content: center;
-          }
-
-          .faq-stat-label {
-            display: none;
-          }
-
-          .faq-stat-item {
-            padding: 12px 14px;
-          }
-
-          .faq-page-header {
-            padding: 16px;
-          }
-        }
-
-        /* ── Empty State ────────────────────────────────── */
+        /* ── Empty State ─────────────────────────────────── */
         .faq-empty-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 16px;
-          text-align: center;
-          padding: 56px 24px;
-          background: var(--admin-surface);
-          border: 1px dashed var(--admin-border);
+          display: flex; flex-direction: column; align-items: center;
+          padding: 60px 24px; text-align: center; gap: 16px;
+          background: var(--admin-surface); border: 2px dashed var(--admin-border-soft);
           border-radius: var(--admin-radius-lg);
         }
-
         .faq-empty-icon {
-          width: 72px;
-          height: 72px;
-          border-radius: var(--admin-radius-xl);
+          width: 64px; height: 64px; border-radius: 20px;
+          background: var(--admin-surface-2); color: var(--admin-text-s);
+          display: flex; align-items: center; justify-content: center;
+        }
+        .faq-empty-title { font-weight: 700; color: var(--admin-text-h); font-family: var(--font-figtree); }
+        .faq-empty-desc { font-size: 0.875rem; color: var(--admin-text-s); max-width: 320px; line-height: 1.5; }
+
+        /* ── FAQ Categories ──────────────────────────────── */
+        .faq-categories-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        @media (min-width: 1024px) {
+          .faq-categories-grid { grid-template-columns: 1fr; }
+        }
+
+        .faq-category-card {
+          background: var(--admin-surface);
+          border: 1px solid var(--admin-border);
+          border-radius: var(--admin-radius-lg);
+          overflow: hidden;
+          box-shadow: var(--admin-shadow-xs);
+        }
+
+        .faq-category-header {
+          padding: 12px 20px;
           background: var(--admin-surface-2);
-          color: var(--admin-text-s);
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          border-bottom: 1px solid var(--admin-border-soft);
+          display: flex; align-items: center; justify-content: space-between;
         }
 
-        .faq-empty-title {
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--admin-text-h);
-          font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
-          margin-bottom: 4px;
+        .faq-category-info { display: flex; align-items: center; gap: 12px; }
+        .faq-category-badge {
+          padding: 4px 10px; border-radius: 6px;
+          background: var(--admin-primary); color: #fff;
+          font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em;
+        }
+        .faq-category-count { font-size: 0.75rem; color: var(--admin-text-s); font-weight: 500; }
+
+        .faq-items-list { display: flex; flex-direction: column; }
+
+        .faq-item {
+          padding: 20px;
+          display: flex; gap: 24px;
+          border-bottom: 1px solid var(--admin-border-soft);
+          transition: background 120ms;
+        }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-item:hover { background: var(--admin-surface-2); }
+
+        .faq-item-inactive { opacity: 0.6; background: #fafafa; }
+        .faq-item-hidden-label {
+          font-size: 10px; background: #eee; color: #666;
+          padding: 1px 4px; border-radius: 4px; margin-right: 6px;
+          vertical-align: middle;
         }
 
-        .faq-empty-desc {
-          font-size: 0.875rem;
-          color: var(--admin-text-s);
-          line-height: 1.5;
+        .faq-item-main { flex: 1; min-width: 0; }
+        .faq-item-question { font-size: 0.9375rem; font-weight: 700; color: var(--admin-text-h); margin-bottom: 8px; }
+        .faq-item-answer { font-size: 0.875rem; color: var(--admin-text-b); line-height: 1.6; }
+
+        .faq-item-actions {
+          display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
+          flex-shrink: 0;
+        }
+
+        .faq-item-order {
+          font-size: 0.6875rem; font-weight: 700; color: var(--admin-text-s);
+          background: var(--admin-border-soft); padding: 2px 6px; border-radius: 4px;
+        }
+
+        .faq-edit-btn {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 6px 14px; border: 1px solid var(--admin-border);
+          border-radius: var(--admin-radius-sm); font-size: 0.75rem;
+          font-weight: 600; color: var(--admin-text-m); text-decoration: none;
+          transition: all 150ms;
+          background: var(--admin-surface);
+        }
+        .faq-edit-btn:hover {
+          background: var(--admin-primary-l); border-color: var(--admin-primary); color: var(--admin-primary);
         }
       `}</style>
     </div>

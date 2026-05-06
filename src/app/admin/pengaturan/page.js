@@ -1,33 +1,42 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Layout, ImagePlay, SearchCode } from 'lucide-react';
 import HeaderSettingsForm from './HeaderSettingsForm';
 import HeroSettingsForm from './HeroSettingsForm';
 import SEOSettingsForm from './SEOSettingsForm';
+import StatusSettingsForm from './StatusSettingsForm';
+import { Layout, ImagePlay, SearchCode, Power } from 'lucide-react';
 
 export const metadata = {
   title: 'Pengaturan Situs — Admin RS Bhayangkara',
 };
 
 async function getSettingsData() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const [
-    { data: header },
-    { data: hero },
-    { data: seo }
-  ] = await Promise.all([
-    supabase.from('site_settings').select('value').eq('key', 'header').single(),
-    supabase.from('site_settings').select('value').eq('key', 'hero').single(),
-    supabase.from('page_seo').select('*').order('route', { ascending: true })
+  const [settingsRes, seoRes] = await Promise.all([
+    api.get('/settings'),
+    api.get('/seo')
   ]);
 
+  const settings = settingsRes.success ? (settingsRes.data.data || settingsRes.data || []) : [];
+  const seoRaw = seoRes.success ? (seoRes.data.data || seoRes.data || []) : [];
+  
+  const seo = seoRaw.map(s => ({
+    id: s.route, // Use route as ID
+    route: s.route,
+    meta_title: s.title,
+    meta_description: s.description,
+    meta_keywords: s.keywords ? s.keywords.split(',').map(k => k.trim()).filter(k => k !== '') : [],
+    is_active: s.isActive ?? true
+  }));
+
+  const header = settings.find(s => s.key === 'header')?.value || {};
+  const hero = settings.find(s => s.key === 'hero')?.value || {};
+  const maintenance = settings.find(s => s.key === 'maintenance')?.value || {};
+
   return {
-    header: header?.value || {},
-    hero: hero?.value || {},
-    seo: seo || []
+    header,
+    hero,
+    seo,
+    maintenance
   };
 }
 
@@ -50,10 +59,16 @@ const TABS = [
     icon: SearchCode,
     desc: 'Meta title, description, keywords',
   },
+  {
+    value: 'status',
+    label: 'Status Situs',
+    icon: Power,
+    desc: 'Mode pemeliharaan website',
+  },
 ];
 
 export default async function SettingsPage() {
-  const { header, hero, seo } = await getSettingsData();
+  const { header, hero, seo, maintenance } = await getSettingsData();
 
   return (
     <div className="settings-page">
@@ -105,6 +120,10 @@ export default async function SettingsPage() {
 
             <TabsContent value="seo" className="settings-tab-panel">
               <SEOSettingsForm initialData={seo} />
+            </TabsContent>
+
+            <TabsContent value="status" className="settings-tab-panel">
+              <StatusSettingsForm initialData={maintenance} />
             </TabsContent>
           </div>
         </Tabs>
@@ -207,18 +226,48 @@ export default async function SettingsPage() {
           color: var(--admin-text-m) !important;
           border: 1px solid transparent !important;
           cursor: pointer !important;
-          transition: all 150ms ease !important;
+          transition:
+            background 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            color 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            border-color 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            box-shadow 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            transform 120ms ease !important;
           white-space: nowrap !important;
           min-height: 52px !important;
           box-shadow: none !important;
           flex-shrink: 0;
           text-align: left;
+          position: relative;
+        }
+
+        /* Bottom indicator line */
+        .settings-tab-trigger::after {
+          content: '';
+          position: absolute;
+          bottom: -9px;  /* sits just on top of the nav-wrap border */
+          left: 12px;
+          right: 12px;
+          height: 2px;
+          border-radius: 2px 2px 0 0;
+          background: var(--admin-primary);
+          transform: scaleX(0);
+          transform-origin: left center;
+          transition: transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .settings-tab-trigger[data-state="active"]::after {
+          transform: scaleX(1);
         }
 
         .settings-tab-trigger:hover {
           background: var(--admin-surface) !important;
           color: var(--admin-text-b) !important;
           border-color: var(--admin-border) !important;
+          transform: translateY(-1px);
+        }
+
+        .settings-tab-trigger:active {
+          transform: translateY(0) scale(0.98);
         }
 
         .settings-tab-trigger[data-state="active"] {
@@ -238,7 +287,13 @@ export default async function SettingsPage() {
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          transition: background 150ms;
+          transition:
+            background 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            transform 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .settings-tab-trigger[data-state="active"] .settings-tab-icon-wrap {
+          transform: scale(1.08);
         }
 
         .settings-tab-trigger:not([data-state="active"]) .settings-tab-icon-wrap {
@@ -275,13 +330,52 @@ export default async function SettingsPage() {
           padding: 28px;
         }
 
+        /* ── Tab panel entrance ──────────────────────────── */
         .settings-tab-panel {
-          animation: fadeTabIn 200ms ease forwards;
+          animation: tabPanelIn 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+          transform-origin: top center;
         }
 
-        @keyframes fadeTabIn {
-          from { opacity: 0; transform: translateY(4px); }
+        @keyframes tabPanelIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.99);
+            filter: blur(1px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+          }
+        }
+
+        /* Stagger fieldsets / direct children inside the panel */
+        .settings-tab-panel > * {
+          animation: tabChildIn 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+
+        .settings-tab-panel > *:nth-child(1) { animation-delay: 30ms; }
+        .settings-tab-panel > *:nth-child(2) { animation-delay: 70ms; }
+        .settings-tab-panel > *:nth-child(3) { animation-delay: 110ms; }
+        .settings-tab-panel > *:nth-child(4) { animation-delay: 150ms; }
+        .settings-tab-panel > *:nth-child(5) { animation-delay: 190ms; }
+
+        @keyframes tabChildIn {
+          from { opacity: 0; transform: translateY(8px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Reduced motion ───────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+          .settings-tab-panel,
+          .settings-tab-panel > * {
+            animation: none !important;
+          }
+          .settings-tab-trigger,
+          .settings-tab-trigger::after,
+          .settings-tab-icon-wrap {
+            transition: none !important;
+          }
         }
 
         /* ── Mobile responsive ────────────────────────────── */

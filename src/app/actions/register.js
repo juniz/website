@@ -1,53 +1,40 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
-import { cookies } from 'next/headers';
+import { api } from '@/lib/api';
 
 export async function submitRegistration(prevState, formData) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
-
     const bpjsNumber = formData.get('bpjsNumber');
     const complaint = formData.get('complaint');
 
-    const data = {
-      patient_name: formData.get('patientName'),
-      dob: new Date(formData.get('dob')).toISOString(),
-      phone: formData.get('phone'),
-      schedule_id: formData.get('schedule'),
+    const payload = {
+      patientName: formData.get('patientName'),
+      birthDate: new Date(formData.get('dob')).toISOString(),
+      phoneNumber: formData.get('phone'),
+      scheduleId: formData.get('schedule'),
       insurance: formData.get('insurance'),
-      bpjs_number: bpjsNumber || null,
+      nik: formData.get('nik') || '', // Added NIK if available in form
+      bpjsNumber: bpjsNumber || null,
       complaint: complaint || '',
       status: 'Pending'
     };
 
-    // Insert into DB
-    const { data: registration, error: insertError } = await supabase
-      .from('registrations')
-      .insert(data)
-      .select()
-      .single();
+    // Post to NestJS API
+    const result = await api.post('/registrations', payload);
 
-    if (insertError) throw insertError;
-
-    // Read current quota and increment
-    const { data: currentSchedule } = await supabase
-      .from('schedules')
-      .select('filled_quota')
-      .eq('id', data.schedule_id)
-      .single();
-
-    if (currentSchedule) {
-      await supabase
-        .from('schedules')
-        .update({ filled_quota: currentSchedule.filled_quota + 1 })
-        .eq('id', data.schedule_id);
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.error || 'Gagal melakukan pendaftaran. Silahkan coba lagi.'
+      };
     }
+
+    const registration = result.data;
+    const ticketId = registration.id ? registration.id.substring(registration.id.length - 6).toUpperCase() : 'NEW';
 
     return {
       success: true,
-      ticket: `RSB-${registration.id.substring(registration.id.length - 6).toUpperCase()}`
+      ticket: `RSB-${ticketId}`
     };
 
   } catch (error) {

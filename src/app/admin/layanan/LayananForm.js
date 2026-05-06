@@ -4,12 +4,70 @@ import { useState, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { upsertService } from '@/app/actions/admin/content';
+import { getImageUrl } from '@/lib/utils';
 import {
   Save, Loader2, Activity, Type, Hash, Info,
   Palette, CheckCircle2, AlertCircle, ArrowLeft,
   ToggleLeft, ToggleRight, ListOrdered, Eye, Search,
-  Shapes,
+  Shapes, Upload, Image as ImageIcon, Trash2, X,
 } from 'lucide-react';
+
+const MAX_ICON_SIZE = 400; // Ikon tidak perlu besar
+const COMPRESS_QUALITY = 0.8;
+
+async function compressIcon(file) {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith('image/')) return resolve(file);
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_ICON_SIZE) {
+            height = Math.round((height * MAX_ICON_SIZE) / width);
+            width = MAX_ICON_SIZE;
+          }
+        } else {
+          if (height > MAX_ICON_SIZE) {
+            width = Math.round((width * MAX_ICON_SIZE) / height);
+            height = MAX_ICON_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+                type: 'image/webp',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          'image/webp',
+          COMPRESS_QUALITY
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+}
 
 // ── Icon catalogue — sama persis dengan ServiceGrid.js ────────────────────────
 const ICON_CATALOG = [
@@ -150,6 +208,10 @@ export default function LayananForm({ mode = 'create', service = null }) {
   const [slugEdited, setSlugEdited] = useState(mode === 'edit');
 
   const [iconSearch, setIconSearch] = useState('');
+  const [useCustomIcon, setUseCustomIcon] = useState(!!service?.imageUrl);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(getImageUrl(service?.imageUrl) || '');
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const [form, setForm] = useState({
     name:           service?.name           || '',
@@ -157,6 +219,7 @@ export default function LayananForm({ mode = 'create', service = null }) {
     description:    service?.description    || '',
     count_info:     service?.count_info     || '',
     icon_name:      service?.icon_name      || 'heart',
+    image_url:      service?.imageUrl       || '',
     color_code:     service?.color_code     || '#185FA5',
     bg_color_code:  service?.bg_color_code  || '#EBF2FA',
     sort_order:     service?.sort_order     ?? 0,
@@ -191,6 +254,29 @@ export default function LayananForm({ mode = 'create', service = null }) {
     setForm(prev => ({ ...prev, color_code: preset.color, bg_color_code: preset.bg }));
   }
 
+  async function handleImageChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsCompressing(true);
+    try {
+      const optimizedFile = await compressIcon(file);
+      setImageFile(optimizedFile);
+      setImagePreview(URL.createObjectURL(optimizedFile));
+      setForm(prev => ({ ...prev, image_url: '' })); // Reset URL as we have a new file
+    } catch (err) {
+      console.error('Compression error:', err);
+    } finally {
+      setIsCompressing(false);
+    }
+  }
+
+  function clearImage() {
+    setImageFile(null);
+    setImagePreview('');
+    setForm(prev => ({ ...prev, image_url: '' }));
+  }
+
   function validate() {
     const errs = {};
     if (!form.name.trim()) errs.name = 'Nama layanan wajib diisi.';
@@ -213,12 +299,13 @@ export default function LayananForm({ mode = 'create', service = null }) {
       name:          form.name.trim(),
       slug:          form.slug.trim(),
       description:   form.description.trim() || null,
-      count_info:    form.count_info.trim()  || null,
-      icon_name:     form.icon_name,
-      color_code:    form.color_code,
-      bg_color_code: form.bg_color_code,
-      sort_order:    Number(form.sort_order),
-      is_active:     form.is_active,
+      countInfo:     form.count_info.trim()  || null,
+      iconName:      form.icon_name,
+      imageUrl:      imageFile || form.image_url || null,
+      colorCode:     form.color_code,
+      bgColorCode:   form.bg_color_code,
+      sortOrder:     Number(form.sort_order),
+      isActive:      form.is_active,
     };
 
     startTransition(async () => {
@@ -371,65 +458,121 @@ export default function LayananForm({ mode = 'create', service = null }) {
           <fieldset className="lf-fieldset">
             <legend className="lf-legend">
               <span className="lf-legend-icon"><Shapes size={14} /></span>
-              Pilih Ikon Layanan
+              Ikon Layanan
             </legend>
-            <p className="lf-legend-hint">Ikon yang mewakili layanan ini di halaman publik. Cari berdasarkan nama poli atau kata kunci.</p>
+            <p className="lf-legend-hint">Gunakan ikon dari katalog atau unggah ikon kustom (PNG/WebP transparan).</p>
 
             <div className="lf-fields">
-              {/* Search */}
-              <div className="lf-form-group">
-                <label className="lf-label" htmlFor="icon-search">Cari Ikon</label>
-                <div className="lf-input-icon-wrap">
-                  <span className="lf-input-icon"><Search size={14} /></span>
-                  <input
-                    id="icon-search"
-                    type="text"
-                    className="lf-input lf-input-with-icon"
-                    value={iconSearch}
-                    onChange={(e) => setIconSearch(e.target.value)}
-                    placeholder="Cari: jantung, mata, IGD, ortopedi…"
-                    autoComplete="off"
-                  />
-                </div>
+              {/* Tab Toggle */}
+              <div className="lf-icon-type-tabs">
+                <button
+                  type="button"
+                  className={`lf-icon-tab ${!useCustomIcon ? 'lf-icon-tab-active' : ''}`}
+                  onClick={() => setUseCustomIcon(false)}
+                >
+                  Katalog Ikon
+                </button>
+                <button
+                  type="button"
+                  className={`lf-icon-tab ${useCustomIcon ? 'lf-icon-tab-active' : ''}`}
+                  onClick={() => setUseCustomIcon(true)}
+                >
+                  Ikon Kustom (Gambar)
+                </button>
               </div>
 
-              {/* Icon Grid */}
-              <div className="lf-icon-grid" role="listbox" aria-label="Pilih ikon layanan">
-                {filteredIcons.length === 0 ? (
-                  <p className="lf-icon-no-result">Tidak ada ikon yang cocok dengan pencarian &ldquo;{iconSearch}&rdquo;</p>
-                ) : (
-                  filteredIcons.map((icon) => {
-                    const isActive = form.icon_name === icon.name;
-                    return (
-                      <button
-                        key={icon.name}
-                        type="button"
-                        role="option"
-                        aria-selected={isActive}
-                        className={`lf-icon-card ${isActive ? 'lf-icon-card-active' : ''}`}
-                        onClick={() => setForm(prev => ({ ...prev, icon_name: icon.name }))}
-                        title={icon.label}
-                      >
-                        <div
-                          className="lf-icon-card-preview"
-                          style={{
-                            background: isActive ? form.bg_color_code : 'var(--admin-surface-2)',
-                            color: isActive ? form.color_code : 'var(--admin-text-m)',
-                          }}
-                        >
-                          {icon.svg(isActive ? form.color_code : 'currentColor')}
+              {!useCustomIcon ? (
+                <>
+                  {/* Search */}
+                  <div className="lf-form-group">
+                    <label className="lf-label" htmlFor="icon-search">Cari Ikon</label>
+                    <div className="lf-input-icon-wrap">
+                      <span className="lf-input-icon"><Search size={14} /></span>
+                      <input
+                        id="icon-search"
+                        type="text"
+                        className="lf-input lf-input-with-icon"
+                        value={iconSearch}
+                        onChange={(e) => setIconSearch(e.target.value)}
+                        placeholder="Cari: jantung, mata, IGD, ortopedi…"
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Icon Grid */}
+                  <div className="lf-icon-grid" role="listbox" aria-label="Pilih ikon layanan">
+                    {filteredIcons.length === 0 ? (
+                      <p className="lf-icon-no-result">Tidak ada ikon yang cocok dengan pencarian &ldquo;{iconSearch}&rdquo;</p>
+                    ) : (
+                      filteredIcons.map((icon) => {
+                        const isActive = form.icon_name === icon.name;
+                        return (
+                          <button
+                            key={icon.name}
+                            type="button"
+                            role="option"
+                            aria-selected={isActive}
+                            className={`lf-icon-card ${isActive ? 'lf-icon-card-active' : ''}`}
+                            onClick={() => setForm(prev => ({ ...prev, icon_name: icon.name }))}
+                            title={icon.label}
+                          >
+                            <div
+                              className="lf-icon-card-preview"
+                              style={{
+                                background: isActive ? form.bg_color_code : 'var(--admin-surface-2)',
+                                color: isActive ? form.color_code : 'var(--admin-text-m)',
+                              }}
+                            >
+                              {icon.svg(isActive ? form.color_code : 'currentColor')}
+                            </div>
+                            <span className="lf-icon-card-label">{icon.label}</span>
+                            {isActive && (
+                              <span className="lf-icon-card-check">
+                                <CheckCircle2 size={12} />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="lf-custom-icon-upload">
+                  <div className="lf-form-group">
+                    <label className="lf-label">Unggah Gambar Ikon</label>
+                    <div className="lf-upload-container">
+                      {imagePreview ? (
+                        <div className="lf-preview-box">
+                          <img src={imagePreview} alt="Preview Ikon" className="lf-custom-icon-preview-img" />
+                          <button type="button" className="lf-remove-img" onClick={clearImage}>
+                            <X size={14} />
+                          </button>
                         </div>
-                        <span className="lf-icon-card-label">{icon.label}</span>
-                        {isActive && (
-                          <span className="lf-icon-card-check">
-                            <CheckCircle2 size={12} />
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })
-                )}
-              </div>
+                      ) : (
+                        <label className="lf-upload-label">
+                          <Upload size={24} />
+                          <span>Pilih Gambar PNG/WebP</span>
+                          <span className="lf-helper">Direkomendasikan latar belakang transparan</span>
+                          <input
+                            type="file"
+                            accept="image/png,image/webp"
+                            onChange={handleImageChange}
+                            className="lf-hidden-input"
+                          />
+                        </label>
+                      )}
+                      {isCompressing && (
+                        <div className="lf-compress-overlay">
+                          <Loader2 size={16} className="animate-spin" />
+                          <span>Mengoptimalkan...</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Selected badge */}
               <div className="lf-icon-selected-info">
@@ -437,13 +580,23 @@ export default function LayananForm({ mode = 'create', service = null }) {
                   className="lf-icon-selected-preview"
                   style={{ background: form.bg_color_code, color: form.color_code }}
                 >
-                  {selectedIcon.svg(form.color_code)}
+                  {useCustomIcon && imagePreview ? (
+                    <img src={imagePreview} alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+                  ) : (
+                    selectedIcon.svg(form.color_code)
+                  )}
                 </div>
                 <div>
-                  <p className="lf-label" style={{ marginBottom: 1 }}>Ikon Terpilih</p>
+                  <p className="lf-label" style={{ marginBottom: 1 }}>Ikon Aktif</p>
                   <p className="lf-helper">
-                    <code style={{ fontFamily: 'monospace', background: 'var(--admin-border-soft)', padding: '1px 5px', borderRadius: 4 }}>{form.icon_name}</code>
-                    &nbsp;·&nbsp;{selectedIcon.label}
+                    {useCustomIcon ? (
+                      imagePreview ? 'Ikon Gambar Kustom' : 'Belum ada gambar'
+                    ) : (
+                      <>
+                        <code style={{ fontFamily: 'monospace', background: 'var(--admin-border-soft)', padding: '1px 5px', borderRadius: 4 }}>{form.icon_name}</code>
+                        &nbsp;·&nbsp;{selectedIcon.label}
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
@@ -545,7 +698,11 @@ export default function LayananForm({ mode = 'create', service = null }) {
                     Preview
                   </label>
                   <div className="lf-icon-preview" style={previewStyle} aria-label="Preview ikon layanan">
-                    {selectedIcon.svg(form.color_code || '#185FA5')}
+                    {useCustomIcon && imagePreview ? (
+                      <img src={imagePreview} alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+                    ) : (
+                      selectedIcon.svg(form.color_code || '#185FA5')
+                    )}
                     <span className="lf-preview-name">
                       {form.name || 'Nama Layanan'}
                     </span>
@@ -636,6 +793,109 @@ export default function LayananForm({ mode = 'create', service = null }) {
       <style>{`
         /* ── Layout ───────────────────────────────────────── */
         .lf-page { display: flex; flex-direction: column; gap: 20px; }
+
+        .lf-icon-type-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 8px;
+          border-bottom: 1px solid var(--admin-border-soft);
+          padding-bottom: 8px;
+        }
+
+        .lf-icon-tab {
+          padding: 6px 12px;
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: var(--admin-text-s);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          border-radius: var(--admin-radius-sm);
+          transition: all 150ms;
+        }
+
+        .lf-icon-tab:hover {
+          color: var(--admin-text-h);
+          background: var(--admin-surface-2);
+        }
+
+        .lf-icon-tab-active {
+          color: var(--admin-primary) !important;
+          background: var(--admin-primary-l) !important;
+        }
+
+        .lf-upload-container {
+          position: relative;
+          width: 100%;
+          min-height: 120px;
+          border: 2px dashed var(--admin-border);
+          border-radius: var(--admin-radius-md);
+          background: var(--admin-surface-2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        .lf-upload-label {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          cursor: pointer;
+          color: var(--admin-text-m);
+          width: 100%;
+          height: 100%;
+          padding: 20px;
+        }
+
+        .lf-hidden-input {
+          display: none;
+        }
+
+        .lf-preview-box {
+          position: relative;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .lf-custom-icon-preview-img {
+          max-width: 80px;
+          max-height: 80px;
+          object-fit: contain;
+        }
+
+        .lf-remove-img {
+          position: absolute;
+          top: 0px;
+          right: 0px;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: var(--admin-danger);
+          color: #fff;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .lf-compress-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(255,255,255,0.8);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          font-size: 0.75rem;
+          color: var(--admin-primary);
+        }
 
         /* ── Header ───────────────────────────────────────── */
         .lf-header {

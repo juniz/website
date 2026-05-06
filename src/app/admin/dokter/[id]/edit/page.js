@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import DokterForm from '../../DokterForm';
 
@@ -7,14 +6,11 @@ export const metadata = { title: 'Edit Dokter' };
 
 export default async function EditDokterPage({ params }) {
   const { id } = await params;
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data: doctor } = await supabase
-    .from('doctors')
-    .select('*')
-    .eq('id', id)
-    .single();
+  
+  const result = await api.get(`/doctors/${id}`);
+  
+  // Karena backend ada TransformInterceptor, data asli ada di dalam property 'data'
+  const doctor = result.success ? (result.data.data || result.data) : null;
 
   if (!doctor) notFound();
 

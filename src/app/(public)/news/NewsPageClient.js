@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { formatDateId } from '@/lib/data/shared';
+import { getImageUrl } from '@/lib/utils';
 
 const categories = [
   { code: 'all',         label: 'Semua' },
@@ -92,7 +93,7 @@ export default function NewsPageClient({ initialNews = [] }) {
                   <Link key={article.id} href={`/news/${article.slug}`} style={{ textDecoration: 'none', display: 'block' }} className="news-card-link">
                     <article style={{ background: '#fff', border: '1px solid var(--color-neutral-200)', borderRadius: '12px', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', transition: 'border-color 150ms, box-shadow 200ms, transform 150ms' }} className="news-card">
                       <div style={{ 
-                        background: article.image ? `url(${article.image}) center/cover no-repeat` : article.coverBg, 
+                        background: article.image ? `url(${getImageUrl(article.image)}) center/cover no-repeat` : article.coverBg, 
                         height: '160px', 
                         display: 'flex', 
                         alignItems: 'flex-end', 

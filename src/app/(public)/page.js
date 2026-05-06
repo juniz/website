@@ -7,10 +7,12 @@ import TestimonialSection from '@/components/TestimonialSection';
 import FAQSection from '@/components/FAQSection';
 import NewsPreview from '@/components/NewsPreview';
 import JsonLd from '@/components/JsonLd';
+import ScrollReveal from '@/components/ScrollReveal';
 import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, getPublicFAQs } from '@/app/actions/public';
 
 /* ============================================================
    Landing Page — RSC (React Server Components)
+   Scroll-reveal animations via ScrollReveal client wrapper.
    ============================================================ */
 
 export async function generateMetadata() {
@@ -69,29 +71,43 @@ export default async function HomePage() {
     <>
       <JsonLd data={hospitalSchema} />
 
-      {/* Hero Section */}
+      {/* Hero — above-the-fold, CSS-only entrance (no observer needed) */}
       <HeroSection data={heroSettings} />
 
-      {/* Layanan Unggulan */}
-      <ServiceGrid data={services} />
+      {/* Layanan Unggulan — fades up as user scrolls down */}
+      <ScrollReveal variant="fade-up" threshold={0.08}>
+        <ServiceGrid data={services} />
+      </ScrollReveal>
 
-      {/* Preview Dokter */}
-      <DoctorPreview />
+      {/* Preview Dokter — slides in from left */}
+      <ScrollReveal variant="fade-right" threshold={0.06}>
+        <DoctorPreview />
+      </ScrollReveal>
 
-      {/* Preview Jadwal */}
-      <SchedulePreview />
+      {/* Preview Jadwal — slides in from right */}
+      <ScrollReveal variant="fade-left" threshold={0.06}>
+        <SchedulePreview />
+      </ScrollReveal>
 
       {/* CTA Pendaftaran */}
-      <CTABanner />
+      {/* <ScrollReveal variant="zoom" threshold={0.15}>
+        <CTABanner />
+      </ScrollReveal> */}
 
-      {/* Testimoni Section */}
-      <TestimonialSection data={testimonials} />
+      {/* Testimoni — zoom-in for impactful reveal */}
+      <ScrollReveal variant="zoom" threshold={0.08}>
+        <TestimonialSection data={testimonials} />
+      </ScrollReveal>
 
-      {/* FAQ Section */}
-      <FAQSection data={faqs} compact={true} />
+      {/* FAQ — simple fade-up */}
+      <ScrollReveal variant="fade-up" threshold={0.06}>
+        <FAQSection data={faqs} compact={true} />
+      </ScrollReveal>
 
-      {/* Preview Berita */}
-      <NewsPreview />
+      {/* Preview Berita — fade-up last */}
+      <ScrollReveal variant="fade-up" threshold={0.06}>
+        <NewsPreview />
+      </ScrollReveal>
     </>
   );
 }

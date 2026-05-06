@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Pencil, Trash2, Search, Newspaper, ExternalLink } from 'lucide-react';
 import { deleteBerita } from '@/app/actions/admin/berita';
+import { getImageUrl } from '@/lib/utils';
 
 function formatDate(d) {
   if (!d) return '—';
@@ -114,7 +115,7 @@ export default function BeritaTable({ articles }) {
                           background: 'var(--admin-primary-l)',
                         }}>
                           <img
-                            src={a.image}
+                            src={getImageUrl(a.image)}
                             alt=""
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             loading="lazy"

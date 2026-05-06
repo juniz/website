@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { Mail, CheckCircle2, Trash2, Clock, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import MessageList from './MessageList';
@@ -9,20 +8,21 @@ export const metadata = {
 };
 
 async function getMessages() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data, error } = await supabase
-    .from('contact_messages')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching messages:', error);
+  const res = await api.get('/contact-messages');
+  
+  if (!res.success) {
+    console.error('Error fetching messages:', res.error);
     return [];
   }
 
-  return data;
+  const items = res.data.data || res.data || [];
+  
+  // Map camelCase backend ke snake_case yang diharapkan MessageList
+  return items.map(m => ({
+    ...m,
+    is_read: m.isRead,
+    created_at: m.createdAt
+  }));
 }
 
 export default async function MessagesPage() {

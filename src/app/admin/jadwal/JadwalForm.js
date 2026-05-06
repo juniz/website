@@ -15,11 +15,11 @@ export default function JadwalForm({ mode = 'create', schedule = null, doctors =
   const [toast, setToast] = useState(null);
 
   const [form, setForm] = useState({
-    doctor_id: schedule?.doctor_id || '',
+    doctor_id: schedule?.doctorId || '',
     date: schedule?.date || '',
     dates: [], // Array for bulk insertion
     time: schedule?.time || '',
-    total_quota: schedule?.total_quota ?? 20,
+    total_quota: schedule?.totalQuota ?? 20,
   });
 
   function handleChange(e) {

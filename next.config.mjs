@@ -8,13 +8,29 @@ const nextConfig = {
   },
 
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
-        // Supabase Storage — izinkan Next.js mengoptimalkan gambar dari bucket
         protocol: 'http',
-        hostname: '192.168.3.210',
-        port: '8001',
-        pathname: '/storage/v1/object/public/**',
+        hostname: 'localhost',
+        port: '3001',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '3001',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.3.6',
+        port: '3001',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
     ],
   },

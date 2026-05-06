@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import FAQForm from '../../FAQForm';
 
@@ -7,24 +6,18 @@ export const metadata = {
   title: 'Edit FAQ — Admin RS Bhayangkara',
 };
 
-async function getFAQData(id) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const [{ data: faq }, { data: categoryRows }] = await Promise.all([
-    supabase.from('faqs').select('*').eq('id', id).single(),
-    supabase.from('faqs').select('category').order('category', { ascending: true }),
-  ]);
-
-  return {
-    faq,
-    categories: [...new Set((categoryRows || []).map((d) => d.category).filter(Boolean))],
-  };
-}
-
 export default async function EditFAQPage({ params }) {
   const { id } = await params;
-  const { faq, categories } = await getFAQData(id);
+  
+  const [faqRes, allFaqsRes] = await Promise.all([
+    api.get(`/faqs/${id}`),
+    api.get('/faqs')
+  ]);
+
+  const faq = faqRes.success ? (faqRes.data.data || faqRes.data) : null;
+  const allFaqs = allFaqsRes.success ? (allFaqsRes.data.data || allFaqsRes.data) : [];
+  
+  const categories = [...new Set(allFaqs.map((f) => f.category).filter(Boolean))];
 
   if (!faq) notFound();
 

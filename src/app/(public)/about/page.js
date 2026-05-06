@@ -1,14 +1,25 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import JsonLd from '@/components/JsonLd';
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 
-export const metadata = {
-  title: 'Tentang Kami',
-  description:
-    'RS Bhayangkara Nganjuk adalah rumah sakit terakreditasi Madya yang melayani masyarakat Nganjuk sejak 1985. Kenali profil, visi misi, dan tim dokter kami.',
-};
+import { getPageSEO } from '@/app/actions/public';
+import { notFound } from 'next/navigation';
+
+export async function generateMetadata() {
+  const seo = await getPageSEO('/about');
+  
+  return {
+    title: seo?.meta_title || 'Tentang RS Bhayangkara Nganjuk',
+    description: seo?.meta_description || 'RS Bhayangkara Nganjuk adalah rumah sakit terakreditasi Madya yang melayani masyarakat Nganjuk sejak 1985. Kenali profil, visi misi, dan tim dokter kami.',
+    keywords: seo?.meta_keywords || ['tentang rs bhayangkara nganjuk', 'profil rumah sakit nganjuk'],
+    openGraph: {
+      title: seo?.meta_title,
+      description: seo?.meta_description,
+      images: [{ url: seo?.og_image || '/og-about.jpg' }],
+    },
+  };
+}
 
 // ── Fallback data (used when DB is empty) ────────────────────
 const FALLBACK_PROFILE = {
@@ -39,10 +50,10 @@ const FALLBACK_VM = {
 };
 
 const FALLBACK_VALUES = [
-  { id: '1', title: 'Profesional', description: 'Tenaga medis bersertifikat dan terus mengikuti perkembangan ilmu kedokteran terkini.' },
-  { id: '2', title: 'Terpercaya',  description: 'Diakreditasi KARS Madya; standar mutu dan keselamatan pasien selalu diutamakan.' },
+  { id: '1', title: 'Profesional', description: 'Tenaga medis bersertifikat and terus mengikuti perkembangan ilmu kedokteran terkini.' },
+  { id: '2', title: 'Terpercaya',  description: 'Diakreditasi KARS Madya; standar mutu and keselamatan pasien selalu diutamakan.' },
   { id: '3', title: 'Peduli',      description: 'Melayani seluruh lapisan masyarakat, termasuk pemegang BPJS Kesehatan.' },
-  { id: '4', title: 'Inovatif',    description: 'Teknologi medis modern dan sistem digital untuk kenyamanan pasien.' },
+  { id: '4', title: 'Inovatif',    description: 'Teknologi medis modern and sistem digital untuk kenyamanan pasien.' },
 ];
 
 const FALLBACK_MILESTONES = [
@@ -60,37 +71,52 @@ const FALLBACK_CONTACT = [
   { id: '3', icon: '🕐', text: 'IGD: 24 Jam · Poli: Sen–Jum 07.00–21.00' },
 ];
 
-// ── Fetch all About data from Supabase ───────────────────────
+// ── Fetch all About data from NestJS API ───────────────────────
 async function getAboutData() {
   try {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
-
     const [
-      { data: profile },
-      { data: stats },
-      { data: visiMisi },
-      { data: values },
-      { data: milestones },
-      { data: contact },
+      resProfile,
+      resStats,
+      resVisiMisi,
+      resValues,
+      resMilestones,
+      resContact,
     ] = await Promise.all([
-      supabase.from('about_profile').select('*').limit(1).single(),
-      supabase.from('about_stats').select('*').eq('is_active', true).order('sort_order'),
-      supabase.from('about_visi_misi').select('*').limit(1).single(),
-      supabase.from('about_values').select('*').eq('is_active', true).order('sort_order'),
-      supabase.from('about_milestones').select('*').eq('is_active', true).order('sort_order'),
-      supabase.from('about_contact').select('*').order('sort_order'),
+      api.get('/about/profile'),
+      api.get('/about/stats'),
+      api.get('/about/visi-misi'),
+      api.get('/about/values'),
+      api.get('/about/milestones'),
+      api.get('/about/contact'),
     ]);
 
-    return {
-      profile:    profile    || FALLBACK_PROFILE,
-      stats:      stats?.length    ? stats    : FALLBACK_STATS,
-      visiMisi:   visiMisi   || FALLBACK_VM,
-      values:     values?.length   ? values   : FALLBACK_VALUES,
-      milestones: milestones?.length ? milestones : FALLBACK_MILESTONES,
-      contact:    contact?.length  ? contact  : FALLBACK_CONTACT,
-    };
-  } catch {
+    const profile = resProfile.success && resProfile.data ? {
+      header_title: resProfile.data.headerTitle,
+      header_subtitle: resProfile.data.headerSubtitle,
+      paragraph_1: resProfile.data.paragraph1,
+      paragraph_2: resProfile.data.paragraph2,
+      accreditation_title: resProfile.data.accreditationTitle,
+      accreditation_body: resProfile.data.accreditationBody,
+      accreditation_valid: resProfile.data.accreditationValid,
+      accreditation_certificate_url: resProfile.data.accreditationCertificateUrl
+    } : FALLBACK_PROFILE;
+
+    const stats = resStats.success && resStats.data?.length ? resStats.data.map(s => ({
+      ...s,
+      icon_name: s.iconName
+    })) : FALLBACK_STATS;
+
+    const visiMisi = resVisiMisi.success && resVisiMisi.data ? resVisiMisi.data : FALLBACK_VM;
+
+    const values = resValues.success && resValues.data?.length ? resValues.data : FALLBACK_VALUES;
+
+    const milestones = resMilestones.success && resMilestones.data?.length ? resMilestones.data : FALLBACK_MILESTONES;
+
+    const contact = resContact.success && resContact.data?.length ? resContact.data : FALLBACK_CONTACT;
+
+    return { profile, stats, visiMisi, values, milestones, contact };
+  } catch (err) {
+    console.error('Error fetching about data:', err);
     return {
       profile: FALLBACK_PROFILE, stats: FALLBACK_STATS, visiMisi: FALLBACK_VM,
       values: FALLBACK_VALUES, milestones: FALLBACK_MILESTONES, contact: FALLBACK_CONTACT,
@@ -123,7 +149,16 @@ function StatIcon({ name }) {
 }
 
 export default async function AboutPage() {
-  const { profile, stats, visiMisi, values, milestones, contact } = await getAboutData();
+  const [data, seo] = await Promise.all([
+    getAboutData(),
+    getPageSEO('/about')
+  ]);
+
+  if (seo && seo.isActive === false) {
+    notFound();
+  }
+
+  const { profile, stats, visiMisi, values, milestones, contact } = data;
 
   return (
     <>
@@ -246,7 +281,6 @@ export default async function AboutPage() {
                   style={{ display: 'block', lineHeight: 0 }}
                   title="Klik untuk membuka sertifikat"
                 >
-                  {/* Wrapper untuk `fill` mode — harus punya posisi relative + tinggi eksplisit */}
                   <div style={{ position: 'relative', width: '100%', height: '220px' }}>
                     <Image
                       src={profile.accreditation_certificate_url}
@@ -267,7 +301,6 @@ export default async function AboutPage() {
                   style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.625rem', padding: '2rem 1rem', background: 'var(--color-primary-50)', textDecoration: 'none' }}
                   title="Klik untuk membuka sertifikat"
                 >
-                  {/* PDF icon */}
                   <div style={{ width: 56, height: 56, borderRadius: 12, background: 'var(--color-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -312,7 +345,6 @@ export default async function AboutPage() {
               </div>
             </div>
           ) : (
-            /* ── Mode: badge default (belum ada file) ── */
             <div style={{ background: 'var(--color-primary-50)', border: '1px solid var(--color-primary-100)', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: 'var(--color-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

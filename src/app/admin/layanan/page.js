@@ -1,27 +1,33 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
 import { Activity, Plus, Edit2, Heart, CheckCircle, XCircle, Layers } from 'lucide-react';
 import Link from 'next/link';
+import { api } from '@/lib/api';
 
 export const metadata = {
   title: 'Manajemen Layanan — Admin RS Bhayangkara',
 };
 
 async function getServices() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data, error } = await supabase
-    .from('services')
-    .select('*')
-    .order('sort_order', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching services:', error);
+  const res = await api.get('/services');
+  
+  if (!res.success) {
+    console.error('Error fetching services:', res.error);
     return [];
   }
 
-  return data;
+  // Karena backend ada TransformInterceptor, data asli ada di dalam property 'data'
+  const items = res.data.data || res.data || [];
+  
+  // Map camelCase backend ke snake_case yang diharapkan UI lama (atau sebaliknya)
+  // Di sini saya memetakan ke properti yang dibutuhkan oleh komponen ini
+  return items.map(s => ({
+    ...s,
+    icon_name: s.iconName,
+    color_code: s.colorCode,
+    bg_color_code: s.bgColorCode,
+    count_info: s.countInfo,
+    is_active: s.isActive,
+    sort_order: s.sortOrder
+  }));
 }
 
 /* Helper untuk render icon dinamis */

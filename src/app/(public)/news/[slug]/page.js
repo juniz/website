@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getNews, getNewsBySlug, formatDateId } from '@/lib/data/news';
+import { getImageUrl } from '@/lib/utils';
+import JsonLd from '@/components/JsonLd';
+import DOMPurify from 'isomorphic-dompurify';
 
 export async function generateStaticParams() {
   const allNews = await getNews();
@@ -38,8 +41,30 @@ export default async function NewsDetailPage({ params }) {
   // Related articles (exclude current)
   const related = allNews.filter((a) => a.slug !== slug).slice(0, 2);
 
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: article.title,
+    description: article.excerpt,
+    image: article.image ? [getImageUrl(article.image)] : [],
+    datePublished: article.date,
+    author: [{
+      '@type': 'Person',
+      name: article.author || 'Tim RS Bhayangkara'
+    }],
+    publisher: {
+      '@type': 'Hospital',
+      name: 'RS Bhayangkara Nganjuk',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://rsbhayangkara-nganjuk.id/logo.png'
+      }
+    }
+  };
+
   return (
     <>
+      <JsonLd data={articleSchema} />
       {/* Header */}
       <section style={{ background: 'var(--color-primary-800)', paddingBlock: '2.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="container-site">
@@ -88,7 +113,7 @@ export default async function NewsDetailPage({ params }) {
           {/* Cover image */}
           <div
             style={{ 
-              background: article.image ? `url(${article.image}) center/cover no-repeat` : article.coverBg, 
+              background: article.image ? `url(${getImageUrl(article.image)}) center/cover no-repeat` : article.coverBg, 
               height: 'auto', 
               minHeight: '260px',
               aspectRatio: '16/9',
@@ -116,7 +141,7 @@ export default async function NewsDetailPage({ params }) {
           {/* HTML Body */}
           <div 
             className="article-content" 
-            dangerouslySetInnerHTML={{ __html: article.content }} 
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }} 
           />
 
           {/* Tags / bottom meta */}
@@ -169,7 +194,7 @@ export default async function NewsDetailPage({ params }) {
                   >
                     <div style={{ 
                       width: '44px', height: '44px', borderRadius: '6px', flexShrink: 0,
-                      background: rel.image ? `url(${rel.image}) center/cover no-repeat` : rel.coverBg
+                      background: rel.image ? `url(${getImageUrl(rel.image)}) center/cover no-repeat` : rel.coverBg
                     }} aria-hidden="true" />
                     <div>
                       <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-neutral-900)', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '0.25rem' }}>

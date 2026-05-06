@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import FasilitasForm from '../../FasilitasForm';
 
@@ -8,10 +7,18 @@ export const metadata = {
 };
 
 async function getFacility(id) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  const { data } = await supabase.from('facilities').select('*').eq('id', id).single();
-  return data;
+  const res = await api.get(`/facilities/${id}`);
+  if (!res.success) return null;
+  
+  const data = res.data.data || res.data;
+  
+  // Map camelCase backend ke snake_case yang diharapkan FasilitasForm
+  return {
+    ...data,
+    image_url: data.imageUrl,
+    is_active: data.isActive,
+    sort_order: data.sortOrder
+  };
 }
 
 export default async function EditFasilitasPage({ params }) {

@@ -18,6 +18,12 @@
       "skillPath": "SKILL.md",
       "computedHash": "1b6f82e889d19d305e38e35594de08eca0242321f353cafa4cf5e61dd3aa1a73"
     },
+    "security-reviewer": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/security-reviewer/SKILL.md",
+      "computedHash": "7a1ed4f4ca78a50b97e3e8c5725e494dc8aae0895bd1efde681a75ab22ff89d3"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
@@ -42,6 +48,12 @@
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
       "sourceType": "github",
       "computedHash": "0a413bf988d06481f69bb81df2070741c3ba12dd9f1be2706d57f259c905992d"
+    },
+    "unit-testing-framework": {
+      "source": "aj-geddes/useful-ai-prompts",
+      "sourceType": "github",
+      "skillPath": "skills/unit-testing-framework/SKILL.md",
+      "computedHash": "d94955a01a3b6986a7bc7a0b6994f590434db2f996801412e0e8c34a8f09e5b2"
     }
   }
 }

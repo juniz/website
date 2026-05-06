@@ -1,27 +1,29 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { Building2, Plus, Edit2, CheckCircle, XCircle, Building, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/utils';
 
 export const metadata = {
   title: 'Manajemen Fasilitas — Admin RS Bhayangkara',
 };
 
 async function getFacilities() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data, error } = await supabase
-    .from('facilities')
-    .select('*')
-    .order('sort_order', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching facilities:', error);
+  const res = await api.get('/facilities');
+  
+  if (!res.success) {
+    console.error('Error fetching facilities:', res.error);
     return [];
   }
 
-  return data;
+  const items = res.data.data || res.data || [];
+  
+  // Map camelCase backend ke snake_case yang diharapkan UI
+  return items.map(f => ({
+    ...f,
+    image_url: f.imageUrl,
+    is_active: f.isActive,
+    sort_order: f.sortOrder
+  }));
 }
 
 export default async function FacilitiesAdminPage() {
@@ -123,7 +125,7 @@ export default async function FacilitiesAdminPage() {
                       <div className="fac-item-cell">
                         <div className="fac-img-wrap">
                           {fac.image_url ? (
-                            <img src={fac.image_url} alt={fac.title} className="fac-img" />
+                            <img src={getImageUrl(fac.image_url)} alt={fac.title} className="fac-img" />
                           ) : (
                             <ImageIcon size={18} className="fac-img-placeholder" />
                           )}

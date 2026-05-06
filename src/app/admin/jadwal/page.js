@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import JadwalTable from './JadwalTable';
@@ -7,19 +6,13 @@ import JadwalTable from './JadwalTable';
 export const metadata = { title: 'Kelola Jadwal Praktek' };
 
 export default async function AdminJadwalPage() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const [schedulesRes, doctorsRes] = await Promise.all([
+    api.get('/schedules'),
+    api.get('/doctors')
+  ]);
 
-  const { data: schedules } = await supabase
-    .from('schedules')
-    .select(`*, doctors ( id, name, specialization )`)
-    .order('date', { ascending: false });
-
-  const { data: doctors } = await supabase
-    .from('doctors')
-    .select('id, name, specialization')
-    .eq('is_available', true)
-    .order('name');
+  const schedules = schedulesRes.success ? (schedulesRes.data.data || schedulesRes.data) : [];
+  const doctors = doctorsRes.success ? (doctorsRes.data.data || doctorsRes.data) : [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -37,7 +30,7 @@ export default async function AdminJadwalPage() {
       </div>
 
       <div className="admin-card">
-        <JadwalTable schedules={schedules || []} doctors={doctors || []} />
+        <JadwalTable schedules={schedules} doctors={doctors} />
       </div>
     </div>
   );

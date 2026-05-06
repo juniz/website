@@ -1,6 +1,6 @@
 import '@/components/admin/admin.css';
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
+import { getAuthToken } from '@/lib/auth-utils';
 import { redirect } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminTopbar from '@/components/admin/AdminTopbar';
@@ -13,25 +13,34 @@ export const metadata = {
 };
 
 export default async function AdminLayout({ children }) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  
-  const { data: { user } } = await supabase.auth.getUser();
+  const token = await getAuthToken();
 
-  if (!user) redirect('/login');
+  if (!token) {
+    redirect('/login');
+  }
 
-  // Supabase stores name in user_metadata, NextAuth stored it directly in user.name.
-  // We'll construct a compatible user object for the components.
-  const appUser = {
-    name: user.user_metadata?.name || user.email?.split('@')[0],
-    email: user.email,
-  };
+  // Fetch user profile from NestJS
+  const result = await api.get('/auth/me', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!result.success) {
+    // If token is invalid or expired, clear it and redirect to login
+    const cookieStore = await cookies();
+    cookieStore.delete('token');
+    redirect('/login');
+  }
+
+  // Karena backend ada TransformInterceptor, data asli ada di dalam property 'data'
+  const user = result.data.data || result.data;
 
   return (
     <div className="admin-shell">
-      <AdminSidebar user={appUser} />
+      <AdminSidebar user={user} />
       <div className="admin-main">
-        <AdminTopbar user={appUser} />
+        <AdminTopbar user={user} />
         <main id="admin-content" className="admin-content">
           {children}
         </main>

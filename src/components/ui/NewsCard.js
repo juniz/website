@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { formatDateId } from '@/lib/data/news';
+import { getImageUrl } from '@/lib/utils';
 
 /**
  * NewsCard — Reusable news card component
@@ -41,7 +42,7 @@ export default function NewsCard({ article, featured = false }) {
         {/* Cover image placeholder */}
         <div
           style={{
-            background: image ? `url(${image}) center/cover no-repeat` : coverBg,
+            background: image ? `url(${getImageUrl(image)}) center/cover no-repeat` : coverBg,
             height: featured ? '200px' : '160px',
             position: 'relative',
             display: 'flex',

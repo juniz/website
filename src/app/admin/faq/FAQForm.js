@@ -482,9 +482,10 @@ export default function FAQForm({ mode = 'create', faq = null, existingCategorie
           border-radius: var(--admin-radius-md);
           padding: 0;
           margin: 0;
-          overflow: hidden;
           background: var(--admin-surface);
           box-shadow: var(--admin-shadow-xs);
+          /* overflow: visible untuk mencegah dropdown kategori terpotong */
+          overflow: visible;
         }
 
         .faq-fieldset-legend {
@@ -499,7 +500,7 @@ export default function FAQForm({ mode = 'create', faq = null, existingCategorie
           border-bottom: 1px solid var(--admin-border-soft);
           padding: 12px 16px;
           width: 100%;
-          float: left;
+          border-radius: var(--admin-radius-md) var(--admin-radius-md) 0 0;
         }
 
         .faq-fieldset-icon {

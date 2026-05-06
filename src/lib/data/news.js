@@ -1,12 +1,13 @@
-import { createClient } from '@/utils/supabase/static';
+import { api } from '@/lib/api';
 import { formatDateId } from './shared';
 
 export { formatDateId };
 
 export async function getNews() {
-  const supabase = createClient();
-  const { data: news } = await supabase.from('news').select('*').order('date', { ascending: false });
-  const items = news || [];
+  const result = await api.get('/news');
+  
+  // Karena backend ada TransformInterceptor, data asli ada di dalam property 'data'
+  const items = result.success ? (result.data.data || result.data) : [];
   
   return items.map(n => ({
     ...n,
@@ -17,7 +18,6 @@ export async function getNews() {
 }
 
 export async function getNewsBySlug(slug) {
-  const supabase = createClient();
-  const { data } = await supabase.from('news').select('*').eq('slug', slug).single();
-  return data;
+  const result = await api.get(`/news/slug/${slug}`);
+  return result.success ? (result.data.data || result.data) : null;
 }

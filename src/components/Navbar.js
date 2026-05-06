@@ -14,8 +14,18 @@ const navLinks = [
   { href: '/faq',      label: 'FAQ',      key: 'faq' },
 ];
 
-export default function Navbar({ data }) {
+export default function Navbar({ data, pageStatuses = [] }) {
   const pathname = usePathname();
+
+  // Helper to check if a route is active
+  const isPageActive = (href) => {
+    const status = pageStatuses.find(s => s.route === href);
+    return status ? status.isActive : true; // Default to true if not found
+  };
+
+  const filteredNavLinks = navLinks.filter(link => isPageActive(link.href));
+  const showRegisterCTA = isPageActive('/register');
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -140,7 +150,7 @@ export default function Navbar({ data }) {
             style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: 'auto' }}
             className="desktop-nav"
           >
-            {navLinks.map((link) => {
+            {filteredNavLinks.map((link) => {
               const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
               return (
                 <Link
@@ -167,33 +177,35 @@ export default function Navbar({ data }) {
 
 
             {/* CTA */}
-            <Link
-              href="/register"
-              style={{
-                marginLeft: '0.75rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.375rem',
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                backgroundColor: 'var(--color-primary-400)',
-                color: '#ffffff',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                textDecoration: 'none',
-                transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out',
-                minHeight: '40px',
-              }}
-              className="nav-cta"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-              Daftar Sekarang
-            </Link>
+            {showRegisterCTA && (
+              <Link
+                href="/register"
+                style={{
+                  marginLeft: '0.75rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--color-primary-400)',
+                  color: '#ffffff',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out',
+                  minHeight: '40px',
+                }}
+                className="nav-cta"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Daftar Sekarang
+              </Link>
+            )}
           </nav>
 
           {/* Hamburger button (mobile only) */}
@@ -261,7 +273,7 @@ export default function Navbar({ data }) {
         }}
         className="mobile-menu-overlay"
       >
-        {navLinks.map((link) => {
+        {filteredNavLinks.map((link) => {
           const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
           return (
             <Link
@@ -286,32 +298,34 @@ export default function Navbar({ data }) {
           );
         })}
 
-        <Link
-          href="/register"
-          style={{
-            marginTop: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            padding: '0.875rem 1rem',
-            borderRadius: '10px',
-            backgroundColor: 'var(--color-primary-400)',
-            color: '#ffffff',
-            fontSize: '0.9375rem',
-            fontWeight: 600,
-            textDecoration: 'none',
-            minHeight: '48px',
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-          Daftar Sekarang
-        </Link>
+        {showRegisterCTA && (
+          <Link
+            href="/register"
+            style={{
+              marginTop: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.875rem 1rem',
+              borderRadius: '10px',
+              backgroundColor: 'var(--color-primary-400)',
+              color: '#ffffff',
+              fontSize: '0.9375rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+              minHeight: '48px',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Daftar Sekarang
+          </Link>
+        )}
 
         {/* RS info in mobile menu */}
         <div
@@ -324,8 +338,8 @@ export default function Navbar({ data }) {
             lineHeight: 1.6,
           }}
         >
-          <div>📍 Nganjuk, Jawa Timur 64418</div>
-          <div style={{ marginTop: '0.25rem' }}>📞 (0358) XXXXXX</div>
+          <div>📍 {data?.address || 'Nganjuk, Jawa Timur 64418'}</div>
+          <div style={{ marginTop: '0.25rem' }}>📞 {data?.phone || '(0358) XXXXXX'}</div>
           <div style={{ marginTop: '0.25rem' }}>🏥 IGD 24 Jam Siaga</div>
         </div>
       </div>

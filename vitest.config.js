@@ -31,6 +31,14 @@ export default defineConfig({
           },
         },
       },
+      {
+        test: {
+          name: 'unit',
+          environment: 'jsdom',
+          include: ['src/**/*.spec.{js,ts,jsx,tsx}', 'src/**/*.test.{js,ts,jsx,tsx}'],
+          exclude: ['src/**/*.controller.spec.ts', 'src/**/*.service.spec.ts', 'node_modules', 'dist'],
+        },
+      },
     ],
   },
 });

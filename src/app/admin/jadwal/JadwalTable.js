@@ -32,8 +32,8 @@ export default function JadwalTable({ schedules, doctors }) {
   const [toast, setToast] = useState(null);
 
   const filtered = schedules.filter((s) => {
-    const docName = s.doctors?.name?.toLowerCase() || '';
-    const docSpec = s.doctors?.specialization?.toLowerCase() || '';
+    const docName = s.doctor?.name?.toLowerCase() || '';
+    const docSpec = s.doctor?.specialization?.toLowerCase() || '';
     const q = search.toLowerCase();
     return docName.includes(q) || docSpec.includes(q) || s.date?.includes(q);
   });
@@ -103,16 +103,16 @@ export default function JadwalTable({ schedules, doctors }) {
             </thead>
             <tbody>
               {filtered.map((s) => {
-                const quota = getQuotaStatus(s.filled_quota, s.total_quota);
+                const quota = getQuotaStatus(s.filledQuota, s.totalQuota);
                 return (
                   <tr key={s.id}>
                     <td>
                       <div>
                         <p style={{ fontWeight: 600, color: 'var(--admin-text-h)', fontSize: '0.8125rem' }}>
-                          {s.doctors?.name || '—'}
+                          {s.doctor?.name || '—'}
                         </p>
                         <p style={{ fontSize: '0.6875rem', color: 'var(--admin-text-s)', marginTop: 2 }}>
-                          {s.doctors?.specialization}
+                          {s.doctor?.specialization}
                         </p>
                       </div>
                     </td>
@@ -124,7 +124,7 @@ export default function JadwalTable({ schedules, doctors }) {
                     </td>
                     <td>
                       <span style={{ fontSize: '0.8125rem', fontVariantNumeric: 'tabular-nums' }}>
-                        {s.filled_quota}/{s.total_quota}
+                        {s.filledQuota}/{s.totalQuota}
                       </span>
                     </td>
                     <td>
@@ -164,7 +164,7 @@ export default function JadwalTable({ schedules, doctors }) {
             </div>
             <div className="admin-modal-body">
               <p style={{ fontSize: '0.875rem', color: 'var(--admin-text-b)', lineHeight: 1.6 }}>
-                Hapus jadwal <strong>{confirmDelete.doctors?.name}</strong> tanggal{' '}
+                Hapus jadwal <strong>{confirmDelete.doctor?.name}</strong> tanggal{' '}
                 <strong>{formatDayOrDate(confirmDelete.date)}</strong>?
                 Pendaftaran pasien yang sudah ada tidak dapat dihapus.
               </p>

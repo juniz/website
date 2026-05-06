@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { services } from '@/lib/data/services';
+import { getImageUrl } from '@/lib/utils';
 
 /* SVG icon map for services */
 function ServiceIcon({ name, color }) {
@@ -143,9 +143,22 @@ export default function ServiceGrid({ data = [] }) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
+                    overflow: 'hidden',
                   }}
                 >
-                  <ServiceIcon name={service.icon_name} color={service.color_code || 'var(--color-primary-500)'} />
+                  {service.imageUrl ? (
+                    <img 
+                      src={getImageUrl(service.imageUrl)} 
+                      alt="" 
+                      style={{ 
+                        width: '22px', 
+                        height: '22px', 
+                        objectFit: 'contain' 
+                      }} 
+                    />
+                  ) : (
+                    <ServiceIcon name={service.icon_name} color={service.color_code || 'var(--color-primary-500)'} />
+                  )}
                 </div>
 
                 <div>

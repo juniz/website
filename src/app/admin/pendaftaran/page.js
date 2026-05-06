@@ -1,23 +1,41 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import PendaftaranTable from './PendaftaranTable';
 
 export const metadata = { title: 'Kelola Pendaftaran' };
 
-export default async function AdminPendaftaranPage() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+async function getRegistrations() {
+  const res = await api.get('/registrations');
+  
+  if (!res.success) {
+    console.error('Error fetching registrations:', res.error);
+    return [];
+  }
 
-  const { data: registrations } = await supabase
-    .from('registrations')
-    .select(`
-      *,
-      schedules (
-        time, date,
-        doctors ( name, specialization )
-      )
-    `)
-    .order('created_at', { ascending: false });
+  const items = res.data.data || res.data || [];
+  
+  // Map camelCase backend ke snake_case yang diharapkan PendaftaranTable
+  // Dan struktur nested (schedule -> doctor)
+  return items.map(r => ({
+    ...r,
+    patient_name: r.patientName,
+    nik: r.nik,
+    phone_number: r.phoneNumber,
+    birth_date: r.birthDate,
+    status: r.status,
+    created_at: r.createdAt,
+    schedules: r.schedule ? {
+      time: r.schedule.time,
+      date: r.schedule.date,
+      doctors: r.schedule.doctor ? {
+        name: r.schedule.doctor.name,
+        specialization: r.schedule.doctor.specialization
+      } : null
+    } : null
+  }));
+}
+
+export default async function AdminPendaftaranPage() {
+  const registrations = await getRegistrations();
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -31,7 +49,7 @@ export default async function AdminPendaftaranPage() {
       </div>
 
       <div className="admin-card">
-        <PendaftaranTable registrations={registrations || []} />
+        <PendaftaranTable registrations={registrations} />
       </div>
     </div>
   );

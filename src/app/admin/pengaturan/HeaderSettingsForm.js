@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { updateSiteSettings } from '@/app/actions/admin/settings';
 import Input from '@/components/ui/Input';
-import { Save, Loader2, MapPin, Phone, Clock, Type, CheckCircle2, AlertCircle, Building2 } from 'lucide-react';
+import { Save, Loader2, MapPin, Phone, Clock, Type, CheckCircle2, AlertCircle, Building2, Mail } from 'lucide-react';
 
 export default function HeaderSettingsForm({ initialData }) {
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,12 @@ export default function HeaderSettingsForm({ initialData }) {
     logo_subtext: initialData?.logo_subtext || 'Nganjuk',
     address: initialData?.address || '',
     phone: initialData?.phone || '',
+    email: initialData?.email || '',
     business_hours: initialData?.business_hours || '',
+    instagram: initialData?.instagram || '',
+    facebook: initialData?.facebook || '',
+    twitter: initialData?.twitter || '',
+    youtube: initialData?.youtube || '',
   });
 
   const handleChange = (e) => {
@@ -144,6 +149,25 @@ export default function HeaderSettingsForm({ initialData }) {
           </div>
 
           <div className="settings-form-group">
+            <label className="settings-label" htmlFor="email">
+              Email Resmi
+            </label>
+            <div className="settings-input-wrap">
+              <span className="settings-input-icon"><Mail size={15} /></span>
+              <input
+                id="email"
+                className="settings-input"
+                type="email"
+                name="email"
+                value={data.email}
+                onChange={handleChange}
+                placeholder="info@rsbhayangkara-nganjuk.id"
+                autoComplete="email"
+              />
+            </div>
+          </div>
+
+          <div className="settings-form-group">
             <label className="settings-label" htmlFor="business_hours">
               Jam Operasional <span className="settings-required" aria-hidden="true">*</span>
             </label>
@@ -162,6 +186,99 @@ export default function HeaderSettingsForm({ initialData }) {
               />
             </div>
             <span className="settings-helper">Gunakan "·" (middle dot) sebagai pemisah.</span>
+          </div>
+        </div>
+      </fieldset>
+
+      {/* Section: Media Sosial */}
+      <fieldset className="settings-fieldset">
+        <legend className="settings-fieldset-legend">
+          <span className="settings-fieldset-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+          </span>
+          Media Sosial
+        </legend>
+        <p className="settings-fieldset-hint">Tautkan akun media sosial resmi untuk ditampilkan di footer.</p>
+
+        <div className="settings-form-grid-2">
+          <div className="settings-form-group">
+            <label className="settings-label" htmlFor="instagram">
+              Instagram
+            </label>
+            <div className="settings-input-wrap">
+              <span className="settings-input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+              </span>
+              <input
+                id="instagram"
+                className="settings-input"
+                type="url"
+                name="instagram"
+                value={data.instagram}
+                onChange={handleChange}
+                placeholder="https://instagram.com/rsbhayangkara_nganjuk"
+              />
+            </div>
+          </div>
+
+          <div className="settings-form-group">
+            <label className="settings-label" htmlFor="facebook">
+              Facebook
+            </label>
+            <div className="settings-input-wrap">
+              <span className="settings-input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+              </span>
+              <input
+                id="facebook"
+                className="settings-input"
+                type="url"
+                name="facebook"
+                value={data.facebook}
+                onChange={handleChange}
+                placeholder="https://facebook.com/rsbhayangkara_nganjuk"
+              />
+            </div>
+          </div>
+
+          <div className="settings-form-group">
+            <label className="settings-label" htmlFor="twitter">
+              Twitter / X
+            </label>
+            <div className="settings-input-wrap">
+              <span className="settings-input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+              </span>
+              <input
+                id="twitter"
+                className="settings-input"
+                type="url"
+                name="twitter"
+                value={data.twitter}
+                onChange={handleChange}
+                placeholder="https://twitter.com/rsbhayangkara"
+              />
+            </div>
+          </div>
+
+          <div className="settings-form-group">
+            <label className="settings-label" htmlFor="youtube">
+              YouTube
+            </label>
+            <div className="settings-input-wrap">
+              <span className="settings-input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.4 5.58a2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.89 23 12 23 12s0-3.89-.4-5.58z"></path><path d="M9.75 15.02l5.75-3.02-5.75-3.02v6.04z"></path></svg>
+              </span>
+              <input
+                id="youtube"
+                className="settings-input"
+                type="url"
+                name="youtube"
+                value={data.youtube}
+                onChange={handleChange}
+                placeholder="https://youtube.com/@rsbhayangkara_nganjuk"
+              />
+            </div>
           </div>
         </div>
       </fieldset>

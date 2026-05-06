@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import BeritaTable from './BeritaTable';
@@ -7,13 +6,10 @@ import BeritaTable from './BeritaTable';
 export const metadata = { title: 'Kelola Berita & Artikel' };
 
 export default async function AdminBeritaPage() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data: news } = await supabase
-    .from('news')
-    .select('id, title, slug, category, author, date, read_time, image, excerpt')
-    .order('date', { ascending: false });
+  const result = await api.get('/news');
+  
+  // Karena backend ada TransformInterceptor, data asli ada di dalam property 'data'
+  const items = result.success ? (result.data.data || result.data) : [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -31,7 +27,7 @@ export default async function AdminBeritaPage() {
       </div>
 
       <div className="admin-card">
-        <BeritaTable articles={news || []} />
+        <BeritaTable articles={items} />
       </div>
     </div>
   );

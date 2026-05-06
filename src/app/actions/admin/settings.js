@@ -1,136 +1,76 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
-import { cookies } from 'next/headers';
+import { api } from '@/lib/api';
 import { revalidatePath } from 'next/cache';
+import { getAuthToken } from '@/lib/auth-utils';
+
+async function getHeaders() {
+  const token = await getAuthToken();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
 /**
- * Update site settings (Header, Hero, Footer)
+ * Update site settings (Header, Hero, Footer) via NestJS API
  */
 export async function updateSiteSettings(key, value) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  try {
+    const headers = await getHeaders();
+    const result = await api.post(`/settings/key/${key}`, { value }, { headers });
+    if (!result.success) throw new Error(result.error);
 
-  const { data, error } = await supabase
-    .from('site_settings')
-    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
-    .select()
-    .single();
-
-  if (error) {
-    console.error(`Error updating site settings (${key}):`, error);
-    return { success: false, error: error.message };
+    revalidatePath('/', 'layout');
+    revalidatePath('/admin/pengaturan');
+    return { success: true, data: result.data };
+  } catch (err) {
+    console.error(`Error updating site settings (${key}):`, err);
+    return { success: false, error: err.message };
   }
-
-  revalidatePath('/', 'layout');
-  revalidatePath('/admin/pengaturan');
-  return { success: true, data };
 }
 
 /**
- * Get site settings by key
- */
-export async function getSiteSettings(key) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data, error } = await supabase
-    .from('site_settings')
-    .select('value')
-    .eq('key', key)
-    .single();
-
-  if (error) {
-    console.error(`Error fetching site settings (${key}):`, error);
-    return null;
-  }
-
-  return data.value;
-}
-
-/**
- * Update Page SEO
+ * Update Page SEO via NestJS API
  */
 export async function updatePageSEO(id, seoData) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  try {
+    const headers = await getHeaders();
+    // Map snake_case to camelCase for backend
+    const payload = {
+      route: id, // id berisi rute (misal: '/')
+      title: seoData.meta_title,
+      description: seoData.meta_description,
+      keywords: Array.isArray(seoData.meta_keywords) ? seoData.meta_keywords.join(',') : seoData.meta_keywords,
+      isActive: seoData.is_active,
+      ogImage: seoData.og_image
+    };
 
-  const { data, error } = await supabase
-    .from('page_seo')
-    .update({
-      ...seoData,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', id)
-    .select()
-    .single();
+    const result = await api.post('/seo', payload, { headers });
+    if (!result.success) throw new Error(result.error);
 
-  if (error) {
-    console.error('Error updating page SEO:', error);
-    return { success: false, error: error.message };
+    revalidatePath('/', 'layout');
+    revalidatePath(id);
+    
+    return { success: true, data: result.data };
+  } catch (err) {
+    console.error('Error updating page SEO:', err);
+    return { success: false, error: err.message };
   }
-
-  // Revalidate the specific route if provided in data (though it shouldn't change)
-  revalidatePath('/', 'layout');
-  revalidatePath(seoData.route);
-  
-  return { success: true, data };
 }
 
 /**
- * Get all SEO settings
- */
-export async function getAllSEO() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data, error } = await supabase
-    .from('page_seo')
-    .select('*')
-    .order('route', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching all SEO:', error);
-    return [];
-  }
-
-  return data;
-}
-
-/**
- * Upload image to Supabase Storage
+ * Upload image (used for Hero etc) via NestJS API
  */
 export async function uploadHeroImage(formData) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  try {
+    const headers = await getHeaders();
+    // Use the generic /uploads endpoint
+    const result = await api.post('/uploads', formData, { headers });
+    if (!result.success) throw new Error(result.error);
 
-  const file = formData.get('file');
-  if (!file) {
-    return { success: false, error: 'File tidak ditemukan' };
+    // Backend wraps response in { data: { ... } }
+    const url = result.data.data?.url || result.data.url;
+    return { success: true, url };
+  } catch (err) {
+    console.error('Error uploading image:', err);
+    return { success: false, error: err.message };
   }
-
-  // Generate unique filename
-  const fileExt = file.name.split('.').pop();
-  const fileName = `hero_${Date.now()}.${fileExt}`;
-  const filePath = `hero/${fileName}`;
-
-  // Upload to Supabase Storage
-  const { data, error } = await supabase.storage
-    .from('site-assets')
-    .upload(filePath, file, {
-      contentType: file.type,
-      upsert: true
-    });
-
-  if (error) {
-    console.error('Error uploading image to storage:', error);
-    return { success: false, error: error.message };
-  }
-
-  // Get public URL
-  const { data: { publicUrl } } = supabase.storage
-    .from('site-assets')
-    .getPublicUrl(filePath);
-
-  return { success: true, url: publicUrl };
 }

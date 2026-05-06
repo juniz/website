@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/utils';
 
 /**
- * HeroSection — Landing page hero with stat cards
+ * HeroSection — Landing page hero with stat cards.
+ * CSS-only staggered entrance animations (no client JS needed).
  * @param {Object} data - Hero settings data from database
  */
 export default function HeroSection({ data }) {
@@ -27,38 +29,39 @@ export default function HeroSection({ data }) {
       }}
       className="hero-section-fhd"
     >
-      {/* 1. Full Width Background Image Overlay */}
-      <div 
-        aria-hidden="true" 
-        style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          zIndex: 0 
+      {/* Background image layer */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
         }}
       >
-        {/* Image layer */}
+        {/* Image — Ken Burns subtle zoom */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: `url(${heroImageUrl})`,
+          backgroundImage: `url(${getImageUrl(heroImageUrl)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+          animation: 'heroKenBurns 20s ease-out forwards',
         }} />
-        
-        {/* Cinematic Gradient Overlay */}
+
+        {/* Cinematic gradient overlay (desktop) */}
         <div style={{
           position: 'absolute',
           inset: 0,
           background: 'linear-gradient(to right, rgba(4, 44, 83, 0.95) 0%, rgba(4, 44, 83, 0.7) 40%, rgba(4, 44, 83, 0.3) 100%)',
         }} className="hero-overlay-desktop" />
-        
-        {/* Mobile-specific more aggressive overlay */}
+
+        {/* Solid overlay (mobile) */}
         <div style={{
           position: 'absolute',
           inset: 0,
           background: 'rgba(4, 44, 83, 0.75)',
-          display: 'none'
+          display: 'none',
         }} className="hero-overlay-mobile" />
       </div>
 
@@ -72,8 +75,10 @@ export default function HeroSection({ data }) {
         }}
       >
         <div style={{ maxWidth: '640px' }} className="hero-content">
-          {/* Accreditation badge */}
+
+          {/* Accreditation badge — animates first */}
           <div
+            className="hero-anim-badge"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -88,7 +93,7 @@ export default function HeroSection({ data }) {
               borderRadius: '999px',
               marginBottom: '1.5rem',
               letterSpacing: '0.03em',
-              textTransform: 'uppercase'
+              textTransform: 'uppercase',
             }}
           >
             <span
@@ -104,9 +109,10 @@ export default function HeroSection({ data }) {
             {data?.accreditation || 'Terakreditasi Madya — RS Bhayangkara Nganjuk'}
           </div>
 
-          {/* H1 Full HD Style */}
+          {/* H1 */}
           <h1
             id="hero-heading"
+            className="hero-anim-title"
             style={{
               fontSize: 'clamp(2.5rem, 6vw, 4.25rem)',
               fontWeight: 800,
@@ -118,30 +124,35 @@ export default function HeroSection({ data }) {
             }}
           >
             {data?.title || 'Kesehatan Anda,'}<br />
-            <span style={{ 
-              color: 'var(--color-primary-200)',
+            <span style={{
               background: 'linear-gradient(to right, #85B7EB, #B5D4F4)',
               WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>{data?.title_accent || 'Prioritas Kami'}</span>
+              WebkitTextFillColor: 'transparent',
+            }}>
+              {data?.title_accent || 'Prioritas Kami'}
+            </span>
           </h1>
 
-          {/* Subtext */}
+          {/* Subtitle */}
           <p
+            className="hero-anim-sub"
             style={{
               color: 'var(--color-primary-100)',
               fontSize: 'clamp(1rem, 2vw, 1.125rem)',
               lineHeight: 1.7,
               marginBottom: '2.5rem',
               maxWidth: '540px',
-              textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              textShadow: '0 2px 4px rgba(0,0,0,0.2)',
             }}
           >
             {data?.subtitle || 'Layanan kesehatan terpercaya dengan dokter spesialis berpengalaman dan teknologi medis terkini untuk masyarakat Nganjuk dan sekitarnya.'}
           </p>
 
           {/* CTA buttons */}
-          <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }} className="hero-cta-group">
+          <div
+            style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}
+            className="hero-cta-group hero-anim-cta"
+          >
             <Link
               href={data?.cta_primary?.href || '/register'}
               style={{
@@ -198,23 +209,20 @@ export default function HeroSection({ data }) {
             </Link>
           </div>
 
-          {/* Stats Bar (Desktop floating row) */}
+          {/* Stats bar — each stat staggers in */}
           <div
-            style={{
-              display: 'flex',
-              gap: '2rem',
-              marginTop: '4.5rem',
-              flexWrap: 'wrap',
-            }}
+            style={{ display: 'flex', gap: '2rem', marginTop: '4.5rem', flexWrap: 'wrap' }}
             className="hero-stats-bar"
           >
-            {stats.map((stat) => (
+            {stats.map((stat, i) => (
               <div
                 key={stat.label}
+                className="hero-anim-stat"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '0.25rem',
+                  animationDelay: `${0.65 + i * 0.12}s`,
                 }}
               >
                 <div style={{
@@ -222,7 +230,7 @@ export default function HeroSection({ data }) {
                   fontWeight: 800,
                   color: '#fff',
                   fontFamily: 'var(--font-figtree, Figtree, sans-serif)',
-                  lineHeight: 1
+                  lineHeight: 1,
                 }}>
                   {stat.value}
                 </div>
@@ -231,7 +239,7 @@ export default function HeroSection({ data }) {
                   fontWeight: 600,
                   color: 'var(--color-primary-200)',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.1em'
+                  letterSpacing: '0.1em',
                 }}>
                   {stat.label}
                 </div>
@@ -239,16 +247,15 @@ export default function HeroSection({ data }) {
             ))}
           </div>
 
-          {/* Trust indicators small mobile footer */}
+          {/* Trust indicators */}
           <div
             style={{
               display: 'flex',
               gap: '1.5rem',
               marginTop: '3.5rem',
               flexWrap: 'wrap',
-              opacity: 0.8
             }}
-            className="hero-trust-indicators"
+            className="hero-trust-indicators hero-anim-trust"
           >
             {(data?.trust_indicators || [
               { icon: '🏥', label: 'BPJS Kesehatan' },
@@ -264,6 +271,7 @@ export default function HeroSection({ data }) {
                   fontSize: '0.8125rem',
                   color: 'var(--color-primary-100)',
                   fontWeight: 500,
+                  opacity: 0.85,
                 }}
               >
                 <span role="img" aria-hidden="true">{item.icon}</span>
@@ -275,6 +283,41 @@ export default function HeroSection({ data }) {
       </div>
 
       <style>{`
+        /* ── Hero entrance keyframes ────────────────────────── */
+        @keyframes heroFadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes heroFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes heroKenBurns {
+          from { transform: scale(1.06); }
+          to   { transform: scale(1); }
+        }
+
+        /* ── Staggered entrance: badge → title → sub → cta → stats → trust */
+        .hero-anim-badge {
+          animation: heroFadeUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.05s both;
+        }
+        .hero-anim-title {
+          animation: heroFadeUp 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
+        }
+        .hero-anim-sub {
+          animation: heroFadeUp 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.35s both;
+        }
+        .hero-anim-cta {
+          animation: heroFadeUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.48s both;
+        }
+        .hero-anim-stat {
+          animation: heroFadeUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+        .hero-anim-trust {
+          animation: heroFadeIn 0.8s ease-out 1s both;
+        }
+
+        /* ── Button hover ───────────────────────────────────── */
         .hero-btn-primary:hover {
           background-color: var(--color-primary-600) !important;
           transform: translateY(-3px) scale(1.02);
@@ -286,14 +329,14 @@ export default function HeroSection({ data }) {
           transform: translateY(-2px);
         }
 
+        /* ── Responsive ─────────────────────────────────────── */
         @media (max-width: 1023px) {
           .hero-section-fhd {
             min-height: 680px !important;
             padding-block: 4rem !important;
           }
           .hero-overlay-desktop { display: none !important; }
-          .hero-overlay-mobile { display: block !important; }
-          
+          .hero-overlay-mobile  { display: block !important; }
           .hero-content {
             margin-inline: auto !important;
             text-align: center !important;
@@ -301,32 +344,30 @@ export default function HeroSection({ data }) {
             flex-direction: column !important;
             align-items: center !important;
           }
-          
-          .hero-cta-group {
-            justify-content: center !important;
-          }
-
-          .hero-stats-bar {
-            justify-content: center !important;
-            gap: 1.5rem !important;
-            margin-top: 3rem !important;
-          }
-
-          .hero-trust-indicators {
-            justify-content: center !important;
-          }
+          .hero-cta-group   { justify-content: center !important; }
+          .hero-stats-bar   { justify-content: center !important; gap: 1.5rem !important; margin-top: 3rem !important; }
+          .hero-trust-indicators { justify-content: center !important; }
         }
 
         @media (max-width: 639px) {
-          .hero-section-fhd {
-             min-height: 600px !important;
-          }
-          .hero-stats-bar > div {
-             flex: 1 1 100px;
+          .hero-section-fhd { min-height: 600px !important; }
+          .hero-stats-bar > div { flex: 1 1 100px; }
+        }
+
+        /* ── Reduced motion ─────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+          .hero-anim-badge,
+          .hero-anim-title,
+          .hero-anim-sub,
+          .hero-anim-cta,
+          .hero-anim-stat,
+          .hero-anim-trust {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
           }
         }
       `}</style>
     </section>
   );
 }
-

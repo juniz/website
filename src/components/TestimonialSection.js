@@ -1,4 +1,5 @@
 import { Quote, Star } from 'lucide-react';
+import { getImageUrl } from '@/lib/utils';
 
 export default function TestimonialSection({ data = [] }) {
   if (data.length === 0) return null;
@@ -45,7 +46,7 @@ export default function TestimonialSection({ data = [] }) {
               <div className="flex items-center gap-3 mt-auto">
                 <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center font-bold text-primary-600 text-sm">
                   {item.avatar_url ? (
-                    <img src={item.avatar_url} alt={item.patient_name} className="w-full h-full object-cover rounded-full" />
+                    <img src={getImageUrl(item.avatar_url)} alt={item.patient_name} className="w-full h-full object-cover rounded-full" />
                   ) : item.patient_name.charAt(0)}
                 </div>
                 <div>

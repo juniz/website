@@ -1,28 +1,23 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { api } from '@/lib/api';
+import { getAuthToken } from '@/lib/auth-utils';
 
-async function getSupabase() {
-  const cookieStore = await cookies();
-  return createClient(cookieStore);
+async function getHeaders() {
+  const token = await getAuthToken();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
 /**
  * Dapatkan semua kategori FAQ yang sudah ada (untuk dropdown)
  */
 export async function getFAQCategories() {
-  const supabase = await getSupabase();
-  const { data, error } = await supabase
-    .from('faqs')
-    .select('category')
-    .order('category', { ascending: true });
-
-  if (error) return [];
-
-  // Unique categories
-  const unique = [...new Set(data.map((d) => d.category).filter(Boolean))];
+  const res = await api.get('/faqs');
+  if (!res.success) return [];
+  
+  const items = res.data.data || res.data;
+  const unique = [...new Set(items.map((d) => d.category).filter(Boolean))];
   return unique;
 }
 
@@ -30,76 +25,64 @@ export async function getFAQCategories() {
  * Buat FAQ baru
  */
 export async function createFAQ(formData) {
-  const supabase = await getSupabase();
+  try {
+    const headers = await getHeaders();
+    const result = await api.post('/faqs', {
+      question: formData.get('question')?.trim(),
+      answer: formData.get('answer')?.trim(),
+      category: formData.get('category')?.trim() || 'Umum',
+      sortOrder: parseInt(formData.get('sort_order') || '0', 10),
+      isActive: formData.get('is_active') !== 'false',
+    }, { headers });
 
-  const question = formData.get('question')?.trim();
-  const answer = formData.get('answer')?.trim();
-  const category = formData.get('category')?.trim() || 'Umum';
-  const sort_order = parseInt(formData.get('sort_order') || '0', 10);
-  const is_active = formData.get('is_active') !== 'false';
+    if (!result.success) return { error: result.error };
 
-  if (!question) return { error: 'Pertanyaan wajib diisi.' };
-  if (!answer) return { error: 'Jawaban wajib diisi.' };
-
-  const { error } = await supabase.from('faqs').insert({
-    question,
-    answer,
-    category,
-    sort_order,
-    is_active,
-  });
-
-  if (error) return { error: error.message };
-
-  revalidatePath('/admin/faq');
-  revalidatePath('/');
-  return { success: true };
+    revalidatePath('/admin/faq');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
 }
 
 /**
  * Update FAQ yang sudah ada
  */
 export async function updateFAQ(id, formData) {
-  const supabase = await getSupabase();
+  try {
+    const headers = await getHeaders();
+    const result = await api.patch(`/faqs/${id}`, {
+      question: formData.get('question')?.trim(),
+      answer: formData.get('answer')?.trim(),
+      category: formData.get('category')?.trim() || 'Umum',
+      sortOrder: parseInt(formData.get('sort_order') || '0', 10),
+      isActive: formData.get('is_active') !== 'false',
+    }, { headers });
 
-  const question = formData.get('question')?.trim();
-  const answer = formData.get('answer')?.trim();
-  const category = formData.get('category')?.trim() || 'Umum';
-  const sort_order = parseInt(formData.get('sort_order') || '0', 10);
-  const is_active = formData.get('is_active') !== 'false';
+    if (!result.success) return { error: result.error };
 
-  if (!question) return { error: 'Pertanyaan wajib diisi.' };
-  if (!answer) return { error: 'Jawaban wajib diisi.' };
-
-  const { error } = await supabase
-    .from('faqs')
-    .update({
-      question,
-      answer,
-      category,
-      sort_order,
-      is_active,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id);
-
-  if (error) return { error: error.message };
-
-  revalidatePath('/admin/faq');
-  revalidatePath('/');
-  return { success: true };
+    revalidatePath('/admin/faq');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
 }
 
 /**
  * Hapus FAQ
  */
 export async function deleteFAQ(id) {
-  const supabase = await getSupabase();
+  try {
+    const headers = await getHeaders();
+    const result = await api.delete(`/faqs/${id}`, { headers });
 
-  const { error } = await supabase.from('faqs').delete().eq('id', id);
-  if (error) return { error: error.message };
+    if (!result.success) return { error: result.error };
 
-  revalidatePath('/admin/faq');
-  revalidatePath('/');
-  return { success: true };
+    revalidatePath('/admin/faq');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
 }

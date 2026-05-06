@@ -1,129 +1,100 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { api } from '@/lib/api';
 import { revalidatePath } from 'next/cache';
+import { getAuthToken } from '@/lib/auth-utils';
 
-async function getSupabase() {
-  const cookieStore = await cookies();
-  return createClient(cookieStore);
+async function getHeaders() {
+  const token = await getAuthToken();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
 /**
- * Upload logo partner ke Supabase Storage
- */
-async function uploadPartnerLogo(supabase, file, partnerName) {
-  if (!file || typeof file === 'string' || file.size === 0) return null;
-
-  const slug = partnerName
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .slice(0, 40);
-
-  const ext = file.name.split('.').pop() || 'png';
-  const fileName = `${Date.now()}-${slug}.${ext}`.replace(/[^a-zA-Z0-9.-]/g, '');
-
-  const { error } = await supabase.storage
-    .from('partner-logos')
-    .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
-  if (error) {
-    console.error('Storage upload error:', error);
-    throw new Error('Gagal mengunggah logo: ' + error.message);
-  }
-
-  const { data: { publicUrl } } = supabase.storage
-    .from('partner-logos')
-    .getPublicUrl(fileName);
-
-  return publicUrl;
-}
-
-/**
- * Buat partner baru
+ * Buat partner baru via NestJS API
  */
 export async function createPartner(formData) {
-  const supabase = await getSupabase();
-
-  const name        = formData.get('name')?.trim();
-  const website_url = formData.get('website_url')?.trim() || null;
-  const sort_order  = parseInt(formData.get('sort_order') || '0', 10);
-  const is_active   = formData.get('is_active') !== 'false';
-
-  if (!name) return { error: 'Nama partner wajib diisi.' };
-
   try {
-    const logo_url = await uploadPartnerLogo(supabase, formData.get('logo'), name);
+    const headers = await getHeaders();
+    const name       = formData.get('name')?.trim();
+    const websiteUrl = formData.get('website_url')?.trim() || '';
+    const sortOrder  = formData.get('sort_order') || '0';
+    const isActive   = formData.get('is_active') === 'true';
 
-    const { error } = await supabase.from('partners').insert({
-      name,
-      logo_url: logo_url || null,
-      website_url,
-      sort_order,
-      is_active,
-    });
+    if (!name) return { error: 'Nama partner wajib diisi.' };
 
-    if (error) return { error: error.message };
+    const body = new FormData();
+    body.append('name', name);
+    body.append('link', websiteUrl); // Backend Partner entity uses 'link'
+    body.append('sortOrder', sortOrder);
+    body.append('isActive', isActive ? 'true' : 'false');
+
+    const file = formData.get('logo');
+    if (file && file.size > 0) {
+      body.append('image', file);
+    }
+
+    const result = await api.post('/partners', body, { headers });
+    if (!result.success) throw new Error(result.error || 'Gagal menambahkan partner');
+
+    revalidatePath('/admin/partner');
+    revalidatePath('/');
+    return { success: true };
   } catch (err) {
+    console.error('Create partner error:', err);
     return { error: err.message };
   }
-
-  revalidatePath('/admin/partner');
-  revalidatePath('/');
-  return { success: true };
 }
 
 /**
- * Update partner yang sudah ada
+ * Update partner via NestJS API
  */
 export async function updatePartner(id, formData) {
-  const supabase = await getSupabase();
-
-  const name         = formData.get('name')?.trim();
-  const website_url  = formData.get('website_url')?.trim() || null;
-  const sort_order   = parseInt(formData.get('sort_order') || '0', 10);
-  const is_active    = formData.get('is_active') !== 'false';
-  const existing_logo = formData.get('existing_logo') || null;
-
-  if (!name) return { error: 'Nama partner wajib diisi.' };
-
   try {
-    let logo_url = await uploadPartnerLogo(supabase, formData.get('logo'), name);
-    // Fallback ke logo lama jika tidak ada upload baru
-    logo_url = logo_url || existing_logo;
+    const headers = await getHeaders();
+    const name       = formData.get('name')?.trim();
+    const websiteUrl = formData.get('website_url')?.trim() || '';
+    const sortOrder  = formData.get('sort_order') || '0';
+    const isActive   = formData.get('is_active') === 'true';
 
-    const { error } = await supabase
-      .from('partners')
-      .update({
-        name,
-        logo_url,
-        website_url,
-        sort_order,
-        is_active,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id);
+    if (!name) return { error: 'Nama partner wajib diisi.' };
 
-    if (error) return { error: error.message };
+    const body = new FormData();
+    body.append('name', name);
+    body.append('link', websiteUrl);
+    body.append('sortOrder', sortOrder);
+    body.append('isActive', isActive ? 'true' : 'false');
+
+    const file = formData.get('logo');
+    if (file && file.size > 0) {
+      body.append('image', file);
+    }
+
+    const result = await api.patch(`/partners/${id}`, body, { headers });
+    if (!result.success) throw new Error(result.error || 'Gagal memperbarui partner');
+
+    revalidatePath('/admin/partner');
+    revalidatePath('/');
+    return { success: true };
   } catch (err) {
+    console.error('Update partner error:', err);
     return { error: err.message };
   }
-
-  revalidatePath('/admin/partner');
-  revalidatePath('/');
-  return { success: true };
 }
 
 /**
- * Hapus partner
+ * Hapus partner via NestJS API
  */
 export async function deletePartner(id) {
-  const supabase = await getSupabase();
-  const { error } = await supabase.from('partners').delete().eq('id', id);
-  if (error) return { error: error.message };
+  try {
+    const headers = await getHeaders();
+    const result = await api.delete(`/partners/${id}`, { headers });
+    if (!result.success) throw new Error(result.error);
 
-  revalidatePath('/admin/partner');
-  revalidatePath('/');
-  return { success: true };
+    revalidatePath('/admin/partner');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    console.error('Delete partner error:', err);
+    return { error: err.message };
+  }
 }

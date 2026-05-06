@@ -1,42 +1,39 @@
-import { createClient } from '@/utils/supabase/static';
+import { api } from '@/lib/api';
 import { specializationFilters, getInitials } from './shared';
 
 export { specializationFilters, getInitials };
 
 export async function getDoctors() {
-  const supabase = createClient();
-  const { data: doctors } = await supabase.from('doctors').select('*').order('name', { ascending: true });
-  const items = doctors || [];
+  const result = await api.get('/doctors');
+  
+  // Karena backend ada TransformInterceptor, data asli ada di dalam property 'data'
+  const items = result.success ? (result.data.data || result.data) : [];
 
   return items.map(doc => {
     let specCode = 'all';
-    if (doc.specialization.toLowerCase().includes('jantung')) specCode = 'jantung';
-    else if (doc.specialization.toLowerCase().includes('anak')) specCode = 'anak';
-    else if (doc.specialization.toLowerCase().includes('kandungan')) specCode = 'kandungan';
-    else if (doc.specialization.toLowerCase().includes('bedah')) specCode = 'bedah';
-    else if (doc.specialization.toLowerCase().includes('dalam')) specCode = 'penyakit-dalam';
+    if (doc.specialization?.toLowerCase().includes('jantung')) specCode = 'jantung';
+    else if (doc.specialization?.toLowerCase().includes('anak')) specCode = 'anak';
+    else if (doc.specialization?.toLowerCase().includes('kandungan')) specCode = 'kandungan';
+    else if (doc.specialization?.toLowerCase().includes('bedah')) specCode = 'bedah';
+    else if (doc.specialization?.toLowerCase().includes('dalam')) specCode = 'penyakit-dalam';
 
     return {
       ...doc,
-      isAvailable: doc.is_available,
+      // Backend kita menggunakan isAvailable (camelCase)
+      isAvailable: doc.isAvailable,
       specializationCode: specCode,
-      availability: doc.is_available ? 'today' : 'unavailable',
+      availability: doc.isAvailable ? 'today' : 'unavailable',
       avatarBg: 'var(--color-primary-100)',
       avatarColor: 'var(--color-primary-700)',
       experience: '10+ Tahun',
       education: 'Universitas Indonesia',
       bio: `Dr. ${doc.name} adalah seorang dokter spesialis yang berdedikasi tinggi memberikan pelayanan terbaik untuk kesehatan Anda.`,
-      todaySchedule: doc.is_available ? '10:00 - 14:00' : null
+      todaySchedule: doc.isAvailable ? '10:00 - 14:00' : null
     };
   });
 }
 
-// Exporting original functions for server use
 export async function getDoctorById(id) {
-  const supabase = createClient();
-  const { data } = await supabase.from('doctors').select('*').eq('id', id).single();
-  if (data) {
-    data.isAvailable = data.is_available;
-  }
-  return data;
+  const result = await api.get(`/doctors/${id}`);
+  return result.success ? (result.data.data || result.data) : null;
 }

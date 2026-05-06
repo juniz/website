@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Pencil, Trash2, Search, CheckCircle2, XCircle, Stethoscope } from 'lucide-react';
 import { deleteDokter } from '@/app/actions/admin/dokter';
+import { getImageUrl } from '@/lib/utils';
 
 function getInitials(name) {
   if (!name) return '?';
@@ -67,7 +68,7 @@ export default function DokterTable({ doctors }) {
           </div>
         </div>
         <span style={{ fontSize: '0.8125rem', color: 'var(--admin-text-m)' }}>
-          {filtered.length} dokter
+          {filtered.length} {filtered.length === 1 ? 'dokter' : 'dokter'}
         </span>
       </div>
 
@@ -109,7 +110,7 @@ export default function DokterTable({ doctors }) {
                         }}
                       >
                         {doc.image ? (
-                          <img src={doc.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={getImageUrl(doc.image)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           getInitials(doc.name)
                         )}
@@ -121,7 +122,7 @@ export default function DokterTable({ doctors }) {
                   </td>
                   <td style={{ color: 'var(--admin-text-m)' }}>{doc.specialization}</td>
                   <td>
-                    {doc.is_available ? (
+                    {doc.isAvailable ? (
                       <span className="admin-badge success">
                         <CheckCircle2 size={10} aria-hidden="true" /> Aktif
                       </span>
