@@ -152,18 +152,16 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
 
   /* ── Certificate state ──────────────────────── */
   const [certUrl, setCertUrl] = useState(profile?.accreditation_certificate_url || null);
+  const [localFile, setLocalFile] = useState(null); // File yang sedang diupload/dipilih
+  const [localPreview, setLocalPreview] = useState(null); // URL.createObjectURL
   const [certPending, startCertTransition] = useTransition();
   const [isDragging, setIsDragging] = useState(false);
   const certInputRef = useRef(null);
 
-  const isImage = certUrl && (
-    certUrl.toLowerCase().endsWith('.png') ||
-    certUrl.toLowerCase().endsWith('.jpg') ||
-    certUrl.toLowerCase().endsWith('.jpeg') ||
-    certUrl.toLowerCase().endsWith('.webp') ||
-    certUrl.startsWith('data:image') ||
-    certUrl.includes('/uploads/') // assuming uploads are often images, or just trust the extension
-  );
+  const IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
+  const isImage = certUrl && IMAGE_EXTS.some(ext => certUrl.toLowerCase().split('?')[0].endsWith(ext));
+  // Also treat local blob previews from image files as images
+  const effectivePreview = localPreview || (isImage ? getImageUrl(certUrl) : null);
 
   const CERT_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
   const CERT_ALLOWED   = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'];
@@ -184,14 +182,29 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
     if (!file) return;
     const validationError = validateCertFile(file);
     if (validationError) { show(validationError, 'error'); return; }
+
+    // Tampilkan preview lokal segera sebelum upload selesai
+    const isImg = file.type.startsWith('image/');
+    setLocalFile(file);
+    if (isImg) {
+      setLocalPreview(URL.createObjectURL(file));
+    } else {
+      setLocalPreview(null);
+    }
+
     startCertTransition(async () => {
       const fd = new FormData();
       fd.append('certificate', file);
       const res = await uploadAccreditationCertificate(fd);
       if (res.error) {
         show(res.error, 'error');
+        setLocalFile(null);
+        setLocalPreview(null);
       } else {
         setCertUrl(res.url);
+        setLocalFile(null);
+        // localPreview tetap tampil — akan di-clear saat user klik Ganti/Hapus
+        // atau ketika server image sudah pasti bisa dimuat
         show('Sertifikat berhasil diunggah!');
       }
       if (certInputRef.current) certInputRef.current.value = '';
@@ -224,12 +237,23 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
     triggerCertUpload(file);
   }
 
+  const getFileName = (url) => {
+    if (!url) return 'Sertifikat_Akreditasi';
+    const parts = url.split('/');
+    return decodeURIComponent(parts[parts.length - 1]);
+  };
+
   async function handleRemoveCert() {
     if (!confirm('Hapus sertifikat akreditasi?')) return;
     startCertTransition(async () => {
       const res = await removeAccreditationCertificate();
       if (res.error) show(res.error, 'error');
-      else { setCertUrl(null); show('Sertifikat dihapus.'); }
+      else {
+        setCertUrl(null);
+        setLocalPreview(null); // clear preview saat hapus
+        setLocalFile(null);
+        show('Sertifikat dihapus.');
+      }
     });
   }
 
@@ -347,88 +371,101 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
             </div>
 
             {/* ── Certificate Upload ────────────────── */}
+            {/* ── Certificate Preview & Upload Area (Match LayananForm Style) ── */}
             <div className="ab-cert-section">
-              <p className="ab-label" style={{ marginBottom: 8 }}>
+              <p className="ab-label" style={{ marginBottom: 10 }}>
                 Sertifikat Akreditasi
                 <span className="ab-label-note"> — PDF / JPG / PNG (maks. 10 MB)</span>
               </p>
 
-              {certUrl ? (
-                /* ── Sudah ada file ── */
-                <div className="ab-cert-saved">
-                  <div className="ab-cert-saved-left">
-                    {isImage ? (
-                      <div className="ab-cert-thumb">
-                        <img src={getImageUrl(certUrl)} alt="Sertifikat" />
+              <div className={`ab-upload-container ${(certUrl || localFile || localPreview) ? 'ab-has-file' : ''} ${isDragging ? 'ab-dragging' : ''} ${certPending ? 'ab-loading' : ''}`}>
+                {/* 1. Preview State */}
+                {(certUrl || localFile || localPreview) ? (
+                  <div className="ab-upload-preview">
+                    {effectivePreview ? (
+                      /* Gambar: tampilkan thumbnail (local blob atau server URL) */
+                      <div className="ab-preview-img-box">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={effectivePreview} alt="Sertifikat Akreditasi" />
+                        {certUrl && !localPreview && (
+                          <a href={getImageUrl(certUrl)} target="_blank" rel="noopener noreferrer" className="ab-preview-overlay">
+                            <ExternalLink size={16} /> Lihat Ukuran Penuh
+                          </a>
+                        )}
+                        {localPreview && (
+                          <div className="ab-preview-badge">
+                            {certPending ? 'Sedang mengunggah...' : 'Berhasil diunggah ✓'}
+                          </div>
+                        )}
+                      </div>
+                    ) : localFile ? (
+                      /* PDF sedang diupload */
+                      <div className="ab-preview-file-box">
+                        <div className="ab-file-icon-wrap"><FileText size={32} /></div>
+                        <div className="ab-preview-file-info">
+                          <p className="ab-filename">{localFile.name}</p>
+                          <p className="ab-status">{certPending ? 'Sedang mengunggah...' : 'Selesai'}</p>
+                        </div>
                       </div>
                     ) : (
-                      <span className="ab-cert-icon"><FileCheck size={18} /></span>
+                      /* PDF sudah tersimpan di server */
+                      <div className="ab-preview-file-box">
+                        <div className="ab-file-icon-wrap"><FileCheck size={28} /></div>
+                        <div className="ab-preview-file-info">
+                          <p className="ab-filename">{getFileName(certUrl)}</p>
+                          <a href={getImageUrl(certUrl)} target="_blank" rel="noopener noreferrer" className="ab-file-link">
+                            Buka / Preview File <ExternalLink size={11} />
+                          </a>
+                        </div>
+                      </div>
                     )}
-                    <div>
-                      <p className="ab-cert-name">Sertifikat tersimpan</p>
-                      <a href={getImageUrl(certUrl)} target="_blank" rel="noopener noreferrer" className="ab-cert-link">
-                        Buka / Unduh <ExternalLink size={11} />
-                      </a>
-                    </div>
-                  </div>
-                  <div className="ab-cert-saved-actions">
-                    <button type="button" className="ab-btn-sm"
-                      onClick={() => certInputRef.current?.click()} disabled={certPending}>
-                      {certPending ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
-                      Ganti File
-                    </button>
-                    <button type="button" className="ab-btn-sm ab-btn-danger"
-                      onClick={handleRemoveCert} disabled={certPending}>
-                      <Trash size={12} /> Hapus
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* ── Drag & Drop Zone ── */
-                <label
-                  htmlFor="cert-upload-input"
-                  className={`ab-cert-dropzone ${isDragging ? 'ab-cert-dropzone-active' : ''} ${certPending ? 'ab-cert-dropzone-loading' : ''}`}
-                  onDragEnter={handleDragEnter}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  {certPending ? (
-                    <div className="ab-cert-dz-inner">
-                      <div className="ab-cert-dz-spinner">
-                        <Loader2 size={28} className="animate-spin" />
-                      </div>
-                      <p className="ab-cert-dz-title">Mengunggah...</p>
-                      <p className="ab-cert-dz-sub">Mohon tunggu sebentar</p>
-                    </div>
-                  ) : isDragging ? (
-                    <div className="ab-cert-dz-inner ab-cert-dz-inner-drag">
-                      <div className="ab-cert-dz-icon-wrap ab-cert-dz-icon-drag">
-                        <Upload size={28} />
-                      </div>
-                      <p className="ab-cert-dz-title">Lepaskan file di sini</p>
-                      <p className="ab-cert-dz-sub">PDF, PNG, JPG, atau WebP</p>
-                    </div>
-                  ) : (
-                    <div className="ab-cert-dz-inner">
-                      <div className="ab-cert-dz-icon-wrap">
-                        <Upload size={24} />
-                      </div>
-                      <p className="ab-cert-dz-title">Tarik file ke sini atau <span className="ab-cert-dz-browse">pilih file</span></p>
-                      <p className="ab-cert-dz-sub">PDF, PNG, JPG, WebP &mdash; maks. 10 MB</p>
-                    </div>
-                  )}
-                </label>
-              )}
 
-              <input
-                id="cert-upload-input"
-                ref={certInputRef}
-                type="file"
-                style={{ display: 'none' }}
-                accept="application/pdf,image/png,image/jpeg,image/webp"
-                onChange={handleCertFile}
-              />
+                    {/* Actions on Card */}
+                    {!certPending && (
+                      <div className="ab-upload-actions">
+                        <button type="button" className="ab-action-btn" onClick={() => { setLocalPreview(null); certInputRef.current?.click(); }} title="Ganti File">
+                          <Upload size={14} /> Ganti
+                        </button>
+                        <button type="button" className="ab-action-btn ab-action-danger" onClick={handleRemoveCert} title="Hapus">
+                          <Trash2 size={14} /> Hapus
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* 2. Empty / Dropzone State */
+                  <label
+                    className="ab-upload-dropzone"
+                    onDragEnter={handleDragEnter}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <div className="ab-dz-icon">
+                      <Upload size={24} className={isDragging ? 'animate-bounce' : ''} />
+                    </div>
+                    <div className="ab-dz-text">
+                      <p className="ab-dz-title">Tarik file ke sini atau <span className="ab-dz-browse">pilih file</span></p>
+                      <p className="ab-dz-sub">PDF, PNG, atau JPG (Maks. 10MB)</p>
+                    </div>
+                    <input
+                      ref={certInputRef}
+                      type="file"
+                      style={{ display: 'none' }}
+                      accept="application/pdf,image/png,image/jpeg,image/webp"
+                      onChange={handleCertFile}
+                    />
+                  </label>
+                )}
+
+                {/* Loading Overlay */}
+                {certPending && (
+                  <div className="ab-upload-loader">
+                    <Loader2 size={24} className="animate-spin" />
+                    <p>Memproses file...</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -713,84 +750,81 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
           display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .ab-cert-name { font-size: 0.8125rem; font-weight: 700; color: #116045; margin-bottom: 2px; }
-        .ab-cert-link {
-          display: inline-flex; align-items: center; gap: 3px;
-          font-size: 0.75rem; color: var(--admin-primary); text-decoration: underline;
+        /* ── New Robust Upload Container (Match LayananForm) ── */
+        .ab-cert-section { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--admin-border); }
+        
+        .ab-upload-container {
+          position: relative; width: 100%; min-height: 140px;
+          border: 2px dashed var(--admin-border); border-radius: 12px;
+          background: var(--admin-surface-2); transition: 200ms;
+          display: flex; flex-direction: column; overflow: hidden;
         }
-        .ab-cert-preview-actions { display: flex; gap: 6px; }
+        .ab-upload-container.ab-has-file { border-style: solid; border-color: var(--admin-border-soft); background: #fff; }
+        .ab-upload-container.ab-dragging { border-color: var(--admin-primary); background: var(--admin-primary-l); transform: scale(1.01); }
+        .ab-upload-container.ab-loading { opacity: 0.8; pointer-events: none; }
 
-        .ab-btn-danger { color: var(--admin-danger) !important; border-color: var(--admin-danger) !important; }
-        .ab-btn-danger:hover { background: #FEE2E2 !important; }
-
-        .ab-cert-thumb {
-          width: 44px; height: 44px; border-radius: 8px;
-          overflow: hidden; border: 1px solid var(--admin-success);
-          background: #fff; flex-shrink: 0;
+        .ab-upload-dropzone {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          padding: 30px 20px; cursor: pointer; height: 100%; gap: 10px;
         }
-        .ab-cert-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .ab-dz-icon { color: var(--admin-text-s); transition: 150ms; }
+        .ab-upload-dropzone:hover .ab-dz-icon { color: var(--admin-primary); transform: translateY(-2px); }
+        .ab-dz-title { font-size: 0.875rem; font-weight: 600; color: var(--admin-text-b); text-align: center; }
+        .ab-dz-browse { color: var(--admin-primary); text-decoration: underline; }
+        .ab-dz-sub { font-size: 0.75rem; color: var(--admin-text-s); margin-top: 2px; }
 
-        /* Saved state */
-        .ab-cert-saved {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 12px 16px; border: 1px solid var(--admin-success);
-          border-radius: 10px; background: var(--admin-success-l); flex-wrap: wrap; gap: 8px;
+        .ab-upload-preview { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
+        
+        .ab-preview-img-box {
+          position: relative; width: 100%; height: 160px; background: #f8fafc;
+          display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
-        .ab-cert-saved-left { display: flex; align-items: center; gap: 10px; }
-        .ab-cert-saved-actions { display: flex; gap: 6px; }
-
-        /* Drag & Drop Zone */
-        .ab-cert-dropzone {
+        .ab-preview-img-box img { width: 100%; height: 100%; object-fit: contain; }
+        .ab-preview-overlay {
+          position: absolute; inset: 0; background: rgba(0,0,0,0.4);
           display: flex; align-items: center; justify-content: center;
-          min-height: 130px;
-          border: 2px dashed var(--admin-border);
-          border-radius: 10px; background: var(--admin-surface);
-          cursor: pointer; transition: border-color 150ms, background 150ms;
-          outline: none;
+          color: #fff; text-decoration: none; font-size: 0.75rem; font-weight: 600; gap: 6px;
+          opacity: 0; transition: 200ms;
         }
-        .ab-cert-dropzone:hover:not(.ab-cert-dropzone-loading) {
-          border-color: var(--admin-primary); background: var(--admin-primary-l);
-        }
-        .ab-cert-dropzone:focus-visible {
-          border-color: var(--admin-primary); box-shadow: 0 0 0 3px rgba(24,95,165,0.12);
-        }
-        .ab-cert-dropzone-active {
-          border-color: var(--admin-primary) !important;
-          background: var(--admin-primary-l) !important;
-          box-shadow: 0 0 0 3px rgba(24,95,165,0.15);
-        }
-        .ab-cert-dropzone-loading { cursor: not-allowed; opacity: 0.75; }
-
-        .ab-cert-dz-inner {
-          display: flex; flex-direction: column; align-items: center;
-          gap: 6px; padding: 24px 16px; text-align: center;
-          pointer-events: none;
-        }
-        .ab-cert-dz-inner-drag .ab-cert-dz-title { color: var(--admin-primary); }
-
-        .ab-cert-dz-icon-wrap {
-          width: 48px; height: 48px; border-radius: 12px;
-          background: var(--admin-surface-2); color: var(--admin-text-s);
-          display: flex; align-items: center; justify-content: center;
-          margin-bottom: 4px; transition: 150ms;
-        }
-        .ab-cert-dz-icon-drag {
-          background: var(--admin-primary) !important;
-          color: #fff !important;
+        .ab-preview-img-box:hover .ab-preview-overlay { opacity: 1; }
+        
+        .ab-preview-badge {
+          position: absolute; top: 8px; left: 8px; padding: 4px 8px;
+          background: rgba(0,0,0,0.6); color: #fff; font-size: 0.65rem; border-radius: 4px; font-weight: 600;
         }
 
-        .ab-cert-dz-spinner {
-          width: 48px; height: 48px; border-radius: 12px;
-          background: var(--admin-primary-l); color: var(--admin-primary);
-          display: flex; align-items: center; justify-content: center; margin-bottom: 4px;
+        .ab-preview-file-box {
+          padding: 24px; display: flex; align-items: center; gap: 16px;
+          background: var(--admin-primary-l); flex: 1;
         }
+        .ab-file-icon-wrap {
+          width: 48px; height: 48px; background: #fff; color: var(--admin-primary);
+          display: flex; align-items: center; justify-content: center; border-radius: 10px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .ab-preview-file-info { flex: 1; min-width: 0; }
+        .ab-filename { font-size: 0.875rem; font-weight: 700; color: var(--admin-text-h); margin-bottom: 2px; word-break: break-all; }
+        .ab-status { font-size: 0.75rem; color: var(--admin-primary); font-weight: 500; }
+        .ab-file-link { font-size: 0.75rem; color: var(--admin-primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; }
 
-        .ab-cert-dz-title {
-          font-size: 0.875rem; font-weight: 600;
-          color: var(--admin-text-b); transition: color 150ms;
+        .ab-upload-actions {
+          padding: 10px 16px; background: #fff; border-top: 1px solid var(--admin-border-soft);
+          display: flex; gap: 8px; justify-content: flex-end;
         }
-        .ab-cert-dz-sub { font-size: 0.75rem; color: var(--admin-text-s); }
-        .ab-cert-dz-browse {
-          color: var(--admin-primary); text-decoration: underline; text-underline-offset: 2px;
+        .ab-action-btn {
+          height: 28px; padding: 0 10px; font-size: 0.75rem; font-weight: 600;
+          border: 1px solid var(--admin-border); border-radius: 6px;
+          background: #fff; color: var(--admin-text-m); cursor: pointer;
+          display: flex; align-items: center; gap: 5px; transition: 120ms;
+        }
+        .ab-action-btn:hover { background: var(--admin-surface-2); border-color: var(--admin-text-s); }
+        .ab-action-danger { color: var(--admin-danger); }
+        .ab-action-danger:hover { background: #fee2e2; border-color: var(--admin-danger); }
+
+        .ab-upload-loader {
+          position: absolute; inset: 0; background: rgba(255,255,255,0.8);
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+          font-size: 0.75rem; color: var(--admin-primary); font-weight: 600;
         }
 
         /* ── Toast ──────────────────────────────────── */

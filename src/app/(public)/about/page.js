@@ -229,52 +229,59 @@ export default async function AboutPage() {
             <div style={{ marginBottom: '1.25rem', border: '1px solid var(--color-primary-100)', borderRadius: '12px', overflow: 'hidden' }}>
 
               {/* Preview area */}
-              {/\.(jpe?g|png|webp)(\?.*)?$/i.test(profile.accreditation_certificate_url) ? (
-                /* Image: tampilkan gambar sertifikat */
-                <a
-                  href={getImageUrl(profile.accreditation_certificate_url)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ display: 'block', lineHeight: 0 }}
-                  title="Klik untuk membuka sertifikat"
-                >
-                  <div style={{ position: 'relative', width: '100%', height: '220px' }}>
-                    <Image
-                      src={getImageUrl(profile.accreditation_certificate_url)}
-                      alt="Sertifikat Akreditasi RS Bhayangkara Nganjuk"
-                      fill
-                      sizes="(max-width: 768px) 100vw, 320px"
-                      style={{ objectFit: 'cover', objectPosition: 'top center' }}
-                      priority={false}
-                    />
-                  </div>
-                </a>
-              ) : (
-                /* PDF / other: tampilkan card dokumen */
-                <a
-                  href={getImageUrl(profile.accreditation_certificate_url)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.625rem', padding: '2rem 1rem', background: 'var(--color-primary-50)', textDecoration: 'none' }}
-                  title="Klik untuk membuka sertifikat"
-                >
-                  <div style={{ width: 56, height: 56, borderRadius: 12, background: 'var(--color-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                      <polyline points="10 9 9 9 8 9"/>
-                    </svg>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-primary-800)', fontFamily: 'var(--font-figtree, Figtree, sans-serif)', marginBottom: '0.25rem' }}>
-                      Sertifikat Akreditasi
-                    </p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-500)' }}>Klik untuk membuka dokumen PDF</p>
-                  </div>
-                </a>
-              )}
+              {(() => {
+                const url = profile.accreditation_certificate_url;
+                const isImg = url && ['.png', '.jpg', '.jpeg', '.webp', '.gif'].some(ext => url.toLowerCase().split('?')[0].endsWith(ext));
+                
+                if (isImg) {
+                  return (
+                    <a
+                      href={getImageUrl(url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'block', lineHeight: 0 }}
+                      title="Klik untuk membuka sertifikat"
+                    >
+                      <div style={{ position: 'relative', width: '100%', height: '220px' }}>
+                        <Image
+                          src={getImageUrl(url)}
+                          alt="Sertifikat Akreditasi RS Bhayangkara Nganjuk"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 320px"
+                          style={{ objectFit: 'cover', objectPosition: 'top center' }}
+                          priority={false}
+                        />
+                      </div>
+                    </a>
+                  );
+                }
+                
+                return (
+                  <a
+                    href={getImageUrl(url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.625rem', padding: '2rem 1rem', background: 'var(--color-primary-50)', textDecoration: 'none' }}
+                    title="Klik untuk membuka sertifikat"
+                  >
+                    <div style={{ width: 56, height: 56, borderRadius: 12, background: 'var(--color-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                      </svg>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-primary-800)', fontFamily: 'var(--font-figtree, Figtree, sans-serif)', marginBottom: '0.25rem' }}>
+                        Sertifikat Akreditasi
+                      </p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-500)' }}>Klik untuk membuka dokumen PDF</p>
+                    </div>
+                  </a>
+                );
+              })()}
 
               {/* Info bar di bawah preview */}
               <div style={{ padding: '0.875rem 1rem', background: 'var(--color-primary-50)', borderTop: '1px solid var(--color-primary-100)' }}>

@@ -9,11 +9,16 @@ async function getHeaders() {
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
+/**
+ * Helpers to extract data from NestJS wrapped response { data: { ... } }
+ */
+const extractData = (res) => res.success ? (res.data?.data || res.data || []) : [];
+const extractSingle = (res) => res.success ? (res.data?.data || res.data || null) : null;
+
 // ── Profile ──────────────────────────────────────────────────
 export async function getAboutProfile() {
   const res = await api.get('/about/profile');
-  if (!res.success) return null;
-  const data = res.data;
+  const data = extractSingle(res);
   if (!data) return null;
   
   // Map camelCase backend ke snake_case frontend
@@ -67,9 +72,12 @@ export async function uploadAccreditationCertificate(formData) {
     uploadBody.append('folder', 'about');
 
     const uploadRes = await api.post('/uploads/image', uploadBody, { headers });
-    if (!uploadRes.success) return { error: uploadRes.error };
+    const uploadData = extractSingle(uploadRes);
+    if (!uploadData || !uploadData.url) {
+      return { error: uploadRes.error || 'Gagal mengunggah file.' };
+    }
 
-    const publicUrl = uploadRes.data.url;
+    const publicUrl = uploadData.url;
 
     // Update profile dengan URL baru
     const profileRes = await api.post('/about/profile', {
@@ -106,8 +114,7 @@ export async function removeAccreditationCertificate() {
 // ── Stats ─────────────────────────────────────────────────────
 export async function getAboutStats() {
   const res = await api.get('/about/stats');
-  if (!res.success) return [];
-  const items = res.data.data || res.data || [];
+  const items = extractData(res);
   
   return items.map(d => ({
     ...d,
@@ -155,8 +162,7 @@ export async function deleteAboutStat(id) {
 // ── Visi & Misi ───────────────────────────────────────────────
 export async function getAboutVisiMisi() {
   const res = await api.get('/about/visi-misi');
-  if (!res.success) return null;
-  return res.data;
+  return extractSingle(res);
 }
 
 export async function upsertAboutVisiMisi(formData) {
@@ -187,8 +193,7 @@ export async function upsertAboutVisiMisi(formData) {
 // ── Values ────────────────────────────────────────────────────
 export async function getAboutValues() {
   const res = await api.get('/about/values');
-  if (!res.success) return [];
-  const items = res.data.data || res.data || [];
+  const items = extractData(res);
   
   return items.map(d => ({
     ...d,
@@ -234,8 +239,7 @@ export async function deleteAboutValue(id) {
 // ── Milestones ────────────────────────────────────────────────
 export async function getAboutMilestones() {
   const res = await api.get('/about/milestones');
-  if (!res.success) return [];
-  const items = res.data.data || res.data || [];
+  const items = extractData(res);
   
   return items.map(d => ({
     ...d,
@@ -281,8 +285,7 @@ export async function deleteAboutMilestone(id) {
 // ── Contact ───────────────────────────────────────────────────
 export async function getAboutContact() {
   const res = await api.get('/about/contact');
-  if (!res.success) return [];
-  const items = res.data.data || res.data || [];
+  const items = extractData(res);
   
   return items.map(d => ({
     ...d,
