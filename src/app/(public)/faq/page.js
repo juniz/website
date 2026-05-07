@@ -45,7 +45,7 @@ export default async function FAQPage() {
     getPageSEO('/faq')
   ]);
 
-  if (seo && seo.isActive === false) {
+  if (seo && seo.is_active === false) {
     notFound();
   }
 

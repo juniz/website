@@ -109,7 +109,7 @@ export default async function AboutPage() {
     getPageSEO('/about')
   ]);
 
-  if (seo && seo.isActive === false) {
+  if (seo && seo.is_active === false) {
     notFound();
   }
 

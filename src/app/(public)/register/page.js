@@ -32,7 +32,7 @@ export default async function RegisterPage() {
     getPageSEO('/register')
   ]);
 
-  if (seo && seo.isActive === false) {
+  if (seo && seo.is_active === false) {
     notFound();
   }
 

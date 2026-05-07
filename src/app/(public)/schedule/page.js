@@ -32,7 +32,7 @@ export default async function SchedulePage() {
     getPageSEO('/schedule')
   ]);
 
-  if (seo && seo.isActive === false) {
+  if (seo && seo.is_active === false) {
     notFound();
   }
 

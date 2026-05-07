@@ -29,7 +29,7 @@ export default async function NewsPage() {
     getPageSEO('/news')
   ]);
 
-  if (seo && seo.isActive === false) {
+  if (seo && seo.is_active === false) {
     notFound();
   }
 

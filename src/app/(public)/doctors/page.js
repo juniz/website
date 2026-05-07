@@ -32,7 +32,7 @@ export default async function DoctorsPage() {
     getPageSEO('/doctors')
   ]);
 
-  if (seo && seo.isActive === false) {
+  if (seo && seo.is_active === false) {
     notFound();
   }
 
