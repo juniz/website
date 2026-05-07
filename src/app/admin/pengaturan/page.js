@@ -25,7 +25,8 @@ async function getSettingsData() {
     meta_title: s.title,
     meta_description: s.description,
     meta_keywords: s.keywords ? s.keywords.split(',').map(k => k.trim()).filter(k => k !== '') : [],
-    is_active: s.isActive ?? true
+    is_active: s.isActive ?? true,
+    og_image: s.ogImage || null,
   }));
 
   const header = settings.find(s => s.key === 'header')?.value || {};

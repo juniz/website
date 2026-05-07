@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { updatePageSEO } from '@/app/actions/admin/settings';
-import { Save, Loader2, Globe, Search, Type, ExternalLink, ChevronRight, CheckCircle2, AlertCircle, Edit3, X } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { updatePageSEO, uploadSEOImage } from '@/app/actions/admin/settings';
+import { getImageUrl } from '@/lib/utils';
+import { Save, Loader2, Globe, Search, Type, ExternalLink, ChevronRight, CheckCircle2, AlertCircle, Edit3, X, Image as ImageIcon, Upload, Trash2 } from 'lucide-react';
 
 export default function SEOSettingsForm({ initialData }) {
   const [loading, setLoading] = useState(false);
@@ -13,17 +14,56 @@ export default function SEOSettingsForm({ initialData }) {
     meta_title: '',
     meta_description: '',
     meta_keywords: '',
+    og_image: '',
   });
+  const [ogPreview, setOgPreview] = useState(null);
+  const [ogUploading, setOgUploading] = useState(false);
+  const [ogDragging, setOgDragging] = useState(false);
+  const ogInputRef = useRef(null);
 
   const handleEdit = (item) => {
     setEditingId(item.id);
     setStatus(null);
+    setOgPreview(null);
     setFormData({
       meta_title: item.meta_title || '',
       meta_description: item.meta_description || '',
       meta_keywords: item.meta_keywords?.join(', ') || '',
       is_active: item.is_active ?? true,
+      og_image: item.og_image || '',
     });
+  };
+
+  const handleOgUpload = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { alert('Hanya file gambar yang diperbolehkan.'); return; }
+    if (file.size > 5 * 1024 * 1024) { alert('Ukuran file maksimal 5 MB.'); return; }
+
+    setOgPreview(URL.createObjectURL(file));
+    setOgUploading(true);
+
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await uploadSEOImage(fd);
+    setOgUploading(false);
+
+    if (res.success) {
+      setFormData(p => ({ ...p, og_image: res.url }));
+    } else {
+      setOgPreview(null);
+      alert('Gagal upload gambar: ' + res.error);
+    }
+    if (ogInputRef.current) ogInputRef.current.value = '';
+  };
+
+  const handleOgDragEnter  = (e) => { e.preventDefault(); e.stopPropagation(); setOgDragging(true); };
+  const handleOgDragOver   = (e) => { e.preventDefault(); e.stopPropagation(); setOgDragging(true); };
+  const handleOgDragLeave  = (e) => { e.preventDefault(); e.stopPropagation(); setOgDragging(false); };
+  const handleOgDrop       = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    setOgDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleOgUpload(file);
   };
 
   const handleCancel = () => {
@@ -46,6 +86,7 @@ export default function SEOSettingsForm({ initialData }) {
       meta_description: formData.meta_description,
       meta_keywords: formData.meta_keywords.split(',').map(k => k.trim()).filter(k => k !== ''),
       is_active: formData.is_active,
+      og_image: formData.og_image || null,
     };
 
     const res = await updatePageSEO(editingId, formattedData);
@@ -198,6 +239,66 @@ export default function SEOSettingsForm({ initialData }) {
                     </div>
                     <span className="settings-helper">Pisahkan dengan koma. Keywords tidak terlalu berpengaruh di Google modern.</span>
                   </div>
+
+                  {/* OG Image Upload */}
+                  <div className="settings-form-group">
+                    <label className="settings-label">
+                      <ImageIcon size={13} style={{ display: 'inline', marginRight: 5, verticalAlign: 'middle' }} />
+                      Open Graph Image
+                      <span className="settings-helper" style={{ fontWeight: 400, marginLeft: 6 }}>— gambar pratinjau saat link dibagikan di WhatsApp / sosial media</span>
+                    </label>
+
+                    {/* Preview */}
+                    {(ogPreview || formData.og_image) ? (
+                      <div className="og-preview-wrap">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={ogPreview || getImageUrl(formData.og_image)}
+                          alt="OG Preview"
+                          className="og-preview-img"
+                        />
+                        {ogUploading && (
+                          <div className="og-uploading-badge"><Loader2 size={11} className="animate-spin" /> Mengunggah...</div>
+                        )}
+                        <div className="og-preview-actions">
+                          <button type="button" className="og-action-btn" onClick={() => ogInputRef.current?.click()} disabled={ogUploading}>
+                            <Upload size={11} /> Ganti
+                          </button>
+                          <button type="button" className="og-action-btn og-action-remove" onClick={() => { setOgPreview(null); setFormData(p => ({ ...p, og_image: '' })); }} disabled={ogUploading}>
+                            <Trash2 size={11} /> Hapus
+                          </button>
+                        </div>
+
+                        {/* Social media link preview card */}
+                        <div className="og-card-preview">
+                          <div className="og-card-site">rsbhayangkarnganjuk.id</div>
+                          <div className="og-card-title">{formData.meta_title || 'Judul Halaman'}</div>
+                          <div className="og-card-desc">{formData.meta_description || 'Deskripsi singkat halaman...'}</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <label
+                        className={`og-dropzone${ogDragging ? ' og-dropzone-active' : ''}`}
+                        onClick={() => ogInputRef.current?.click()}
+                        onDragEnter={handleOgDragEnter}
+                        onDragOver={handleOgDragOver}
+                        onDragLeave={handleOgDragLeave}
+                        onDrop={handleOgDrop}
+                      >
+                        <Upload size={20} className={ogDragging ? 'og-dz-icon-bounce' : ''} style={{ color: ogDragging ? 'var(--admin-primary)' : 'var(--admin-text-s)' }} />
+                        <span className="og-dz-text">{ogDragging ? 'Lepaskan file di sini' : 'Klik atau seret gambar ke sini'}</span>
+                        <span className="og-dz-sub">PNG, JPG, WebP · Rasio ideal 1200×630 px (1.91:1) · Maks. 5 MB</span>
+                      </label>
+                    )}
+
+                    <input
+                      ref={ogInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      style={{ display: 'none' }}
+                      onChange={(e) => handleOgUpload(e.target.files[0])}
+                    />
+                  </div>
                 </div>
 
                 {/* Edit Footer */}
@@ -256,6 +357,13 @@ export default function SEOSettingsForm({ initialData }) {
                   <p className="seo-view-desc">
                     {item.meta_description || <em className="seo-empty-value">Tanpa deskripsi</em>}
                   </p>
+                  {item.og_image && (
+                    <div className="seo-view-og-wrap">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={getImageUrl(item.og_image)} alt="OG" className="seo-view-og-thumb" />
+                      <span className="seo-og-badge">OG Image</span>
+                    </div>
+                  )}
 
                   {item.meta_keywords?.length > 0 && (
                     <div className="seo-view-keywords">
@@ -788,6 +896,143 @@ export default function SEOSettingsForm({ initialData }) {
 
         .seo-switch input:checked + .seo-slider:before {
           transform: translateX(18px);
+        }
+
+        /* ── OG Image Upload ────────────────────────────────── */
+        .og-dropzone {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          padding: 24px 16px;
+          border: 2px dashed var(--admin-border);
+          border-radius: var(--admin-radius-md);
+          cursor: pointer;
+          text-align: center;
+          transition: border-color 150ms, background 150ms;
+          background: var(--admin-surface-2);
+        }
+        .og-dropzone:hover {
+          border-color: var(--admin-primary);
+          background: var(--admin-primary-l);
+        }
+        .og-dropzone-active {
+          border-color: var(--admin-primary) !important;
+          background: var(--admin-primary-l) !important;
+          box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.15);
+        }
+        @keyframes ogIconBounce {
+          0%, 100% { transform: translateY(0); }
+          40%       { transform: translateY(-6px); }
+          70%       { transform: translateY(-3px); }
+        }
+        .og-dz-icon-bounce {
+          animation: ogIconBounce 0.9s ease infinite;
+        }
+        .og-dz-text {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: var(--admin-text-m);
+        }
+        .og-dz-sub {
+          font-size: 0.6875rem;
+          color: var(--admin-text-s);
+        }
+        .og-preview-wrap {
+          position: relative;
+          border: 1px solid var(--admin-border);
+          border-radius: var(--admin-radius-md);
+          overflow: hidden;
+          background: #000;
+        }
+        .og-preview-img {
+          width: 100%;
+          aspect-ratio: 1200 / 630;
+          object-fit: cover;
+          display: block;
+          opacity: 0.92;
+        }
+        .og-uploading-badge {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 0.6875rem;
+          font-weight: 600;
+          background: rgba(0,0,0,0.65);
+          color: #fff;
+          padding: 4px 10px;
+          border-radius: 999px;
+        }
+        .og-preview-actions {
+          display: flex;
+          gap: 6px;
+          padding: 8px;
+          background: var(--admin-surface-2);
+          border-top: 1px solid var(--admin-border-soft);
+        }
+        .og-action-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 5px 10px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          border: 1px solid var(--admin-border);
+          border-radius: var(--admin-radius-sm);
+          background: var(--admin-surface);
+          color: var(--admin-text-m);
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 150ms;
+        }
+        .og-action-btn:hover:not(:disabled) {
+          border-color: var(--admin-primary);
+          color: var(--admin-primary);
+          background: var(--admin-primary-l);
+        }
+        .og-action-remove:hover:not(:disabled) {
+          border-color: var(--admin-danger) !important;
+          color: var(--admin-danger) !important;
+          background: var(--admin-danger-l) !important;
+        }
+        .og-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* Social preview card */
+        .og-card-preview {
+          padding: 10px 12px;
+          background: var(--admin-surface-2);
+          border-top: 1px solid var(--admin-border-soft);
+        }
+        .og-card-site { font-size: 0.6875rem; color: var(--admin-text-s); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+        .og-card-title { font-size: 0.8125rem; font-weight: 700; color: var(--admin-text-h); line-height: 1.3; margin-bottom: 2px; }
+        .og-card-desc { font-size: 0.75rem; color: var(--admin-text-m); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        /* View mode OG thumb */
+        .seo-view-og-wrap {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 6px;
+        }
+        .seo-view-og-thumb {
+          width: 72px;
+          height: 38px;
+          object-fit: cover;
+          border-radius: 4px;
+          border: 1px solid var(--admin-border);
+          flex-shrink: 0;
+        }
+        .seo-og-badge {
+          font-size: 0.625rem;
+          font-weight: 700;
+          color: var(--admin-primary);
+          background: var(--admin-primary-l);
+          padding: 2px 7px;
+          border-radius: 999px;
+          border: 1px solid rgba(24,95,165,0.15);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
       `}</style>
     </div>

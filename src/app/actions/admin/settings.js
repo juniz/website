@@ -74,3 +74,21 @@ export async function uploadHeroImage(formData) {
     return { success: false, error: err.message };
   }
 }
+
+/**
+ * Upload OG image for SEO via NestJS API
+ */
+export async function uploadSEOImage(formData) {
+  try {
+    const headers = await getHeaders();
+    const result = await api.post('/uploads/image', formData, { headers });
+    if (!result.success) throw new Error(result.error);
+
+    const url = result.data?.data?.url || result.data?.url;
+    if (!url) throw new Error('URL tidak ditemukan dalam respons upload.');
+    return { success: true, url };
+  } catch (err) {
+    console.error('Error uploading SEO OG image:', err);
+    return { success: false, error: err.message };
+  }
+}
