@@ -9,15 +9,19 @@ import { notFound } from 'next/navigation';
 
 export async function generateMetadata() {
   const seo = await getPageSEO('/about');
-  
+  const title = seo?.meta_title || 'Tentang RS Bhayangkara Nganjuk';
+  const description = seo?.meta_description || 'RS Bhayangkara Nganjuk adalah rumah sakit terakreditasi Madya yang melayani masyarakat Nganjuk sejak 1985. Kenali profil, visi misi, dan tim dokter kami.';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-about.jpg';
+
   return {
-    title: seo?.meta_title || 'Tentang RS Bhayangkara Nganjuk',
-    description: seo?.meta_description || 'RS Bhayangkara Nganjuk adalah rumah sakit terakreditasi Madya yang melayani masyarakat Nganjuk sejak 1985. Kenali profil, visi misi, dan tim dokter kami.',
-    keywords: seo?.meta_keywords || ['tentang rs bhayangkara nganjuk', 'profil rumah sakit nganjuk'],
+    title: { absolute: title },
+    description,
+    keywords: seo?.meta_keywords || [],
     openGraph: {
-      title: seo?.meta_title,
-      description: seo?.meta_description,
-      images: [{ url: seo?.og_image || '/og-about.jpg' }],
+      title,
+      description,
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      type: 'website',
     },
   };
 }

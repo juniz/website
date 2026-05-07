@@ -14,6 +14,9 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const article = await getNewsBySlug(slug);
   if (!article) return {};
+  
+  const ogImageUrl = article.image ? getImageUrl(article.image) : 'https://rsbhayangkara-nganjuk.id/og-news.jpg';
+  
   return {
     title: article.title,
     description: article.excerpt,
@@ -22,6 +25,7 @@ export async function generateMetadata({ params }) {
       description: article.excerpt,
       type: 'article',
       publishedTime: article.date,
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
     },
   };
 }

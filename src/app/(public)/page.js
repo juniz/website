@@ -8,6 +8,7 @@ import FAQSection from '@/components/FAQSection';
 import NewsPreview from '@/components/NewsPreview';
 import JsonLd from '@/components/JsonLd';
 import ScrollReveal from '@/components/ScrollReveal';
+import { getImageUrl } from '@/lib/utils';
 import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, getPublicFAQs } from '@/app/actions/public';
 
 /* ============================================================
@@ -17,19 +18,22 @@ import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, 
 
 export async function generateMetadata() {
   const seo = await getPageSEO('/');
-  
+  const title = seo?.meta_title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya';
+  const description = seo?.meta_description || 'Rumah sakit terakreditasi dengan 32+ dokter spesialis di Nganjuk. Daftar online, cek jadwal dokter, dan layanan IGD 24 jam.';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-home.jpg';
+
   return {
-    title: seo?.meta_title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya',
-    description: seo?.meta_description || 'Rumah sakit terakreditasi dengan 32+ dokter spesialis di Nganjuk. Daftar online, cek jadwal dokter, dan layanan IGD 24 jam.',
+    title: { absolute: title },
+    description,
     keywords: seo?.meta_keywords || [
       'rumah sakit Nganjuk',
       'RS Bhayangkara Nganjuk',
       'dokter spesialis',
     ],
     openGraph: {
-      title: seo?.meta_title,
-      description: seo?.meta_description,
-      images: [{ url: seo?.og_image || '/og-home.jpg', width: 1200, height: 630 }],
+      title,
+      description,
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
       type: 'website',
     },
   };

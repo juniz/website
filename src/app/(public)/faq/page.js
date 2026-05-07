@@ -5,18 +5,23 @@ import { getPublicFAQs } from '@/app/actions/public';
 
 import { getPageSEO } from '@/app/actions/public';
 import { notFound } from 'next/navigation';
+import { getImageUrl } from '@/lib/utils';
 
 export async function generateMetadata() {
   const seo = await getPageSEO('/faq');
-  
+  const title = seo?.meta_title || 'FAQ — RS Bhayangkara Nganjuk';
+  const description = seo?.meta_description || 'Temukan jawaban atas pertanyaan umum seputar layanan, pendaftaran, jadwal dokter, dan fasilitas RS Bhayangkara Nganjuk.';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-faq.jpg';
+
   return {
-    title: seo?.meta_title || 'FAQ — RS Bhayangkara Nganjuk',
-    description: seo?.meta_description || 'Temukan jawaban atas pertanyaan umum seputar layanan, pendaftaran, jadwal dokter, dan fasilitas RS Bhayangkara Nganjuk.',
-    keywords: seo?.meta_keywords || ['faq rs bhayangkara nganjuk', 'pertanyaan umum rumah sakit'],
+    title: { absolute: title },
+    description,
+    keywords: seo?.meta_keywords || [],
     openGraph: {
-      title: seo?.meta_title,
-      description: seo?.meta_description,
-      images: [{ url: seo?.og_image || '/og-faq.jpg' }],
+      title,
+      description,
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      type: 'website',
     },
   };
 }

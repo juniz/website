@@ -6,20 +6,25 @@ import JsonLd from '@/components/JsonLd';
 
 export async function generateMetadata() {
   const seo = await getPageSEO('/doctors');
-  
+  const title = seo?.meta_title || 'Dokter Spesialis — RS Bhayangkara Nganjuk';
+  const description = seo?.meta_description || 'Temukan dokter spesialis RS Bhayangkara Nganjuk — lebih dari 32 dokter spesialis di 10 poli klinik. Cek ketersediaan dan jadwal praktik.';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-doctors.jpg';
+
   return {
-    title: seo?.meta_title || 'Dokter Spesialis — RS Bhayangkara Nganjuk',
-    description: seo?.meta_description || 'Temukan dokter spesialis RS Bhayangkara Nganjuk — lebih dari 32 dokter spesialis di 10 poli klinik. Cek ketersediaan dan jadwal praktik.',
-    keywords: seo?.meta_keywords || ['dokter spesialis nganjuk', 'jadwal dokter nganjuk'],
+    title: { absolute: title },
+    description,
+    keywords: seo?.meta_keywords || [],
     openGraph: {
-      title: seo?.meta_title,
-      description: seo?.meta_description,
-      images: [{ url: seo?.og_image || '/og-doctors.jpg' }],
+      title,
+      description,
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      type: 'website',
     },
   };
 }
 
 import { getDoctors } from '@/lib/data/doctors';
+import { getImageUrl } from '@/lib/utils';
 
 export default async function DoctorsPage() {
   const [doctors, seo] = await Promise.all([
