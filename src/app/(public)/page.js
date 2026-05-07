@@ -20,7 +20,7 @@ export async function generateMetadata() {
   const seo = await getPageSEO('/');
   const title = seo?.meta_title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya';
   const description = seo?.meta_description || 'Rumah sakit terakreditasi dengan 32+ dokter spesialis di Nganjuk. Daftar online, cek jadwal dokter, dan layanan IGD 24 jam.';
-  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-home.jpg';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkaranganjuk.com/og-home.jpg';
 
   return {
     title: { absolute: title },
@@ -52,7 +52,7 @@ export default async function HomePage() {
     '@context': 'https://schema.org',
     '@type': ['MedicalOrganization', 'Hospital'],
     name: 'RS Bhayangkara Nganjuk',
-    url: 'https://rsbhayangkara-nganjuk.id',
+    url: 'https://rsbhayangkaranganjuk.com',
     telephone: '+62-358-XXXXXX',
     address: {
       '@type': 'PostalAddress',

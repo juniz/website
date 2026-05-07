@@ -11,7 +11,7 @@ export async function generateMetadata() {
   const seo = await getPageSEO('/about');
   const title = seo?.meta_title || 'Tentang RS Bhayangkara Nganjuk';
   const description = seo?.meta_description || 'RS Bhayangkara Nganjuk adalah rumah sakit terakreditasi Madya yang melayani masyarakat Nganjuk sejak 1985. Kenali profil, visi misi, dan tim dokter kami.';
-  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-about.jpg';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkaranganjuk.com/og-about.jpg';
 
   return {
     title: { absolute: title },
@@ -83,7 +83,7 @@ const aboutSchema = {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
   name: 'Tentang RS Bhayangkara Nganjuk',
-  url: 'https://rsbhayangkara-nganjuk.id/about',
+  url: 'https://rsbhayangkaranganjuk.com/about',
   description: 'Profil RS Bhayangkara Nganjuk — rumah sakit terakreditasi Madya di Nganjuk, Jawa Timur.',
   mainEntity: {
     '@type': 'Hospital',

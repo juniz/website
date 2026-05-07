@@ -8,7 +8,7 @@ export async function generateMetadata() {
   const seo = await getPageSEO('/doctors');
   const title = seo?.meta_title || 'Dokter Spesialis — RS Bhayangkara Nganjuk';
   const description = seo?.meta_description || 'Temukan dokter spesialis RS Bhayangkara Nganjuk — lebih dari 32 dokter spesialis di 10 poli klinik. Cek ketersediaan dan jadwal praktik.';
-  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-doctors.jpg';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkaranganjuk.com/og-doctors.jpg';
 
   return {
     title: { absolute: title },

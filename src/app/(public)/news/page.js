@@ -8,7 +8,7 @@ export async function generateMetadata() {
   const seo = await getPageSEO('/news');
   const title = seo?.meta_title || 'Berita & Informasi — RS Bhayangkara Nganjuk';
   const description = seo?.meta_description || 'Artikel terbaru seputar kesehatan, pengumuman layanan, dan program RS Bhayangkara Nganjuk.';
-  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-news.jpg';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkaranganjuk.com/og-news.jpg';
 
   return {
     title: { absolute: title },

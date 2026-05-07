@@ -11,7 +11,7 @@ export async function generateMetadata() {
   const seo = await getPageSEO('/faq');
   const title = seo?.meta_title || 'FAQ — RS Bhayangkara Nganjuk';
   const description = seo?.meta_description || 'Temukan jawaban atas pertanyaan umum seputar layanan, pendaftaran, jadwal dokter, dan fasilitas RS Bhayangkara Nganjuk.';
-  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-faq.jpg';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkaranganjuk.com/og-faq.jpg';
 
   return {
     title: { absolute: title },

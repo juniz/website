@@ -15,7 +15,7 @@ const figtree = Figtree({
 });
 
 export const metadata = {
-  metadataBase: new URL('https://rsbhayangkara-nganjuk.id'),
+  metadataBase: new URL('https://rsbhayangkaranganjuk.com'),
   title: {
     default: 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya',
     template: '%s — RS Bhayangkara Nganjuk',

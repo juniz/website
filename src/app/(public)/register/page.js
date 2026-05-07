@@ -4,7 +4,7 @@ export async function generateMetadata() {
   const seo = await getPageSEO('/register');
   const title = seo?.meta_title || 'Pendaftaran Online — RS Bhayangkara Nganjuk';
   const description = seo?.meta_description || 'Daftar berobat online di RS Bhayangkara Nganjuk. Pilih dokter, tentukan jadwal, dan dapatkan konfirmasi via WhatsApp — tanpa antri panjang.';
-  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkara-nganjuk.id/og-register.jpg';
+  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkaranganjuk.com/og-register.jpg';
 
   return {
     title: { absolute: title },

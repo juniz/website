@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getNews, getNewsBySlug, formatDateId } from '@/lib/data/news';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, getOgImageUrl } from '@/lib/utils';
 import JsonLd from '@/components/JsonLd';
 import DOMPurify from 'isomorphic-dompurify';
 
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }) {
   const article = await getNewsBySlug(slug);
   if (!article) return {};
   
-  const ogImageUrl = article.image ? getImageUrl(article.image) : 'https://rsbhayangkara-nganjuk.id/og-news.jpg';
+  const ogImageUrl = article.image  ? getOgImageUrl(article.image) : 'https://rsbhayangkaranganjuk.com/og-news.jpg';
   
   return {
     title: article.title,
@@ -61,7 +61,7 @@ export default async function NewsDetailPage({ params }) {
       name: 'RS Bhayangkara Nganjuk',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://rsbhayangkara-nganjuk.id/logo.png'
+        url: 'https://rsbhayangkaranganjuk.com/logo.png'
       }
     }
   };
