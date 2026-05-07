@@ -3,7 +3,8 @@ import Image from 'next/image';
 import JsonLd from '@/components/JsonLd';
 import { api } from '@/lib/api';
 
-import { getPageSEO } from '@/app/actions/public';
+import { getPageSEO, getPublicAboutData } from '@/app/actions/public';
+import { getImageUrl } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 
 export async function generateMetadata() {
@@ -72,57 +73,7 @@ const FALLBACK_CONTACT = [
 ];
 
 // ── Fetch all About data from NestJS API ───────────────────────
-async function getAboutData() {
-  try {
-    const [
-      resProfile,
-      resStats,
-      resVisiMisi,
-      resValues,
-      resMilestones,
-      resContact,
-    ] = await Promise.all([
-      api.get('/about/profile'),
-      api.get('/about/stats'),
-      api.get('/about/visi-misi'),
-      api.get('/about/values'),
-      api.get('/about/milestones'),
-      api.get('/about/contact'),
-    ]);
-
-    const profile = resProfile.success && resProfile.data ? {
-      header_title: resProfile.data.headerTitle,
-      header_subtitle: resProfile.data.headerSubtitle,
-      paragraph_1: resProfile.data.paragraph1,
-      paragraph_2: resProfile.data.paragraph2,
-      accreditation_title: resProfile.data.accreditationTitle,
-      accreditation_body: resProfile.data.accreditationBody,
-      accreditation_valid: resProfile.data.accreditationValid,
-      accreditation_certificate_url: resProfile.data.accreditationCertificateUrl
-    } : FALLBACK_PROFILE;
-
-    const stats = resStats.success && resStats.data?.length ? resStats.data.map(s => ({
-      ...s,
-      icon_name: s.iconName
-    })) : FALLBACK_STATS;
-
-    const visiMisi = resVisiMisi.success && resVisiMisi.data ? resVisiMisi.data : FALLBACK_VM;
-
-    const values = resValues.success && resValues.data?.length ? resValues.data : FALLBACK_VALUES;
-
-    const milestones = resMilestones.success && resMilestones.data?.length ? resMilestones.data : FALLBACK_MILESTONES;
-
-    const contact = resContact.success && resContact.data?.length ? resContact.data : FALLBACK_CONTACT;
-
-    return { profile, stats, visiMisi, values, milestones, contact };
-  } catch (err) {
-    console.error('Error fetching about data:', err);
-    return {
-      profile: FALLBACK_PROFILE, stats: FALLBACK_STATS, visiMisi: FALLBACK_VM,
-      values: FALLBACK_VALUES, milestones: FALLBACK_MILESTONES, contact: FALLBACK_CONTACT,
-    };
-  }
-}
+// getAboutData removed - moved to actions/public.js
 
 const aboutSchema = {
   '@context': 'https://schema.org',
@@ -149,8 +100,8 @@ function StatIcon({ name }) {
 }
 
 export default async function AboutPage() {
-  const [data, seo] = await Promise.all([
-    getAboutData(),
+  const [apiData, seo] = await Promise.all([
+    getPublicAboutData(),
     getPageSEO('/about')
   ]);
 
@@ -158,7 +109,13 @@ export default async function AboutPage() {
     notFound();
   }
 
-  const { profile, stats, visiMisi, values, milestones, contact } = data;
+  // Merge backend data with fallback defaults
+  const profile    = apiData.profile    || FALLBACK_PROFILE;
+  const stats      = apiData.stats      || FALLBACK_STATS;
+  const visiMisi   = apiData.visiMisi   || FALLBACK_VM;
+  const values     = apiData.values     || FALLBACK_VALUES;
+  const milestones = apiData.milestones || FALLBACK_MILESTONES;
+  const contact    = apiData.contact    || FALLBACK_CONTACT;
 
   return (
     <>
@@ -275,7 +232,7 @@ export default async function AboutPage() {
               {/\.(jpe?g|png|webp)(\?.*)?$/i.test(profile.accreditation_certificate_url) ? (
                 /* Image: tampilkan gambar sertifikat */
                 <a
-                  href={profile.accreditation_certificate_url}
+                  href={getImageUrl(profile.accreditation_certificate_url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ display: 'block', lineHeight: 0 }}
@@ -283,7 +240,7 @@ export default async function AboutPage() {
                 >
                   <div style={{ position: 'relative', width: '100%', height: '220px' }}>
                     <Image
-                      src={profile.accreditation_certificate_url}
+                      src={getImageUrl(profile.accreditation_certificate_url)}
                       alt="Sertifikat Akreditasi RS Bhayangkara Nganjuk"
                       fill
                       sizes="(max-width: 768px) 100vw, 320px"
@@ -295,7 +252,7 @@ export default async function AboutPage() {
               ) : (
                 /* PDF / other: tampilkan card dokumen */
                 <a
-                  href={profile.accreditation_certificate_url}
+                  href={getImageUrl(profile.accreditation_certificate_url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.625rem', padding: '2rem 1rem', background: 'var(--color-primary-50)', textDecoration: 'none' }}
@@ -328,7 +285,7 @@ export default async function AboutPage() {
                 <div style={{ fontSize: '0.6875rem', color: 'var(--color-neutral-600)', marginTop: '0.125rem' }}>{profile.accreditation_valid}</div>
 
                 <a
-                  href={profile.accreditation_certificate_url}
+                  href={getImageUrl(profile.accreditation_certificate_url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{

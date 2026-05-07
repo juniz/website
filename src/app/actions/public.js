@@ -96,3 +96,61 @@ export async function getPublicFAQs() {
     sort_order: f.sortOrder,
   }));
 }
+
+/**
+ * Fetch all About data combined
+ */
+export async function getPublicAboutData() {
+  try {
+    const [
+      resProfile,
+      resStats,
+      resVisiMisi,
+      resValues,
+      resMilestones,
+      resContact,
+    ] = await Promise.all([
+      api.get('/about/profile'),
+      api.get('/about/stats'),
+      api.get('/about/visi-misi'),
+      api.get('/about/values'),
+      api.get('/about/milestones'),
+      api.get('/about/contact'),
+    ]);
+
+    const profileData = extractSingle(resProfile);
+    const profile = profileData ? {
+      header_title: profileData.headerTitle,
+      header_subtitle: profileData.headerSubtitle,
+      paragraph_1: profileData.paragraph1,
+      paragraph_2: profileData.paragraph2,
+      accreditation_title: profileData.accreditationTitle,
+      accreditation_body: profileData.accreditationBody,
+      accreditation_valid: profileData.accreditationValid,
+      accreditation_certificate_url: profileData.accreditationCertificateUrl
+    } : null;
+
+    const stats = extractData(resStats).map(s => ({
+      ...s,
+      icon_name: s.iconName
+    }));
+
+    const visiMisi = extractSingle(resVisiMisi);
+
+    const values = extractData(resValues);
+    const milestones = extractData(resMilestones);
+    const contact = extractData(resContact);
+
+    return { 
+      profile, 
+      stats: stats.length ? stats : null, 
+      visiMisi, 
+      values: values.length ? values : null, 
+      milestones: milestones.length ? milestones : null, 
+      contact: contact.length ? contact : null 
+    };
+  } catch (err) {
+    console.error('Error fetching public about data:', err);
+    return { profile: null, stats: null, visiMisi: null, values: null, milestones: null, contact: null };
+  }
+}
