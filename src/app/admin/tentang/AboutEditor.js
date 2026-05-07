@@ -9,6 +9,7 @@ import {
   upsertAboutContact, deleteAboutContact,
   uploadAccreditationCertificate, removeAccreditationCertificate,
 } from '@/app/actions/admin/about';
+import { getImageUrl } from '@/lib/utils';
 import {
   Save, Loader2, Plus, Trash2, Edit2, CheckCircle2,
   AlertCircle, FileText, Target, Award, BarChart2,
@@ -155,6 +156,15 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
   const [isDragging, setIsDragging] = useState(false);
   const certInputRef = useRef(null);
 
+  const isImage = certUrl && (
+    certUrl.toLowerCase().endsWith('.png') ||
+    certUrl.toLowerCase().endsWith('.jpg') ||
+    certUrl.toLowerCase().endsWith('.jpeg') ||
+    certUrl.toLowerCase().endsWith('.webp') ||
+    certUrl.startsWith('data:image') ||
+    certUrl.includes('/uploads/') // assuming uploads are often images, or just trust the extension
+  );
+
   const CERT_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
   const CERT_ALLOWED   = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'];
 
@@ -190,13 +200,25 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
 
   function handleCertFile(e) { triggerCertUpload(e.target.files[0]); }
 
-  function handleDragOver(e) { e.preventDefault(); setIsDragging(true); }
+  function handleDragEnter(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }
   function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
     // Only leave if exiting the zone entirely (not entering a child)
     if (!e.currentTarget.contains(e.relatedTarget)) setIsDragging(false);
   }
   function handleDrop(e) {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     triggerCertUpload(file);
@@ -335,10 +357,16 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
                 /* ── Sudah ada file ── */
                 <div className="ab-cert-saved">
                   <div className="ab-cert-saved-left">
-                    <span className="ab-cert-icon"><FileCheck size={18} /></span>
+                    {isImage ? (
+                      <div className="ab-cert-thumb">
+                        <img src={getImageUrl(certUrl)} alt="Sertifikat" />
+                      </div>
+                    ) : (
+                      <span className="ab-cert-icon"><FileCheck size={18} /></span>
+                    )}
                     <div>
                       <p className="ab-cert-name">Sertifikat tersimpan</p>
-                      <a href={certUrl} target="_blank" rel="noopener noreferrer" className="ab-cert-link">
+                      <a href={getImageUrl(certUrl)} target="_blank" rel="noopener noreferrer" className="ab-cert-link">
                         Buka / Unduh <ExternalLink size={11} />
                       </a>
                     </div>
@@ -357,16 +385,13 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
                 </div>
               ) : (
                 /* ── Drag & Drop Zone ── */
-                <div
+                <label
+                  htmlFor="cert-upload-input"
                   className={`ab-cert-dropzone ${isDragging ? 'ab-cert-dropzone-active' : ''} ${certPending ? 'ab-cert-dropzone-loading' : ''}`}
+                  onDragEnter={handleDragEnter}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  onClick={() => !certPending && certInputRef.current?.click()}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="Upload sertifikat akreditasi"
-                  onKeyDown={(e) => e.key === 'Enter' && certInputRef.current?.click()}
                 >
                   {certPending ? (
                     <div className="ab-cert-dz-inner">
@@ -393,13 +418,14 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
                       <p className="ab-cert-dz-sub">PDF, PNG, JPG, WebP &mdash; maks. 10 MB</p>
                     </div>
                   )}
-                </div>
+                </label>
               )}
 
               <input
+                id="cert-upload-input"
                 ref={certInputRef}
                 type="file"
-                hidden
+                style={{ display: 'none' }}
                 accept="application/pdf,image/png,image/jpeg,image/webp"
                 onChange={handleCertFile}
               />
@@ -696,6 +722,13 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
         .ab-btn-danger { color: var(--admin-danger) !important; border-color: var(--admin-danger) !important; }
         .ab-btn-danger:hover { background: #FEE2E2 !important; }
 
+        .ab-cert-thumb {
+          width: 44px; height: 44px; border-radius: 8px;
+          overflow: hidden; border: 1px solid var(--admin-success);
+          background: #fff; flex-shrink: 0;
+        }
+        .ab-cert-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
         /* Saved state */
         .ab-cert-saved {
           display: flex; align-items: center; justify-content: space-between;
@@ -730,7 +763,7 @@ export default function AboutEditor({ profile, visiMisi, stats, values, mileston
         .ab-cert-dz-inner {
           display: flex; flex-direction: column; align-items: center;
           gap: 6px; padding: 24px 16px; text-align: center;
-          pointer-events: none; /* let parent handle events */
+          pointer-events: none;
         }
         .ab-cert-dz-inner-drag .ab-cert-dz-title { color: var(--admin-primary); }
 

@@ -1,185 +1,672 @@
 'use client';
 
-import { useActionState, useState, useEffect } from 'react';
+import { useActionState, useState } from 'react';
 import { checkLogin } from '@/app/actions/auth';
-import Button from '@/components/ui/Button';
+import Image from 'next/image';
 
-/**
- * LoginPageClient - High Fidelity Admin Portal
- * Style: Healthcare Cinematic (Azure Blue)
- * Design Intelligence: UI/UX Pro Max
- * Features: Glassmorphism, Responsive Spatial Design, Adaptive Interactions
- */
+/* ─── Trustworthy Split-Layout Login (Style 2) ───────────────────────────────
+   Design System: Trust & Authority · Minimalism & Swiss Style
+   Color: Navy #1E3A5F · Accent #0369A1 · White #F8FAFC
+   Typography: Inter (heading) · system-ui (body)
+   Layout: Two-column split — brand panel left, form panel right
+   Responsive: collapses to single-column on mobile
+── ─────────────────────────────────────────────────────────────────────────── */
+
+const TRUST_ITEMS = [
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+    label: 'Akses Terenkripsi',
+    desc: 'Koneksi SSL/TLS 256-bit',
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    ),
+    label: 'Autentikasi JWT',
+    desc: 'Token aman berbasis waktu',
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+    label: 'Akses Berbasis Peran',
+    desc: 'Kontrol hak administrator',
+  },
+];
+
 export default function LoginPageClient() {
   const [errorMessage, formAction, isPending] = useActionState(checkLogin, undefined);
   const [showPassword, setShowPassword] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-hidden bg-slate-950">
-      {/* Cinematic Background Layer */}
-      <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 scale-105"
-          style={{ 
-            backgroundImage: "url('/images/login-bg.png')",
-            filter: 'brightness(0.6) saturate(1.2)'
-          }}
-        />
-        {/* Modern Gradient Overlays */}
-        <div className="absolute inset-0 bg-linear-to-b from-primary-950/40 via-transparent to-primary-950/80" />
-        <div className="absolute inset-0 bg-radial-at-tr from-accent-teal-500/10 to-transparent" />
-      </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-      {/* Animated Background Orbs */}
-      <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary-500/20 rounded-full blur-[120px] animate-pulse pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-accent-teal-500/20 rounded-full blur-[100px] animate-pulse pointer-events-none" />
+        /* ── Reset & Container ─────────────────────────────── */
+        .lp-root {
+          min-height: 100dvh;
+          display: flex;
+          font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          background: #F8FAFC;
+          overflow: hidden;
+        }
 
-      {/* Main Container */}
-      <main 
-        className={`w-full max-w-[440px] relative z-10 transition-all duration-1000 ease-out 
-          ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      >
-        {/* Branding & Header */}
-        <header className="flex flex-col items-center mb-10 text-center">
-          <div className="relative mb-6 group">
-            <div className="absolute -inset-4 bg-white/10 rounded-full blur-2xl group-hover:bg-primary-500/20 transition-all duration-500" />
-            <div className="w-20 h-20 rounded-4xl bg-linear-to-br from-white/20 to-white/5 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-2xl relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
-              {/* Inner glow effect */}
-              <div className="absolute inset-0 bg-linear-to-tr from-primary-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 drop-shadow-lg">
-                <path d="M12 2v20M2 12h20" />
-              </svg>
+        /* ── Left brand panel ──────────────────────────────── */
+        .lp-brand {
+          flex: 0 0 46%;
+          background: linear-gradient(160deg, #0F172A 0%, #1E3A5F 55%, #1a4a7a 100%);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 48px 52px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* subtle grid texture */
+        .lp-brand::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+          background-size: 48px 48px;
+          pointer-events: none;
+        }
+
+        /* decorative circle */
+        .lp-brand-circle {
+          position: absolute;
+          bottom: -120px;
+          right: -100px;
+          width: 420px;
+          height: 420px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(3,105,161,.35) 0%, transparent 70%);
+          pointer-events: none;
+        }
+        .lp-brand-circle2 {
+          position: absolute;
+          top: -80px;
+          left: -80px;
+          width: 280px;
+          height: 280px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
+          pointer-events: none;
+        }
+
+        /* brand logo */
+        .lp-logo-wrap {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .lp-logo-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          background: rgba(255,255,255,.12);
+          border: 1px solid rgba(255,255,255,.18);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          flex-shrink: 0;
+          backdrop-filter: blur(8px);
+        }
+        .lp-logo-name {
+          font-size: 0.8125rem;
+          font-weight: 700;
+          color: rgba(255,255,255,.9);
+          line-height: 1.3;
+          letter-spacing: .02em;
+        }
+        .lp-logo-sub {
+          font-size: 0.6875rem;
+          color: rgba(255,255,255,.45);
+          font-weight: 500;
+          letter-spacing: .06em;
+          text-transform: uppercase;
+        }
+
+        /* hero text */
+        .lp-hero {
+          position: relative;
+          z-index: 1;
+        }
+        .lp-hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 5px 12px;
+          border-radius: 999px;
+          border: 1px solid rgba(3,105,161,.6);
+          background: rgba(3,105,161,.15);
+          color: #7DD3FC;
+          font-size: 0.6875rem;
+          font-weight: 700;
+          letter-spacing: .1em;
+          text-transform: uppercase;
+          margin-bottom: 20px;
+        }
+        .lp-hero-badge-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #38BDF8;
+          animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: .4; }
+        }
+        .lp-hero-title {
+          font-size: 2.625rem;
+          font-weight: 900;
+          color: #fff;
+          line-height: 1.12;
+          letter-spacing: -.02em;
+          margin-bottom: 18px;
+        }
+        .lp-hero-title em {
+          font-style: normal;
+          color: #7DD3FC;
+        }
+        .lp-hero-desc {
+          font-size: 0.9375rem;
+          color: rgba(255,255,255,.55);
+          line-height: 1.65;
+          max-width: 340px;
+          margin-bottom: 40px;
+        }
+
+        /* trust items */
+        .lp-trust-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .lp-trust-item {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .lp-trust-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: rgba(255,255,255,.07);
+          border: 1px solid rgba(255,255,255,.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #93C5FD;
+          flex-shrink: 0;
+        }
+        .lp-trust-text-label {
+          font-size: 0.8125rem;
+          font-weight: 700;
+          color: rgba(255,255,255,.9);
+        }
+        .lp-trust-text-desc {
+          font-size: 0.6875rem;
+          color: rgba(255,255,255,.4);
+          margin-top: 1px;
+        }
+
+        /* footer */
+        .lp-brand-footer {
+          position: relative;
+          z-index: 1;
+          font-size: 0.6875rem;
+          color: rgba(255,255,255,.25);
+          font-weight: 500;
+          letter-spacing: .05em;
+        }
+
+        /* ── Right form panel ──────────────────────────────── */
+        .lp-form-panel {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 48px 52px;
+          background: #fff;
+          position: relative;
+        }
+
+        @keyframes lp-fadein {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .lp-form-inner {
+          width: 100%;
+          max-width: 400px;
+          animation: lp-fadein .55s ease-out both;
+        }
+
+        /* form heading */
+        .lp-form-heading {
+          margin-bottom: 36px;
+        }
+        .lp-form-kicker {
+          font-size: 0.6875rem;
+          font-weight: 700;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          color: #0369A1;
+          margin-bottom: 10px;
+        }
+        .lp-form-title {
+          font-size: 1.875rem;
+          font-weight: 800;
+          color: #0F172A;
+          letter-spacing: -.025em;
+          line-height: 1.2;
+          margin-bottom: 8px;
+        }
+        .lp-form-subtitle {
+          font-size: 0.875rem;
+          color: #64748B;
+          line-height: 1.55;
+        }
+
+        /* divider */
+        .lp-divider {
+          width: 40px;
+          height: 3px;
+          background: linear-gradient(90deg, #1E3A5F, #0369A1);
+          border-radius: 99px;
+          margin: 16px 0 32px;
+        }
+
+        /* form fields */
+        .lp-field {
+          margin-bottom: 20px;
+        }
+        .lp-label {
+          display: block;
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: #1E293B;
+          margin-bottom: 7px;
+        }
+        .lp-input-wrap {
+          position: relative;
+        }
+        .lp-input-icon {
+          position: absolute;
+          left: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #94A3B8;
+          pointer-events: none;
+          transition: color .2s;
+          display: flex;
+          align-items: center;
+        }
+        .lp-input-wrap:focus-within .lp-input-icon {
+          color: #0369A1;
+        }
+        .lp-input {
+          width: 100%;
+          height: 48px;
+          padding: 0 44px 0 44px;
+          border: 1.5px solid #E2E8F0;
+          border-radius: 10px;
+          font-size: 0.9375rem;
+          font-family: inherit;
+          color: #0F172A;
+          background: #FAFBFC;
+          transition: border-color .2s, box-shadow .2s, background .2s;
+          outline: none;
+          touch-action: manipulation;
+          box-sizing: border-box;
+        }
+        .lp-input::placeholder { color: #CBD5E1; }
+        .lp-input:hover { border-color: #CBD5E1; background: #fff; }
+        .lp-input:focus {
+          border-color: #0369A1;
+          background: #fff;
+          box-shadow: 0 0 0 3px rgba(3,105,161,.12);
+        }
+        .lp-pw-toggle {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #94A3B8;
+          padding: 6px;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          transition: color .2s;
+        }
+        .lp-pw-toggle:hover { color: #0369A1; }
+        .lp-pw-toggle:focus-visible {
+          outline: 2px solid #0369A1;
+          outline-offset: 2px;
+        }
+
+        /* error */
+        .lp-error {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          padding: 12px 14px;
+          border-radius: 10px;
+          background: #FEF2F2;
+          border: 1px solid #FECACA;
+          margin-bottom: 20px;
+          animation: slideDown .25s ease-out;
+        }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .lp-error-icon {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #FCA5A5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          margin-top: 1px;
+          color: #DC2626;
+        }
+        .lp-error-msg {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: #B91C1C;
+          line-height: 1.45;
+        }
+
+        /* submit */
+        .lp-submit {
+          width: 100%;
+          height: 50px;
+          border: none;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #1E3A5F 0%, #0369A1 100%);
+          color: #fff;
+          font-family: inherit;
+          font-size: 0.9375rem;
+          font-weight: 700;
+          letter-spacing: .01em;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: opacity .2s, transform .15s, box-shadow .2s;
+          box-shadow: 0 4px 14px rgba(3,105,161,.35);
+          margin-top: 8px;
+          touch-action: manipulation;
+        }
+        .lp-submit:hover:not(:disabled) {
+          opacity: .92;
+          box-shadow: 0 6px 20px rgba(3,105,161,.45);
+          transform: translateY(-1px);
+        }
+        .lp-submit:active:not(:disabled) {
+          transform: scale(.98);
+          box-shadow: 0 2px 8px rgba(3,105,161,.3);
+        }
+        .lp-submit:disabled { opacity: .65; cursor: not-allowed; }
+        .lp-submit:focus-visible {
+          outline: 3px solid #0369A1;
+          outline-offset: 2px;
+        }
+
+        /* spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .lp-spinner {
+          width: 18px;
+          height: 18px;
+          border: 2.5px solid rgba(255,255,255,.3);
+          border-top-color: #fff;
+          border-radius: 50%;
+          animation: spin .7s linear infinite;
+        }
+
+        /* form footer */
+        .lp-form-footer {
+          margin-top: 28px;
+          padding-top: 24px;
+          border-top: 1px solid #F1F5F9;
+          text-align: center;
+        }
+        .lp-form-footer p {
+          font-size: 0.75rem;
+          color: #94A3B8;
+          line-height: 1.5;
+        }
+        .lp-form-footer strong {
+          color: #475569;
+          font-weight: 600;
+        }
+
+        /* ── Responsive ────────────────────────────────────── */
+        @media (max-width: 900px) {
+          .lp-brand { display: none; }
+          .lp-form-panel { padding: 32px 24px; }
+        }
+        @media (max-width: 480px) {
+          .lp-form-panel { padding: 24px 20px; }
+          .lp-form-title { font-size: 1.5rem; }
+        }
+
+        /* ── Reduced motion ────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+          .lp-form-inner, .lp-error, .lp-hero-badge-dot { animation: none !important; transition: none !important; }
+        }
+      `}</style>
+
+      <div className="lp-root" role="main">
+        {/* ── Left: Brand panel ── */}
+        <aside className="lp-brand" aria-hidden="true">
+          <div className="lp-brand-circle" />
+          <div className="lp-brand-circle2" />
+
+          {/* Logo */}
+          <div className="lp-logo-wrap">
+            <div className="lp-logo-icon">
+              <Image src="/images/logo/rs.png" alt="Logo RS" width={32} height={32} style={{ objectFit: 'contain' }} />
+            </div>
+            <div>
+              <div className="lp-logo-name">RS Bhayangkara Nganjuk</div>
+              <div className="lp-logo-sub">Admin Portal</div>
             </div>
           </div>
-          
-          <h1 className="text-3xl sm:text-4xl font-black font-heading text-white tracking-tighter mb-3 drop-shadow-sm">
-            Admin Portal
-          </h1>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent-teal-400 animate-pulse" />
-            <p className="text-white/80 text-[10px] font-bold tracking-[0.2em] uppercase">
-              RS Bhayangkara Nganjuk
+
+          {/* Hero */}
+          <div className="lp-hero">
+            <div className="lp-hero-badge">
+              <span className="lp-hero-badge-dot" />
+              Sistem Aktif
+            </div>
+            <h2 className="lp-hero-title">
+              Panel<br />
+              Manajemen<br />
+              <em>Terpercaya</em>
+            </h2>
+            <p className="lp-hero-desc">
+              Kelola dokter, jadwal, pendaftaran, dan konten berita RS Bhayangkara Nganjuk dari satu dasbor yang aman dan efisien.
             </p>
+
+            {/* Trust signals */}
+            <ul className="lp-trust-list" role="list">
+              {TRUST_ITEMS.map((item) => (
+                <li key={item.label} className="lp-trust-item">
+                  <div className="lp-trust-icon">{item.icon}</div>
+                  <div>
+                    <div className="lp-trust-text-label">{item.label}</div>
+                    <div className="lp-trust-text-desc">{item.desc}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-        </header>
 
-        {/* Login Card - Compact & Airy */}
-        <div className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.5)] border border-white/20 p-8! sm:p-10! relative overflow-hidden m-4">
-          {/* Subtle light trace animation at the top */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary-500 to-transparent opacity-50" />
-          
-          <form action={formAction} className="flex flex-col gap-10! pt-4!">
-            {/* Email Input */}
-            <div className="flex flex-col gap-7!">
-              <label htmlFor="login-email" className="block text-[11px] font-black text-slate-700 dark:text-slate-300 ml-1 uppercase tracking-[0.15em] opacity-80">
-                Email Administrator
-              </label>
-              <div className="group relative">
-                <div className="absolute inset-y-0 left-2 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors duration-300">
-                  {/* <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg> */}
-                </div>
-                <input
-                  id="login-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="block w-full h-15 pl-14 pr-6 bg-slate-100/50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-slate-900 dark:text-white text-sm font-bold placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300"
-                  placeholder="admin@rsbhayangkara.com"
-                />
-              </div>
+          {/* Brand footer */}
+          <div className="lp-brand-footer">
+            © 2025 TI RS Bhayangkara Nganjuk · Secure Admin Portal v1.0
+          </div>
+        </aside>
+
+        {/* ── Right: Form panel ── */}
+        <section className="lp-form-panel">
+          <div className="lp-form-inner">
+
+            {/* Heading */}
+            <div className="lp-form-heading">
+              <p className="lp-form-kicker">Administrator Login</p>
+              <h1 className="lp-form-title">Selamat Datang</h1>
+              <div className="lp-divider" />
+              <p className="lp-form-subtitle">
+                Masukkan kredensial administrator Anda untuk mengakses panel manajemen.
+              </p>
             </div>
 
-            {/* Password Input */}
-            <div className="flex flex-col gap-7!">
-              <label htmlFor="login-password" className="block text-[11px] font-black text-slate-700 dark:text-slate-300 ml-1 uppercase tracking-[0.15em] opacity-80">
-                Kata Sandi
-              </label>
-              <div className="group relative">
-                <div className="absolute inset-y-0 left-2 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors duration-300">
-                  {/* <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg> */}
+            {/* Form */}
+            <form action={formAction} noValidate>
+              {/* Error */}
+              {errorMessage && (
+                <div className="lp-error" role="alert" aria-live="assertive">
+                  <div className="lp-error-icon">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" aria-hidden="true">
+                      <line x1="12" y1="8" x2="12" y2="12"/>
+                      <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  </div>
+                  <p className="lp-error-msg">{errorMessage}</p>
                 </div>
-                <input
-                  id="login-password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  className="block w-full h-15 pl-14 pr-16 bg-slate-100/50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-slate-900 dark:text-white text-sm font-bold placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-3 px-3 flex items-center text-slate-400 hover:text-primary-600 focus:outline-none rounded-xl transition-all duration-300 active:scale-95"
-                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
-                >
-                  {showPassword ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                  )}
-                </button>
-              </div>
-            </div>
+              )}
 
-            {/* Error Feedback */}
-            {errorMessage && (
-              <div role="alert" className="flex items-start gap-3 p-6! bg-red-50/80 dark:bg-red-950/30 border-2 border-red-100 dark:border-red-900/40 rounded-2xl relative overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
-                <div className="w-1 absolute inset-y-0 left-0 bg-red-500"></div>
-                <div className="w-7 h-7 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0 mt-0.5 shadow-sm">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                </div>
-                <div>
-                  <h4 className="text-[10px] font-black text-red-900 dark:text-red-200 uppercase tracking-wider mb-1!">Kesalahan</h4>
-                  <p className="text-xs font-bold text-red-700 dark:text-red-300 leading-tight">{errorMessage}</p>
+              {/* Email */}
+              <div className="lp-field">
+                <label htmlFor="login-email" className="lp-label">
+                  Email Administrator <span aria-hidden="true" style={{ color: '#DC2626' }}>*</span>
+                </label>
+                <div className="lp-input-wrap">
+                  <span className="lp-input-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                  </span>
+                  <input
+                    id="login-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    className="lp-input"
+                    placeholder="admin@rsbhayangkara.com"
+                    aria-required="true"
+                  />
                 </div>
               </div>
-            )}
 
-            {/* Interactive Submit Button */}
-            <div className="pt-8!">
-              <Button
+              {/* Password */}
+              <div className="lp-field">
+                <label htmlFor="login-password" className="lp-label">
+                  Kata Sandi <span aria-hidden="true" style={{ color: '#DC2626' }}>*</span>
+                </label>
+                <div className="lp-input-wrap">
+                  <span className="lp-input-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  </span>
+                  <input
+                    id="login-password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    required
+                    className="lp-input"
+                    placeholder="••••••••"
+                    aria-required="true"
+                  />
+                  <button
+                    type="button"
+                    className="lp-pw-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                  >
+                    {showPassword ? (
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                      </svg>
+                    ) : (
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit */}
+              <button
                 type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full h-14! flex items-center justify-center text-lg font-black! rounded-[1rem]! shadow-[0_20px_40px_-10px_rgba(0,147,221,0.4)]! hover:shadow-[0_25px_50px_-10px_rgba(0,147,221,0.5)]! active:scale-[0.97] transition-all duration-300 bg-linear-to-r from-primary-600 to-primary-500 border-none"
+                className="lp-submit"
                 disabled={isPending}
+                aria-busy={isPending}
               >
                 {isPending ? (
-                  <span className="flex items-center gap-3 text-base">
-                    <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
+                  <>
+                    <span className="lp-spinner" aria-hidden="true" />
                     Memverifikasi...
-                  </span>
+                  </>
                 ) : (
-                  'Masuk ke Sistem'
+                  <>
+                    Masuk ke Sistem
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                  </>
                 )}
-              </Button>
-            </div>
-          </form>
-        </div>
+              </button>
+            </form>
 
-        {/* Cinematic Footer */}
-        <footer className="mt-16 text-center animate-in fade-in duration-1000 delay-700">
-          <p className="text-white/40 text-[0.75rem] font-black uppercase tracking-[0.3em] drop-shadow-md">
-            &copy; 2025 TI RS Bhayangkara Nganjuk • Secure Admin Portal v1.0
-          </p>
-        </footer>
-      </main>
-    </div>
+            {/* Footer */}
+            <div className="lp-form-footer">
+              <p>
+                Akses hanya untuk <strong>administrator resmi</strong>.<br />
+                Hubungi IT jika mengalami masalah login.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
   );
 }

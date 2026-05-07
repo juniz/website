@@ -5,6 +5,7 @@ const nextConfig = {
       // Default 1 MB — naikkan ke 11 MB agar sertifikat (maks 10 MB) bisa diupload
       bodySizeLimit: '11mb',
     },
+    allowedDevOrigins: ['127.0.0.1'],
   },
 
   images: {
