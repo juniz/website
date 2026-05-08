@@ -254,18 +254,6 @@ export default function Footer({ data, pageStatuses = [] }) {
           <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-200)' }}>
             © {currentYear} RS Bhayangkara Nganjuk. Hak cipta dilindungi.
           </p>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            {['Kebijakan Privasi', 'Syarat Penggunaan'].map((item) => (
-              <Link
-                key={item}
-                href="#"
-                style={{ fontSize: '0.75rem', color: 'var(--color-primary-200)', textDecoration: 'none' }}
-                className="footer-link"
-              >
-                {item}
-              </Link>
-            ))}
-          </div>
         </div>
       </div>
 
