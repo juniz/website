@@ -8,6 +8,7 @@ import FAQSection from '@/components/FAQSection';
 import NewsPreview from '@/components/NewsPreview';
 import PartnerSection from '@/components/PartnerSection';
 import JsonLd from '@/components/JsonLd';
+import ScrollReveal from '@/components/ScrollReveal';
 import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, getPublicFAQs, getPublicPartners } from '@/app/actions/public';
 import { getOgImageUrl } from '@/lib/utils';
 
