@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getImageUrl } from '@/lib/utils';
 
 /**
@@ -38,16 +39,21 @@ export default function HeroSection({ data }) {
           zIndex: 0,
         }}
       >
-        {/* Image — Ken Burns subtle zoom */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `url(${getImageUrl(heroImageUrl)})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          animation: 'heroKenBurns 20s ease-out forwards',
-        }} />
+        {/* Image — Optimized Next.js Image with priority loading */}
+        <Image
+          src={getImageUrl(heroImageUrl)}
+          alt="RS Bhayangkara Nganjuk Hero Background"
+          fill
+          priority
+          quality={85}
+          style={{
+            objectFit: 'cover',
+            objectPosition: 'center',
+            animation: 'heroKenBurns 20s ease-out forwards',
+          }}
+          sizes="100vw"
+          className="hero-bg-image"
+        />
 
         {/* Cinematic gradient overlay (desktop) */}
         <div style={{
