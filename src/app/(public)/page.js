@@ -11,6 +11,8 @@ import JsonLd from '@/components/JsonLd';
 import ScrollReveal from '@/components/ScrollReveal';
 import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, getPublicFAQs, getPublicPartners } from '@/app/actions/public';
 
+export const dynamic = 'force-dynamic';
+
 /* ============================================================
    Landing Page — RSC (React Server Components)
    Scroll-reveal animations via ScrollReveal client wrapper.
