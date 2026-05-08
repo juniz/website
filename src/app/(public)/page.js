@@ -8,8 +8,8 @@ import FAQSection from '@/components/FAQSection';
 import NewsPreview from '@/components/NewsPreview';
 import PartnerSection from '@/components/PartnerSection';
 import JsonLd from '@/components/JsonLd';
-import ScrollReveal from '@/components/ScrollReveal';
 import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, getPublicFAQs, getPublicPartners } from '@/app/actions/public';
+import { getOgImageUrl } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +20,12 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   const seo = await getPageSEO('/');
+  const baseUrl = 'https://rsbhayangkaranganjuk.com';
+  
+  // Format OG image URL to be absolute and proxied if needed
+  const ogImageUrl = seo?.ogImage 
+    ? getOgImageUrl(seo.ogImage, baseUrl)
+    : `${baseUrl}/og-home.jpg`;
   
   return {
     title: seo?.title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya',
@@ -32,7 +38,7 @@ export async function generateMetadata() {
     openGraph: {
       title: seo?.title,
       description: seo?.description,
-      images: [{ url: seo?.ogImage || '/og-home.jpg', width: 1200, height: 630 }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
       type: 'website',
     },
   };
