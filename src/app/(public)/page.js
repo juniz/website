@@ -22,17 +22,17 @@ export async function generateMetadata() {
   const seo = await getPageSEO('/');
   
   return {
-    title: seo?.meta_title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya',
-    description: seo?.meta_description || 'Rumah sakit terakreditasi dengan 32+ dokter spesialis di Nganjuk. Daftar online, cek jadwal dokter, dan layanan IGD 24 jam.',
-    keywords: seo?.meta_keywords || [
+    title: seo?.title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya',
+    description: seo?.description || 'Rumah sakit terakreditasi dengan 32+ dokter spesialis di Nganjuk. Daftar online, cek jadwal dokter, dan layanan IGD 24 jam.',
+    keywords: seo?.keywords || [
       'rumah sakit Nganjuk',
       'RS Bhayangkara Nganjuk',
       'dokter spesialis',
     ],
     openGraph: {
-      title: seo?.meta_title,
-      description: seo?.meta_description,
-      images: [{ url: seo?.og_image || '/og-home.jpg', width: 1200, height: 630 }],
+      title: seo?.title,
+      description: seo?.description,
+      images: [{ url: seo?.ogImage || '/og-home.jpg', width: 1200, height: 630 }],
       type: 'website',
     },
   };
