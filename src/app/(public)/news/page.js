@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import NewsPageClient from './NewsPageClient';
 import { getNews } from '@/lib/data/news';
 import { getPageSEO } from '@/app/actions/public';

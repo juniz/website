@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import DoctorsPageClient from './DoctorsPageClient';
 
 import { getPageSEO } from '@/app/actions/public';

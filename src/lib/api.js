@@ -18,6 +18,7 @@ async function fetchApi(endpoint, options = {}) {
       ...defaultHeaders,
       ...headers,
     },
+    cache: 'no-store', // Default to no-store to prevent stale data in production
     ...customConfig,
   };
 
