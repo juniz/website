@@ -11,7 +11,7 @@ export default async function PublicLayout({ children }) {
   ]);
 
   if (maintenance?.isMaintenance) {
-    return <MaintenancePage data={maintenance} />;
+    return <MaintenancePage data={maintenance} contact={headerSettings} />;
   }
 
   return (

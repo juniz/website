@@ -47,15 +47,7 @@ export async function getAllPageStatus() {
  */
 export async function getPageSEO(route) {
   const res = await api.get(`/seo/route?path=${encodeURIComponent(route)}`);
-  const data = extractSingle(res);
-  if (!data) return null;
-  return {
-    meta_title: data.title,
-    meta_description: data.description,
-    meta_keywords: data.keywords ? data.keywords.split(',').map(k => k.trim()) : [],
-    og_image: data.ogImage,
-    is_active: data.isActive
-  };
+  return extractSingle(res);
 }
 
 /**
@@ -89,6 +81,31 @@ export async function getPublicTestimonials() {
     avatar_url: t.avatarUrl,
     is_active: t.isActive,
   })).slice(0, 6);
+}
+
+/**
+ * Fetch Partners (Mitra Rumah Sakit)
+ */
+export async function getPublicPartners() {
+  try {
+    const res = await api.get('/partners?isActive=true');
+    const items = extractData(res);
+
+    return items
+      .map(p => ({
+        id:          p.id,
+        name:        p.name,
+        logo_url:    p.logoUrl || p.imageUrl || p.logo_url || null,
+        website_url: p.link    || p.website_url || '',
+        sort_order:  p.sortOrder ?? p.sort_order ?? 0,
+        is_active:   p.isActive ?? p.is_active ?? true,
+      }))
+      .filter(p => p.is_active)
+      .sort((a, b) => a.sort_order - b.sort_order);
+  } catch (err) {
+    console.error('Error fetching partners:', err);
+    return [];
+  }
 }
 
 /**

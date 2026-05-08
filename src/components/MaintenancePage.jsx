@@ -1,7 +1,9 @@
 import { Power, AlertTriangle, Phone, Mail } from 'lucide-react';
 
-export default function MaintenancePage({ data }) {
+export default function MaintenancePage({ data, contact }) {
   const { message, estimatedFinish } = data || {};
+  const phone = contact?.phone || '(0358) 321111';
+  const email = contact?.email || 'info@rsbhayangkara-nganjuk.id';
   
   return (
     <div className="mnt-container">
@@ -29,11 +31,11 @@ export default function MaintenancePage({ data }) {
           <div className="mnt-contact-grid">
             <div className="mnt-contact-item">
               <Phone size={14} />
-              <span>IGD: (0358) 321111</span>
+              <span>IGD: {phone}</span>
             </div>
             <div className="mnt-contact-item">
               <Mail size={14} />
-              <span>info@rsbhayangkara-nganjuk.id</span>
+              <span>{email}</span>
             </div>
           </div>
         </div>

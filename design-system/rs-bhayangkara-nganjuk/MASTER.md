@@ -7,8 +7,8 @@
 ---
 
 **Project:** RS Bhayangkara Nganjuk
-**Generated:** 2026-04-07 13:03:09
-**Category:** Healthcare App
+**Generated:** 2026-05-08 08:34:24
+**Category:** Medical Clinic
 
 ---
 
@@ -18,18 +18,18 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#0F172A` | `--color-primary` |
+| Primary | `#0284C7` | `--color-primary` |
 | On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#334155` | `--color-secondary` |
-| Accent/CTA | `#0369A1` | `--color-accent` |
-| Background | `#F8FAFC` | `--color-background` |
-| Foreground | `#020617` | `--color-foreground` |
-| Muted | `#E8ECF1` | `--color-muted` |
-| Border | `#E2E8F0` | `--color-border` |
+| Secondary | `#0891B2` | `--color-secondary` |
+| Accent/CTA | `#DC2626` | `--color-accent` |
+| Background | `#F0F9FF` | `--color-background` |
+| Foreground | `#0F172A` | `--color-foreground` |
+| Muted | `#EFF7FB` | `--color-muted` |
+| Border | `#E0F0F8` | `--color-border` |
 | Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#0F172A` | `--color-ring` |
+| Ring | `#0284C7` | `--color-ring` |
 
-**Color Notes:** Professional navy + blue CTA
+**Color Notes:** Medical blue + alert red
 
 ### Typography
 
@@ -73,7 +73,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #0369A1;
+  background: #DC2626;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -90,8 +90,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #0F172A;
-  border: 2px solid #0F172A;
+  color: #0284C7;
+  border: 2px solid #0284C7;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -104,7 +104,7 @@
 
 ```css
 .card {
-  background: #F8FAFC;
+  background: #F0F9FF;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -130,9 +130,9 @@
 }
 
 .input:focus {
-  border-color: #0F172A;
+  border-color: #0284C7;
   outline: none;
-  box-shadow: 0 0 0 3px #0F172A20;
+  box-shadow: 0 0 0 3px #0284C720;
 }
 ```
 
@@ -168,7 +168,7 @@
 
 ### Page Pattern
 
-**Pattern Name:** Social Proof-Focused
+**Pattern Name:** Trust & Authority + Conversion
 
 - **CTA Placement:** Above fold
 - **Section Order:** Hero > Features > CTA
@@ -177,8 +177,8 @@
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Bright neon colors
-- ❌ Motion-heavy animations
+- ❌ Outdated interface
+- ❌ Confusing booking
 - ❌ AI purple/pink gradients
 
 ### Additional Forbidden Patterns

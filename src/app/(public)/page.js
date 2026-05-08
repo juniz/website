@@ -6,10 +6,10 @@ import CTABanner from '@/components/CTABanner';
 import TestimonialSection from '@/components/TestimonialSection';
 import FAQSection from '@/components/FAQSection';
 import NewsPreview from '@/components/NewsPreview';
+import PartnerSection from '@/components/PartnerSection';
 import JsonLd from '@/components/JsonLd';
 import ScrollReveal from '@/components/ScrollReveal';
-import { getImageUrl } from '@/lib/utils';
-import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, getPublicFAQs } from '@/app/actions/public';
+import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, getPublicFAQs, getPublicPartners } from '@/app/actions/public';
 
 /* ============================================================
    Landing Page — RSC (React Server Components)
@@ -18,33 +18,31 @@ import { getHeroSettings, getPublicServices, getPageSEO, getPublicTestimonials, 
 
 export async function generateMetadata() {
   const seo = await getPageSEO('/');
-  const title = seo?.meta_title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya';
-  const description = seo?.meta_description || 'Rumah sakit terakreditasi dengan 32+ dokter spesialis di Nganjuk. Daftar online, cek jadwal dokter, dan layanan IGD 24 jam.';
-  const ogImageUrl = seo?.og_image ? getImageUrl(seo.og_image) : 'https://rsbhayangkaranganjuk.com/og-home.jpg';
-
+  
   return {
-    title: { absolute: title },
-    description,
+    title: seo?.meta_title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya',
+    description: seo?.meta_description || 'Rumah sakit terakreditasi dengan 32+ dokter spesialis di Nganjuk. Daftar online, cek jadwal dokter, dan layanan IGD 24 jam.',
     keywords: seo?.meta_keywords || [
       'rumah sakit Nganjuk',
       'RS Bhayangkara Nganjuk',
       'dokter spesialis',
     ],
     openGraph: {
-      title,
-      description,
-      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      title: seo?.meta_title,
+      description: seo?.meta_description,
+      images: [{ url: seo?.og_image || '/og-home.jpg', width: 1200, height: 630 }],
       type: 'website',
     },
   };
 }
 
 export default async function HomePage() {
-  const [heroSettings, services, testimonials, faqs] = await Promise.all([
+  const [heroSettings, services, testimonials, faqs, partners] = await Promise.all([
     getHeroSettings(),
     getPublicServices(),
     getPublicTestimonials(),
     getPublicFAQs(),
+    getPublicPartners(),
   ]);
 
   /* JSON-LD: MedicalOrganization + Hospital */
@@ -52,7 +50,7 @@ export default async function HomePage() {
     '@context': 'https://schema.org',
     '@type': ['MedicalOrganization', 'Hospital'],
     name: 'RS Bhayangkara Nganjuk',
-    url: 'https://rsbhayangkaranganjuk.com',
+    url: 'https://rsbhayangkara-nganjuk.id',
     telephone: '+62-358-XXXXXX',
     address: {
       '@type': 'PostalAddress',
@@ -107,6 +105,13 @@ export default async function HomePage() {
       <ScrollReveal variant="fade-up" threshold={0.06}>
         <FAQSection data={faqs} compact={true} />
       </ScrollReveal>
+
+      {/* Mitra & Asuransi — trustworthy azure-blue partners grid */}
+      {partners.length > 0 && (
+        <ScrollReveal variant="fade-up" threshold={0.06}>
+          <PartnerSection data={partners} />
+        </ScrollReveal>
+      )}
 
       {/* Preview Berita — fade-up last */}
       <ScrollReveal variant="fade-up" threshold={0.06}>
