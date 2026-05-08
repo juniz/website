@@ -46,21 +46,26 @@ export default async function HomePage() {
   ]);
 
   /* JSON-LD: MedicalOrganization + Hospital */
+  const baseUrl = 'https://rsbhayangkaranganjuk.com';
+
+  /* JSON-LD: MedicalOrganization + Hospital */
   const hospitalSchema = {
     '@context': 'https://schema.org',
     '@type': ['MedicalOrganization', 'Hospital'],
     name: 'RS Bhayangkara Nganjuk',
-    url: 'https://rsbhayangkara-nganjuk.id',
-    telephone: '+62-358-XXXXXX',
+    url: baseUrl,
+    logo: `${baseUrl}/icon.png`,
+    image: `${baseUrl}/og-home.jpg`,
+    telephone: '+62 812-1683-1605', // Sesuaikan dengan nomor asli jika ada
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Jl. Ahmad Yani No. 1',
+      streetAddress: 'Jl. Abdurahman Saleh VI No.56, Kauman, Kec. Nganjuk',
       addressLocality: 'Nganjuk',
       addressRegion: 'Jawa Timur',
-      postalCode: '64418',
+      postalCode: '64411',
       addressCountry: 'ID',
     },
-    openingHours: ['Mo-Fr 07:00-21:00', 'Sa-Su 08:00-14:00'],
+    openingHours: ['Mo-Su 00:00-23:59'], // IGD 24 Jam
     hasMap: 'https://maps.google.com/?q=RS+Bhayangkara+Nganjuk',
     medicalSpecialty: [
       'Cardiology', 'Pediatrics', 'GeneralSurgery', 'Neurology', 'Obstetrics', 'Ophthalmology',
@@ -69,9 +74,23 @@ export default async function HomePage() {
     availableService: services.map(s => ({ '@type': 'MedicalTherapy', name: s.name })),
   };
 
+  /* JSON-LD: WebSite for Sitelinks Searchbox & Navigation */
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'RS Bhayangkara Nganjuk',
+    url: baseUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${baseUrl}/search?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <>
       <JsonLd data={hospitalSchema} />
+      <JsonLd data={websiteSchema} />
 
       {/* Hero — above-the-fold, CSS-only entrance (no observer needed) */}
       <HeroSection data={heroSettings} />
