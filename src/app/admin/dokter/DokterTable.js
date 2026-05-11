@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Pencil, Trash2, Search, CheckCircle2, XCircle, Stethoscope, AlertTriangle } from 'lucide-react';
 import { deleteDokter, bulkDeleteDokter } from '@/app/actions/admin/dokter';
@@ -190,7 +191,14 @@ export default function DokterTable({ doctors, meta }) {
                         }}
                       >
                         {doc.image ? (
-                          <img src={getImageUrl(doc.image)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <Image
+                            src={getImageUrl(doc.image)}
+                            alt={doc.name}
+                            width={40}
+                            height={40}
+                            className="dokter-avatar"
+                            style={{ objectFit: 'cover' }}
+                          />
                         ) : (
                           getInitials(doc.name)
                         )}
