@@ -1,8 +1,9 @@
 'use client';
 // Schedule listing client component — exported as SchedulePageClient
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { getScheduleStatus, scheduleFilters } from '@/lib/data/shared';
 import Badge from '@/components/ui/Badge';
 
@@ -30,16 +31,52 @@ function buildDateStrip() {
 }
 
 export default function SchedulePageClient({ initialSchedules = [] }) {
+  const searchParams = useSearchParams();
+  const doctorId = searchParams.get('doctorId');
+  
   const [selectedDay, setSelectedDay] = useState(0);
   const [activeFilter, setActiveFilter] = useState('all');
   const days = useMemo(() => buildDateStrip(), []);
 
   const visibleSchedule = useMemo(() => {
     // Filter by the selected day string (Senin, Selasa, etc.)
-    const matchesDay = initialSchedules.filter((s) => s.date === days[selectedDay]?.labelFull);
-    if (activeFilter === 'all') return matchesDay;
-    return matchesDay.filter((s) => s.specializationCode === activeFilter);
-  }, [selectedDay, activeFilter, initialSchedules, days]);
+    let filtered = initialSchedules.filter((s) => {
+      if (!s.date) return false;
+      
+      const targetDay = days[selectedDay]?.labelFull?.toUpperCase();
+      const scheduleDate = s.date.trim().toUpperCase();
+      
+      // Exact match (e.g., "SENIN" === "SENIN")
+      if (scheduleDate === targetDay) return true;
+      
+      // Handle variations
+      if (targetDay === 'MINGGU' && scheduleDate === 'AKHAD') return true;
+      if (targetDay === 'JUMAT' && scheduleDate === "JUM'AT") return true;
+      
+      // If s.date is a full date string (e.g., "2024-05-11"), compare day name
+      try {
+        const d = new Date(s.date);
+        if (!isNaN(d.getTime())) {
+          const dayNamesFull = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+          return dayNamesFull[d.getDay()] === targetDay;
+        }
+      } catch (e) {}
+      
+      return false;
+    });
+    
+    // Filter by specialization
+    if (activeFilter !== 'all') {
+      filtered = filtered.filter((s) => s.specializationCode === activeFilter);
+    }
+    
+    // Filter by doctorId if present in URL
+    if (doctorId) {
+      filtered = filtered.filter((s) => String(s.doctorId) === String(doctorId));
+    }
+    
+    return filtered;
+  }, [selectedDay, activeFilter, initialSchedules, days, doctorId]);
 
   const todayFull = new Date().toLocaleDateString('id-ID', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',

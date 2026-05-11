@@ -78,3 +78,18 @@ export async function deleteDokter(id) {
     return { error: err.message };
   }
 }
+
+export async function bulkDeleteDokter(ids) {
+  try {
+    const headers = await getHeaders();
+    const result = await api.post('/doctors/bulk-delete', { ids }, { headers });
+
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/dokter');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
+}

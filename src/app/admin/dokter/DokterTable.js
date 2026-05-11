@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, Search, CheckCircle2, XCircle, Stethoscope } from 'lucide-react';
-import { deleteDokter } from '@/app/actions/admin/dokter';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { Pencil, Trash2, Search, CheckCircle2, XCircle, Stethoscope, AlertTriangle } from 'lucide-react';
+import { deleteDokter, bulkDeleteDokter } from '@/app/actions/admin/dokter';
 import { getImageUrl } from '@/lib/utils';
+import Pagination from '@/components/admin/Pagination';
 
 function getInitials(name) {
   if (!name) return '?';
@@ -14,26 +15,59 @@ function getInitials(name) {
   return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
 }
 
-export default function DokterTable({ doctors }) {
+export default function DokterTable({ doctors, meta }) {
   const router = useRouter();
-  const [search, setSearch] = useState('');
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [search, setSearch] = useState(searchParams.get('q') || '');
+  const [selectedIds, setSelectedIds] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState(null);
 
-  const filtered = doctors.filter(
-    (d) =>
-      d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.specialization.toLowerCase().includes(search.toLowerCase())
-  );
+  // Sync search input with URL query param (Server-side search)
+  useEffect(() => {
+    const currentQ = searchParams.get('q') || '';
+    if (search === currentQ) return;
+
+    const params = new URLSearchParams(searchParams);
+    if (search) {
+      params.set('q', search);
+    } else {
+      params.delete('q');
+    }
+    params.set('page', '1'); // Reset to page 1 when searching
+
+    const timeoutId = setTimeout(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [search, router, pathname, searchParams]);
+
+  const filtered = doctors;
+  const allSelected = filtered.length > 0 && selectedIds.length === filtered.length;
+  const someSelected = selectedIds.length > 0 && selectedIds.length < filtered.length;
 
   function showToast(msg, type = 'success') {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   }
 
-  function handleDelete(doctor) {
-    setConfirmDelete(doctor);
+  function handleSelectAll() {
+    if (allSelected) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filtered.map((d) => d.id));
+    }
+  }
+
+  function handleSelectRow(id) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   }
 
   function confirmDeleteAction() {
@@ -45,6 +79,21 @@ export default function DokterTable({ doctors }) {
         showToast('Gagal menghapus dokter.', 'danger');
       } else {
         showToast('Dokter berhasil dihapus.', 'success');
+        router.refresh();
+      }
+    });
+  }
+
+  function confirmBulkDeleteAction() {
+    if (selectedIds.length === 0) return;
+    startTransition(async () => {
+      const result = await bulkDeleteDokter(selectedIds);
+      setConfirmBulkDelete(false);
+      if (result?.error) {
+        showToast('Gagal menghapus beberapa dokter.', 'danger');
+      } else {
+        showToast(`${selectedIds.length} dokter berhasil dihapus.`, 'success');
+        setSelectedIds([]);
         router.refresh();
       }
     });
@@ -66,9 +115,23 @@ export default function DokterTable({ doctors }) {
               aria-label="Cari dokter"
             />
           </div>
+          {selectedIds.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '12px', borderLeft: '1px solid var(--admin-border)', paddingLeft: '12px' }}>
+              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--admin-primary)' }}>
+                {selectedIds.length} terpilih
+              </span>
+              <button 
+                className="admin-btn admin-btn-danger" 
+                style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                onClick={() => setConfirmBulkDelete(true)}
+              >
+                <Trash2 size={12} /> Hapus Masal
+              </button>
+            </div>
+          )}
         </div>
         <span style={{ fontSize: '0.8125rem', color: 'var(--admin-text-m)' }}>
-          {filtered.length} {filtered.length === 1 ? 'dokter' : 'dokter'}
+          {filtered.length} dokter
         </span>
       </div>
 
@@ -88,6 +151,15 @@ export default function DokterTable({ doctors }) {
           <table className="admin-table" aria-label="Daftar Dokter">
             <thead>
               <tr>
+                <th scope="col" style={{ width: '40px' }}>
+                  <input
+                    type="checkbox"
+                    className="admin-checkbox"
+                    checked={allSelected}
+                    ref={(el) => el && (el.indeterminate = someSelected)}
+                    onChange={handleSelectAll}
+                  />
+                </th>
                 <th scope="col">Dokter</th>
                 <th scope="col">Spesialisasi</th>
                 <th scope="col">Status</th>
@@ -97,7 +169,15 @@ export default function DokterTable({ doctors }) {
             </thead>
             <tbody>
               {filtered.map((doc) => (
-                <tr key={doc.id}>
+                <tr key={doc.id} className={selectedIds.includes(doc.id) ? 'selected' : ''}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      className="admin-checkbox"
+                      checked={selectedIds.includes(doc.id)}
+                      onChange={() => handleSelectRow(doc.id)}
+                    />
+                  </td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div
@@ -149,7 +229,7 @@ export default function DokterTable({ doctors }) {
                       </Link>
                       <button
                         className="admin-btn admin-btn-danger admin-btn-icon"
-                        onClick={() => handleDelete(doc)}
+                        onClick={() => setConfirmDelete(doc)}
                         title={`Hapus ${doc.name}`}
                         aria-label={`Hapus ${doc.name}`}
                       >
@@ -164,35 +244,51 @@ export default function DokterTable({ doctors }) {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Pagination */}
+      {meta && <Pagination meta={meta} />}
+
+      {/* Single Delete Modal */}
       {confirmDelete && (
-        <div className="admin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+        <div className="admin-modal-overlay" role="dialog" aria-modal="true">
           <div className="admin-modal" style={{ maxWidth: '400px' }}>
             <div className="admin-modal-header">
-              <h3 className="admin-modal-title" id="delete-modal-title">Konfirmasi Hapus</h3>
+              <h3 className="admin-modal-title">Konfirmasi Hapus</h3>
             </div>
             <div className="admin-modal-body">
               <p style={{ color: 'var(--admin-text-b)', lineHeight: 1.6, fontSize: '0.875rem' }}>
-                Apakah Anda yakin ingin menghapus{' '}
-                <strong>{confirmDelete.name}</strong>?{' '}
-                Tindakan ini tidak dapat dibatalkan dan akan menghapus semua jadwal terkait.
+                Apakah Anda yakin ingin menghapus <strong>{confirmDelete.name}</strong>? Tindakan ini tidak dapat dibatalkan.
               </p>
             </div>
             <div className="admin-modal-footer">
-              <button
-                className="admin-btn admin-btn-ghost"
-                onClick={() => setConfirmDelete(null)}
-                autoFocus
-              >
-                Batal
-              </button>
-              <button
-                className="admin-btn admin-btn-danger"
-                onClick={confirmDeleteAction}
-                disabled={isPending}
-                style={{ background: 'var(--admin-danger)', color: '#fff' }}
-              >
+              <button className="admin-btn admin-btn-ghost" onClick={() => setConfirmDelete(null)}>Batal</button>
+              <button className="admin-btn admin-btn-danger" onClick={confirmDeleteAction} disabled={isPending}>
                 {isPending ? 'Menghapus...' : 'Ya, Hapus'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Modal */}
+      {confirmBulkDelete && (
+        <div className="admin-modal-overlay" role="dialog" aria-modal="true">
+          <div className="admin-modal" style={{ maxWidth: '400px' }}>
+            <div className="admin-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--admin-danger)' }}>
+                <AlertTriangle size={20} />
+                <h3 className="admin-modal-title">Hapus Masal</h3>
+              </div>
+            </div>
+            <div className="admin-modal-body">
+              <p style={{ color: 'var(--admin-text-b)', lineHeight: 1.6, fontSize: '0.875rem' }}>
+                Apakah Anda yakin ingin menghapus <strong>{selectedIds.length}</strong> dokter yang terpilih? 
+                Semua jadwal terkait juga akan dihapus secara otomatis.
+              </p>
+            </div>
+            <div className="admin-modal-footer">
+              <button className="admin-btn admin-btn-ghost" onClick={() => setConfirmBulkDelete(false)}>Batal</button>
+              <button className="admin-btn admin-btn-danger" onClick={confirmBulkDeleteAction} disabled={isPending}>
+                {isPending ? 'Menghapus...' : `Ya, Hapus ${selectedIds.length} Dokter`}
               </button>
             </div>
           </div>

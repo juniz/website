@@ -80,3 +80,18 @@ export async function deleteJadwal(id) {
     return { error: err.message };
   }
 }
+
+export async function bulkDeleteJadwal(ids) {
+  try {
+    const headers = await getHeaders();
+    const result = await api.post('/schedules/bulk-delete', { ids }, { headers });
+
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/jadwal');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
+}

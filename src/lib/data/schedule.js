@@ -4,10 +4,12 @@ import { scheduleFilters, getScheduleStatus } from './shared';
 export { scheduleFilters, getScheduleStatus };
 
 export async function getSchedules() {
-  const result = await api.get('/schedules', { cache: 'no-store' });
+  const result = await api.get('/schedules?limit=100', { cache: 'no-store' });
   
-  // Karena backend ada TransformInterceptor, data asli ada di dalam property 'data'
-  const items = result.success ? (result.data.data || result.data) : [];
+  // Handle nested paginated structure: { success: true, data: { data: { data: [], meta: {} } } }
+  // TransformInterceptor wraps the response in { data: ... }
+  // Our service returns { data: [], meta: {} }
+  const items = result.success ? (result.data.data?.data || result.data.data || result.data) : [];
 
   return items.map(s => {
     // Backend kita menggunakan properti 'doctor' (singular) dan camelCase
