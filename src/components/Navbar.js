@@ -11,6 +11,7 @@ const navLinks = [
   { href: '/doctors',  label: 'Dokter',   key: 'doctors' },
   { href: '/schedule', label: 'Jadwal',   key: 'schedule' },
   { href: '/news',     label: 'Berita',   key: 'news' },
+  { href: '/pejabat',  label: 'Pejabat',  key: 'pejabat' },
   { href: '/faq',      label: 'FAQ',      key: 'faq' },
 ];
 

@@ -6,6 +6,7 @@ const quickLinks = [
   { href: '/schedule', label: 'Jadwal Dokter' },
   { href: '/register', label: 'Daftar Online' },
   { href: '/news',     label: 'Berita & Info' },
+  { href: '/pejabat',  label: 'Pejabat RS' },
   { href: '/about',    label: 'Tentang Kami' },
 ];
 

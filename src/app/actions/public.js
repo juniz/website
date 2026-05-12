@@ -3,7 +3,13 @@ import { api } from '@/lib/api';
 /**
  * Helper to extract data from NestJS wrapped response
  */
-const extractData = (res) => res.success ? (res.data.data || res.data) : [];
+const extractData = (res) => {
+  if (!res.success) return [];
+  const d = res.data?.data || res.data;
+  // Handle case where it's { data: [], meta: {} }
+  if (d && !Array.isArray(d) && Array.isArray(d.data)) return d.data;
+  return Array.isArray(d) ? d : [];
+};
 const extractSingle = (res) => res.success ? (res.data.data || res.data) : null;
 
 /**
@@ -177,5 +183,17 @@ export async function getPublicAboutData() {
   } catch (err) {
     console.error('Error fetching public about data:', err);
     return { profile: null, stats: null, visiMisi: null, values: null, milestones: null, contact: null };
+  }
+}
+/**
+ * Fetch Public Pejabat (Struktural)
+ */
+export async function getPublicPejabat() {
+  try {
+    const res = await api.get('/pejabat?isActive=true&limit=50');
+    return extractData(res);
+  } catch (err) {
+    console.error('Error fetching public pejabat:', err);
+    return [];
   }
 }

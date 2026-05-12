@@ -22,6 +22,7 @@ import {
   Mail,
   Settings2,
   BookOpen,
+  Users,
 } from 'lucide-react';
 import { doLogout } from '@/app/actions/auth';
 
@@ -81,6 +82,12 @@ const NAV_ITEMS = [
         label: 'Tentang Kami',
         icon: BookOpen,
         description: 'Profil, visi-misi & timeline',
+      },
+      {
+        href: '/admin/pejabat',
+        label: 'Pejabat RS',
+        icon: Users,
+        description: 'Struktur organisasi & pimpinan',
       },
       {
         href: '/admin/berita',

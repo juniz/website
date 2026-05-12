@@ -7,6 +7,7 @@ import {
   Newspaper,
   Clock,
   ArrowRight,
+  Users,
 } from 'lucide-react';
 
 export const metadata = { title: 'Dashboard' };
@@ -15,17 +16,19 @@ async function getDashboardStats() {
   try {
     // Kita bisa ambil semua data dan hitung, atau jika backend punya endpoint stats lebih baik.
     // Untuk saat ini, kita fetch beberapa sekaligus.
-    const [doctorsRes, schedulesRes, registrationsRes, newsRes] = await Promise.all([
+    const [doctorsRes, schedulesRes, registrationsRes, newsRes, pejabatRes] = await Promise.all([
       api.get('/doctors'),
       api.get('/schedules'),
       api.get('/registrations'),
       api.get('/news'),
+      api.get('/pejabat'),
     ]);
 
     const doctors = doctorsRes.success ? (doctorsRes.data.data || doctorsRes.data || []) : [];
     const schedules = schedulesRes.success ? (schedulesRes.data.data || schedulesRes.data || []) : [];
     const registrations = registrationsRes.success ? (registrationsRes.data.data || registrationsRes.data || []) : [];
     const news = newsRes.success ? (newsRes.data.data || newsRes.data || []) : [];
+    const pejabat = pejabatRes.success ? (pejabatRes.data.data || pejabatRes.data || []) : [];
 
     return {
       totalDoctors: doctors.length,
@@ -34,6 +37,7 @@ async function getDashboardStats() {
       totalRegistrations: registrations.length,
       pendingRegistrations: registrations.filter(r => r.status === 'Pending').length,
       totalNews: news.length,
+      totalPejabat: pejabat.length,
     };
   } catch (err) {
     console.error('Error fetching dashboard stats:', err);
@@ -120,6 +124,15 @@ export default async function AdminDashboardPage() {
       color: 'var(--admin-warning)',
       colorL: 'var(--admin-warning-l)',
       href: '/admin/berita',
+    },
+    {
+      label: 'Pejabat RS',
+      value: stats.totalPejabat || 0,
+      sub: 'Total pejabat struktural',
+      icon: Users,
+      color: '#0D9488',
+      colorL: '#F0FDFA',
+      href: '/admin/pejabat',
     },
   ];
 
