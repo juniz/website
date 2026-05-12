@@ -51,83 +51,99 @@ export default async function PejabatPublicPage() {
 
       {/* Hero / Header Section */}
       <section style={{ 
-        background: 'linear-gradient(135deg, var(--color-primary-900) 0%, var(--color-primary-800) 100%)', 
-        paddingBlock: '4rem 5rem', 
+        background: 'linear-gradient(165deg, var(--color-primary-900) 0%, var(--color-primary-800) 100%)', 
+        paddingBlock: '5rem 6rem', 
         color: '#fff',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        borderBottom: '4px solid var(--color-primary-600)'
       }}>
-        {/* Decorative Grid Overlay */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.1, pointerEvents: 'none' }}>
+        {/* Decorative Elements */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.05, pointerEvents: 'none' }}>
            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="grid-pejabat" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
+              <pattern id="grid-pejabat-v2" width="60" height="60" patternUnits="userSpaceOnUse">
+                <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="0.5"/>
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#grid-pejabat)" />
+            <rect width="100%" height="100%" fill="url(#grid-pejabat-v2)" />
           </svg>
         </div>
+        
+        {/* Abstract medical glow */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '-10%', 
+          right: '-5%', 
+          width: '40%', 
+          height: '60%', 
+          background: 'radial-gradient(circle, rgba(55, 138, 221, 0.15) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+          zIndex: 0
+        }} />
 
         <div className="container-site" style={{ position: 'relative', zIndex: 1 }}>
           <nav aria-label="Breadcrumb" style={{ marginBottom: '1.5rem' }}>
-            <ol style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', listStyle: 'none', fontSize: '0.8125rem', color: 'var(--color-primary-200)' }}>
+            <ol style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', listStyle: 'none', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.5)' }}>
               <li><Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Beranda</Link></li>
-              <li aria-hidden="true">/</li>
-              <li aria-current="page" style={{ color: '#fff' }}>Pejabat</li>
+              <li aria-hidden="true" style={{ opacity: 0.5 }}>/</li>
+              <li aria-current="page" style={{ color: 'var(--color-primary-100)', fontWeight: 500 }}>Pejabat</li>
             </ol>
           </nav>
           
           <h1 style={{ 
-            fontSize: 'clamp(2rem, 5vw, 3rem)', 
+            fontSize: 'clamp(2.5rem, 6vw, 3.5rem)', 
             fontWeight: 800, 
             fontFamily: 'var(--font-figtree)', 
-            marginBottom: '1rem',
-            letterSpacing: '-0.02em'
+            marginBottom: '1.25rem',
+            letterSpacing: '-0.03em',
+            lineHeight: 1.1,
+            color: '#FFFFFF'
           }}>
-            Pejabat Struktural
+            Pejabat <span style={{ color: 'var(--color-primary-400)' }}>Struktural</span>
           </h1>
           <p style={{ 
-            fontSize: 'clamp(1rem, 1.2vw, 1.125rem)', 
-            color: 'var(--color-primary-100)', 
-            maxWidth: '600px',
-            lineHeight: 1.6
+            fontSize: 'clamp(1.125rem, 1.5vw, 1.25rem)', 
+            color: 'rgba(255,255,255,0.8)', 
+            maxWidth: '650px',
+            lineHeight: 1.6,
+            fontWeight: 400
           }}>
-            Jajaran pimpinan RS Bhayangkara Nganjuk yang berdedikasi dalam mengelola dan memberikan pelayanan kesehatan paripurna bagi masyarakat.
+            Dedikasi pimpinan RS Bhayangkara Nganjuk dalam mewujudkan pelayanan kesehatan yang profesional, modern, dan terpercaya bagi seluruh lapisan masyarakat.
           </p>
         </div>
       </section>
 
       {/* Main Content Section */}
-      <section style={{ marginTop: '-3rem', paddingBottom: '5rem' }}>
+      <section style={{ marginTop: '-4rem', paddingBottom: '6rem', position: 'relative', zIndex: 10 }}>
         <div className="container-site">
           {pejabat.length === 0 ? (
             <div style={{ 
               background: '#fff', 
               borderRadius: '24px', 
-              padding: '5rem 2rem', 
+              padding: '6rem 2rem', 
               textAlign: 'center',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
-              border: '1px solid var(--color-primary-100)'
+              boxShadow: '0 20px 50px rgba(0,0,0,0.05)',
+              border: '1px solid var(--color-neutral-200)'
             }}>
               <p style={{ color: 'var(--color-neutral-500)', fontSize: '1.125rem' }}>Data pejabat belum tersedia.</p>
             </div>
           ) : (
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-              gap: '2rem' 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+              gap: '2.5rem' 
             }}>
               {pejabat.map((pj, idx) => (
                 <article 
                   key={pj.id}
                   style={{ 
                     background: '#fff', 
-                    borderRadius: '24px', 
+                    borderRadius: '20px', 
                     overflow: 'hidden',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+                    boxShadow: '0 10px 30px rgba(4, 44, 83, 0.06)',
                     border: '1px solid var(--color-neutral-200)',
-                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                    transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
                     display: 'flex',
                     flexDirection: 'column'
                   }}
@@ -139,14 +155,15 @@ export default async function PejabatPublicPage() {
                     width: '100%', 
                     aspectRatio: '4/5', 
                     background: 'var(--color-primary-50)',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    borderBottom: '1px solid var(--color-neutral-200)'
                   }}>
                     {pj.photo ? (
                       <Image 
                         src={getImageUrl(pj.photo)} 
                         alt={pj.name}
                         fill
-                        sizes="(max-width: 768px) 100vw, 350px"
+                        sizes="(max-width: 768px) 100vw, 400px"
                         style={{ objectFit: 'cover', objectPosition: 'top' }}
                         className="pejabat-photo"
                       />
@@ -158,88 +175,81 @@ export default async function PejabatPublicPage() {
                         height: '100%',
                         color: 'var(--color-primary-200)'
                       }}>
-                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                         </svg>
                       </div>
                     )}
                     
-                    {/* Badge Overlay */}
-                    <div style={{ 
-                      position: 'absolute', 
-                      bottom: '1rem', 
-                      left: '1rem', 
-                      right: '1rem',
-                      zIndex: 2
+                    {/* Subtle Overlay on Hover */}
+                    <div className="photo-overlay" />
+                  </div>
+
+                  {/* Info Header (Below Photo) */}
+                  <div style={{ padding: '1.75rem 1.75rem 1.25rem', borderBottom: '1px solid var(--color-neutral-50)' }}>
+                    <p style={{ 
+                      fontSize: '0.75rem', 
+                      fontWeight: 700, 
+                      color: 'var(--color-primary-600)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      marginBottom: '0.5rem'
                     }}>
-                      <div style={{ 
-                        background: 'rgba(255, 255, 255, 0.9)', 
-                        backdropFilter: 'blur(10px)',
-                        padding: '1rem',
-                        borderRadius: '16px',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
-                      }}>
-                        <h2 style={{ 
-                          fontSize: '1.125rem', 
-                          fontWeight: 700, 
-                          color: 'var(--color-primary-900)',
-                          fontFamily: 'var(--font-figtree)',
-                          marginBottom: '0.25rem',
-                          lineHeight: 1.2
-                        }}>
-                          {pj.name}
-                        </h2>
-                        <p style={{ 
-                          fontSize: '0.875rem', 
-                          fontWeight: 600, 
-                          color: 'var(--color-primary-600)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em'
-                        }}>
-                          {pj.jabatan}
-                        </p>
-                      </div>
-                    </div>
+                      {pj.jabatan}
+                    </p>
+                    <h2 style={{ 
+                      fontSize: '1.375rem', 
+                      fontWeight: 700, 
+                      color: 'var(--color-neutral-900)',
+                      fontFamily: 'var(--font-figtree)',
+                      lineHeight: 1.2,
+                      letterSpacing: '-0.01em'
+                    }}>
+                      {pj.name}
+                    </h2>
                   </div>
 
                   {/* Details */}
-                  <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ padding: '0 1.75rem 1.75rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {(pj.pangkat || pj.nrp) && (
                       <div style={{ 
                         display: 'flex', 
                         flexWrap: 'wrap', 
-                        gap: '0.75rem',
-                        paddingBottom: '1rem',
-                        borderBottom: '1px dashed var(--color-neutral-200)'
+                        gap: '1rem',
+                        padding: '0.75rem 1rem',
+                        background: 'var(--color-primary-50)',
+                        borderRadius: '12px'
                       }}>
                         {pj.pangkat && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-neutral-400)', fontWeight: 600 }}>PANGKAT:</span>
-                            <span style={{ fontSize: '0.8125rem', color: 'var(--color-neutral-700)', fontWeight: 700 }}>{pj.pangkat}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ fontSize: '0.625rem', color: 'var(--color-primary-600)', fontWeight: 700, textTransform: 'uppercase' }}>Pangkat</span>
+                            <span style={{ fontSize: '0.8125rem', color: 'var(--color-primary-900)', fontWeight: 600 }}>{pj.pangkat}</span>
                           </div>
                         )}
                         {pj.nrp && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-neutral-400)', fontWeight: 600 }}>NRP/NIP:</span>
-                            <span style={{ fontSize: '0.8125rem', color: 'var(--color-neutral-700)', fontWeight: 700 }}>{pj.nrp}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ fontSize: '0.625rem', color: 'var(--color-primary-600)', fontWeight: 700, textTransform: 'uppercase' }}>NRP/NIP</span>
+                            <span style={{ fontSize: '0.8125rem', color: 'var(--color-primary-900)', fontWeight: 600 }}>{pj.nrp}</span>
                           </div>
                         )}
                       </div>
                     )}
                     
                     {pj.bio && (
-                      <p style={{ 
-                        fontSize: '0.9375rem', 
-                        color: 'var(--color-neutral-600)', 
-                        lineHeight: 1.6,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                      }}>
-                        {pj.bio}
-                      </p>
+                      <div 
+                        style={{ 
+                          fontSize: '0.875rem', 
+                          color: 'var(--color-neutral-600)', 
+                          lineHeight: 1.7,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          fontStyle: 'italic'
+                        }}
+                        dangerouslySetInnerHTML={{ __html: pj.bio }}
+                        className="pejabat-bio-rich"
+                      />
                     )}
                   </div>
                 </article>
@@ -251,16 +261,28 @@ export default async function PejabatPublicPage() {
 
       <style>{`
         .pejabat-card:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 40px rgba(24, 95, 165, 0.12);
-          border-color: var(--color-primary-200);
+          transform: translateY(-12px);
+          box-shadow: 0 25px 60px rgba(4, 44, 83, 0.12);
+          border-color: var(--color-primary-400);
         }
         .pejabat-card:hover .pejabat-photo {
-          transform: scale(1.05);
+          transform: scale(1.04);
         }
         .pejabat-photo {
-          transition: transform 0.5s ease;
+          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
+        .photo-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, transparent 60%, rgba(4, 44, 83, 0.1));
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
+        .pejabat-card:hover .photo-overlay {
+          opacity: 1;
+        }
+        .pejabat-bio-rich p { margin: 0; }
+        .pejabat-bio-rich ul, .pejabat-bio-rich ol { margin: 0; padding-left: 1.25rem; }
       `}</style>
     </main>
   );

@@ -53,7 +53,17 @@ export async function getAllPageStatus() {
  */
 export async function getPageSEO(route) {
   const res = await api.get(`/seo/route?path=${encodeURIComponent(route)}`);
-  return extractSingle(res);
+  const s = extractSingle(res);
+  if (!s) return null;
+
+  return {
+    ...s,
+    meta_title: s.title,
+    meta_description: s.description,
+    meta_keywords: s.keywords ? s.keywords.split(',').map(k => k.trim()) : [],
+    is_active: s.isActive ?? true,
+    og_image: s.ogImage || null,
+  };
 }
 
 /**

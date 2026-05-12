@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createPejabat, updatePejabat } from '@/app/actions/admin/pejabat';
 import { getImageUrl } from '@/lib/utils';
+import TiptapEditor from '@/components/admin/TiptapEditor';
 import { Upload, User, X, CheckCircle2 } from 'lucide-react';
 
 export default function PejabatForm({ mode = 'create', pejabat = null }) {
@@ -15,19 +16,99 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
   const [photoPreview, setPhotoPreview] = useState(
     pejabat?.photo ? getImageUrl(pejabat.photo) : null,
   );
+  const [imageFile, setImageFile] = useState(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [bio, setBio] = useState(pejabat?.bio || '');
 
-  function handlePhotoChange(e) {
+  const MAX_WIDTH = 1000;
+  const MAX_HEIGHT = 1000;
+  const COMPRESS_QUALITY = 0.8;
+
+  async function compressImage(file) {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/')) return resolve(file);
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height);
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+                  type: 'image/webp',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/webp',
+            COMPRESS_QUALITY
+          );
+        };
+        img.onerror = () => resolve(file);
+      };
+      reader.onerror = () => resolve(file);
+    });
+  }
+
+  async function handlePhotoChange(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setPhotoPreview(reader.result);
-    reader.readAsDataURL(file);
+
+    setIsCompressing(true);
+    try {
+      const optimizedFile = await compressImage(file);
+      setImageFile(optimizedFile);
+      setPhotoPreview(URL.createObjectURL(optimizedFile));
+    } catch (err) {
+      console.error('Compression error:', err);
+      const reader = new FileReader();
+      reader.onload = () => setPhotoPreview(reader.result);
+      reader.readAsDataURL(file);
+    } finally {
+      setIsCompressing(false);
+    }
   }
 
   function handleSubmit(e) {
     e.preventDefault();
     setError('');
     const formData = new FormData(e.currentTarget);
+
+    // Replace photo with compressed file if available
+    if (imageFile) {
+      formData.set('photo', imageFile);
+    }
+
+    formData.set('bio', bio);
+
     startTransition(async () => {
       const result =
         mode === 'edit'
@@ -130,15 +211,10 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
 
               {/* Bio */}
               <div className="admin-field">
-                <label className="admin-label" htmlFor="pf-bio">Biografi Singkat</label>
-                <textarea
-                  id="pf-bio"
-                  name="bio"
-                  className="admin-input"
-                  placeholder="Deskripsi singkat mengenai pejabat..."
-                  rows={4}
-                  style={{ resize: 'vertical', minHeight: '100px' }}
-                  defaultValue={pejabat?.bio || ''}
+                <label className="admin-label">Biografi Singkat</label>
+                <TiptapEditor 
+                  value={bio}
+                  onChange={setBio}
                 />
               </div>
             </div>
@@ -185,9 +261,16 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
                   accept="image/*"
                   style={{ display: 'none' }}
                   onChange={handlePhotoChange}
+                  disabled={isCompressing}
                 />
-                <p style={{ fontSize: '0.6875rem', color: 'var(--admin-text-s)', textAlign: 'center', marginTop: '8px' }}>
-                  JPG/PNG/WebP · Maks 5 MB
+                {isCompressing && (
+                  <div style={{ fontSize: '0.6875rem', color: 'var(--admin-primary)', textAlign: 'center', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                    <div className="spinner-tiny" /> Optimasi gambar...
+                  </div>
+                )}
+                <p style={{ fontSize: '0.6875rem', color: 'var(--admin-text-s)', textAlign: 'center', marginTop: '8px', lineHeight: '1.4' }}>
+                  Rekomendasi: <b>4:5</b> (800x1000px)<br />
+                  JPG, PNG, WebP · Maks 5 MB
                 </p>
               </div>
             </div>
@@ -257,7 +340,7 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
           <button type="button" className="admin-btn admin-btn-ghost" onClick={() => router.push('/admin/pejabat')}>
             Batal
           </button>
-          <button type="submit" className="admin-btn admin-btn-primary" disabled={isPending || success}>
+          <button type="submit" className="admin-btn admin-btn-primary" disabled={isPending || success || isCompressing}>
             {isPending ? 'Menyimpan...' : mode === 'edit' ? 'Simpan Perubahan' : 'Tambah Pejabat'}
           </button>
         </div>
@@ -270,6 +353,18 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
         @media (max-width: 768px) {
           .pejabat-form-page form > div { grid-template-columns: 1fr !important; }
           .pejabat-form-page form > div > div:last-child { order: -1; }
+        }
+        .spinner-tiny {
+          width: 12px;
+          height: 12px;
+          border: 2px solid var(--admin-primary-l);
+          border-top: 2px solid var(--admin-primary);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </div>
