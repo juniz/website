@@ -1,5 +1,6 @@
 import { Inter, Figtree } from 'next/font/google';
 import './globals.css';
+import { Toaster } from 'sonner';
 
 
 const inter = Inter({
@@ -54,6 +55,7 @@ export default function RootLayout({ children }) {
     >
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
         {children}
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
