@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import JsonLd from '@/components/JsonLd';
+import PejabatCard from '@/components/PejabatCard';
 
 export async function generateMetadata() {
   const seo = await getPageSEO('/pejabat');
@@ -134,125 +135,8 @@ export default async function PejabatPublicPage() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
               gap: '2.5rem' 
             }}>
-              {pejabat.map((pj, idx) => (
-                <article 
-                  key={pj.id}
-                  style={{ 
-                    background: '#fff', 
-                    borderRadius: '20px', 
-                    overflow: 'hidden',
-                    boxShadow: '0 10px 30px rgba(4, 44, 83, 0.06)',
-                    border: '1px solid var(--color-neutral-200)',
-                    transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                  className="pejabat-card"
-                >
-                  {/* Photo Container */}
-                  <div style={{ 
-                    position: 'relative', 
-                    width: '100%', 
-                    aspectRatio: '4/5', 
-                    background: 'var(--color-primary-50)',
-                    overflow: 'hidden',
-                    borderBottom: '1px solid var(--color-neutral-200)'
-                  }}>
-                    {pj.photo ? (
-                      <Image 
-                        src={getImageUrl(pj.photo)} 
-                        alt={pj.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 400px"
-                        style={{ objectFit: 'cover', objectPosition: 'top' }}
-                        className="pejabat-photo"
-                      />
-                    ) : (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        height: '100%',
-                        color: 'var(--color-primary-200)'
-                      }}>
-                        <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                        </svg>
-                      </div>
-                    )}
-                    
-                    {/* Subtle Overlay on Hover */}
-                    <div className="photo-overlay" />
-                  </div>
-
-                  {/* Info Header (Below Photo) */}
-                  <div style={{ padding: '1.75rem 1.75rem 1.25rem', borderBottom: '1px solid var(--color-neutral-50)' }}>
-                    <p style={{ 
-                      fontSize: '0.75rem', 
-                      fontWeight: 700, 
-                      color: 'var(--color-primary-600)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      marginBottom: '0.5rem'
-                    }}>
-                      {pj.jabatan}
-                    </p>
-                    <h2 style={{ 
-                      fontSize: '1.375rem', 
-                      fontWeight: 700, 
-                      color: 'var(--color-neutral-900)',
-                      fontFamily: 'var(--font-figtree)',
-                      lineHeight: 1.2,
-                      letterSpacing: '-0.01em'
-                    }}>
-                      {pj.name}
-                    </h2>
-                  </div>
-
-                  {/* Details */}
-                  <div style={{ padding: '0 1.75rem 1.75rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {(pj.pangkat || pj.nrp) && (
-                      <div style={{ 
-                        display: 'flex', 
-                        flexWrap: 'wrap', 
-                        gap: '1rem',
-                        padding: '0.75rem 1rem',
-                        background: 'var(--color-primary-50)',
-                        borderRadius: '12px'
-                      }}>
-                        {pj.pangkat && (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                            <span style={{ fontSize: '0.625rem', color: 'var(--color-primary-600)', fontWeight: 700, textTransform: 'uppercase' }}>Pangkat</span>
-                            <span style={{ fontSize: '0.8125rem', color: 'var(--color-primary-900)', fontWeight: 600 }}>{pj.pangkat}</span>
-                          </div>
-                        )}
-                        {pj.nrp && (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                            <span style={{ fontSize: '0.625rem', color: 'var(--color-primary-600)', fontWeight: 700, textTransform: 'uppercase' }}>NRP/NIP</span>
-                            <span style={{ fontSize: '0.8125rem', color: 'var(--color-primary-900)', fontWeight: 600 }}>{pj.nrp}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {pj.bio && (
-                      <div 
-                        style={{ 
-                          fontSize: '0.875rem', 
-                          color: 'var(--color-neutral-600)', 
-                          lineHeight: 1.7,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          fontStyle: 'italic'
-                        }}
-                        dangerouslySetInnerHTML={{ __html: pj.bio }}
-                        className="pejabat-bio-rich"
-                      />
-                    )}
-                  </div>
-                </article>
+              {pejabat.map((pj) => (
+                <PejabatCard key={pj.id} pejabat={pj} />
               ))}
             </div>
           )}

@@ -52,6 +52,9 @@ export async function submitPreRegistration(prevState, formData) {
       jk: formData.get('jk'),
       alamat: formData.get('alamat') || '',
       captcha_token: formData.get('captcha_token'),
+      tgl_booking: formData.get('tgl_booking'),
+      kd_dokter: formData.get('kd_dokter'),
+      kd_poli: formData.get('kd_poli'),
     };
 
     const result = await api.post('/pre-registration/new', payload);

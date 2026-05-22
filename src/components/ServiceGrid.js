@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getImageUrl } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function ServiceGrid({ data = [] }) {
   const displayServices = data.length > 0 ? data : [];
@@ -86,14 +87,15 @@ export default function ServiceGrid({ data = [] }) {
                     padding: '6px'
                   }}
                 >
-                  <img 
+                  <Image 
                     src={getImageUrl(service.imageUrl)} 
                     alt="" 
+                    width={30}
+                    height={30}
                     style={{ 
-                      width: '100%', 
-                      height: '100%', 
                       objectFit: 'contain' 
                     }} 
+                    unoptimized
                   />
                 </div>
 

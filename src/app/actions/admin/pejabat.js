@@ -14,12 +14,13 @@ export async function createPejabat(formData) {
     const headers = await getHeaders();
     const body = new FormData();
     body.append('name', formData.get('name') || '');
+    body.append('slug', formData.get('slug') || '');
     body.append('jabatan', formData.get('jabatan') || '');
     body.append('pangkat', formData.get('pangkat') || '');
-    body.append('nrp', formData.get('nrp') || '');
     body.append('bio', formData.get('bio') || '');
     body.append('sortOrder', formData.get('sortOrder') || '0');
     body.append('isActive', formData.get('isActive') || 'true');
+    body.append('timeline', formData.get('timeline') || '[]');
 
     const photo = formData.get('photo');
     if (photo && typeof photo !== 'string' && photo.size > 0) {
@@ -42,12 +43,13 @@ export async function updatePejabat(id, formData) {
     const headers = await getHeaders();
     const body = new FormData();
     body.append('name', formData.get('name') || '');
+    body.append('slug', formData.get('slug') || '');
     body.append('jabatan', formData.get('jabatan') || '');
     body.append('pangkat', formData.get('pangkat') || '');
-    body.append('nrp', formData.get('nrp') || '');
     body.append('bio', formData.get('bio') || '');
     body.append('sortOrder', formData.get('sortOrder') || '0');
     body.append('isActive', formData.get('isActive') || 'true');
+    body.append('timeline', formData.get('timeline') || '[]');
 
     const photo = formData.get('photo');
     if (photo && typeof photo !== 'string' && photo.size > 0) {

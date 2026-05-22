@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import Script from 'next/script';
 
 export default function Turnstile({ onVerify, siteKey }) {
@@ -8,12 +8,22 @@ export default function Turnstile({ onVerify, siteKey }) {
   const widgetIdRef = useRef(null);
   const onVerifyRef = useRef(onVerify);
 
+  const isDev = process.env.NODE_ENV === 'development';
+
   // Keep onVerify ref up to date
   useEffect(() => {
     onVerifyRef.current = onVerify;
   }, [onVerify]);
 
-  const renderWidget = () => {
+  // Auto-verify in development
+  useEffect(() => {
+    if (isDev && onVerifyRef.current) {
+      onVerifyRef.current('dummy-dev-token');
+    }
+  }, [isDev]);
+
+  const renderWidget = useCallback(() => {
+    if (isDev) return;
     if (!containerRef.current || !window.turnstile || widgetIdRef.current) return;
 
     try {
@@ -35,9 +45,11 @@ export default function Turnstile({ onVerify, siteKey }) {
     } catch (err) {
       console.error('Turnstile render error:', err);
     }
-  };
+  }, [isDev, siteKey]);
 
   useEffect(() => {
+    if (isDev) return;
+
     // If turnstile is already loaded, render immediately
     if (window.turnstile) {
       renderWidget();
@@ -53,7 +65,9 @@ export default function Turnstile({ onVerify, siteKey }) {
         widgetIdRef.current = null;
       }
     };
-  }, []); // Run only once on mount
+  }, [isDev, renderWidget]); // Run only once on mount or when isDev/renderWidget changes
+
+  if (isDev) return null;
 
   return (
     <>

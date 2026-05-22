@@ -7,6 +7,7 @@
    ============================================================ */
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function GlobalError({ error, unstable_retry }) {
   useEffect(() => {
@@ -21,6 +22,7 @@ export default function GlobalError({ error, unstable_retry }) {
         <title>Terjadi Kesalahan — RS Bhayangkara Nganjuk</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
       </head>
       <body style={{ margin: 0, padding: 0, background: '#F1EFE8' }}>
@@ -62,7 +64,7 @@ export default function GlobalError({ error, unstable_retry }) {
                 </svg>
                 Coba Lagi
               </button>
-              <a href="/" className="ep-btn ep-btn-secondary">Kembali ke Beranda</a>
+              <Link href="/" className="ep-btn ep-btn-secondary">Kembali ke Beranda</Link>
             </div>
 
             <hr className="ep-divider" aria-hidden="true" />

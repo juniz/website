@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import * as htmlToImage from 'html-to-image';
 import { verifyOldPatient, getSchedulesByDay, submitBookingRegistrasi } from '@/app/actions/pre-registration';
-import { Loader2, CheckCircle2, Calendar, Clock, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, UserCheck, Stethoscope, Search, X, Download, Printer } from 'lucide-react';
+import { Loader2, CheckCircle2, Calendar, Clock, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, UserCheck, Stethoscope, Search, X, Download, Printer, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import Turnstile from '@/components/common/Turnstile';
 
@@ -102,6 +102,7 @@ function LamaStyles() {
         .lf-primary-btn:hover:not(:disabled) { background: var(--color-primary-800) !important; box-shadow: 0 6px 20px rgba(24,95,165,0.4) !important; }
         .lf-ghost-btn:hover { border-color: var(--color-primary-300); color: var(--color-primary-700); }
         @keyframes lf-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes lf-slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* ── Form footer ── */
         .lf-form-footer {
@@ -354,6 +355,7 @@ export default function LamaForm() {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [bookingResult, setBookingResult] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState(null);
   const receiptRef = useRef(null);
 
   useEffect(() => {
@@ -394,10 +396,12 @@ export default function LamaForm() {
     setCaptchaToken(null); // Reset for next use
     
     if (result.success) {
+      setError(null);
       toast.success('Data pasien ditemukan.');
       setVerifiedPatient(result.data);
       setStep(2);
     } else {
+      setError(result.message || 'Gagal memverifikasi data.');
       toast.error(result.message || 'Gagal memverifikasi data.');
     }
   }
@@ -436,10 +440,12 @@ export default function LamaForm() {
     setIsSubmitting(false);
     
     if (result.success) {
+      setError(null);
       toast.success('Booking berhasil!');
       setBookingResult(result.data);
       setStep(4);
     } else {
+      setError(result.message || 'Gagal melakukan booking.');
       toast.error(result.message || 'Gagal melakukan booking.');
     }
   }
@@ -591,6 +597,16 @@ export default function LamaForm() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
         <LamaStyles />
 
+        {error && (
+          <div style={{ 
+            background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '12px', padding: '1rem', 
+            display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: '#991b1b',
+            animation: 'lf-slideDown 300ms ease'
+          }}>
+            <AlertTriangle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.5 }}>{error}</div>
+          </div>
+        )}
 
         {/* ── Verified patient strip ── */}
         <div style={{
@@ -670,7 +686,7 @@ export default function LamaForm() {
                     <button
                       key={i}
                       type="button"
-                      aria-selected={sel}
+                      aria-pressed={sel}
                       onClick={() => handleDateSelect(d)}
                       disabled={d.isSunday}
                       className={`lf-date-chip lf-dc-desk${sel ? ' lf-dc-sel' : ''}${d.isSunday ? ' lf-dc-closed' : ''}`}
@@ -818,6 +834,16 @@ export default function LamaForm() {
   /* ── Step 1: Verify ── */
   return (
     <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {error && (
+        <div style={{ 
+          background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '12px', padding: '1rem', 
+          display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: '#991b1b',
+          animation: 'lf-slideDown 300ms ease'
+        }}>
+          <AlertTriangle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
+          <div style={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.5 }}>{error}</div>
+        </div>
+      )}
       <FieldGroup label="Nomor KTP (NIK)" required>
         <input id="no_ktp" name="no_ktp" type="number" required placeholder="16 digit angka" style={inputStyle} className="lf-input" />
       </FieldGroup>

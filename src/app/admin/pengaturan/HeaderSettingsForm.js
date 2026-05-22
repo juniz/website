@@ -185,7 +185,7 @@ export default function HeaderSettingsForm({ initialData }) {
                 autoComplete="off"
               />
             </div>
-            <span className="settings-helper">Gunakan "·" (middle dot) sebagai pemisah.</span>
+            <span className="settings-helper">Gunakan &quot;·&quot; (middle dot) sebagai pemisah.</span>
           </div>
         </div>
       </fieldset>

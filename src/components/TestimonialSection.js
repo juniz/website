@@ -1,5 +1,6 @@
 import { Quote, Star } from 'lucide-react';
 import { getImageUrl } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function TestimonialSection({ data = [] }) {
   if (data.length === 0) return null;
@@ -40,13 +41,19 @@ export default function TestimonialSection({ data = [] }) {
               </div>
 
               <p className="text-gray-600 text-sm italic leading-relaxed z-10">
-                "{item.content}"
+                &ldquo;{item.content}&rdquo;
               </p>
 
               <div className="flex items-center gap-3 mt-auto">
-                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center font-bold text-primary-600 text-sm">
+                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center font-bold text-primary-600 text-sm overflow-hidden relative">
                   {item.avatar_url ? (
-                    <img src={getImageUrl(item.avatar_url)} alt={item.patient_name} className="w-full h-full object-cover rounded-full" />
+                    <Image 
+                      src={getImageUrl(item.avatar_url)} 
+                      alt={item.patient_name} 
+                      fill 
+                      style={{ objectFit: 'cover' }} 
+                      unoptimized 
+                    />
                   ) : item.patient_name.charAt(0)}
                 </div>
                 <div>

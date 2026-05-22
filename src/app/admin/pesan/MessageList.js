@@ -99,7 +99,7 @@ export default function MessageList({ initialMessages }) {
               <div>
                 <h4 className="text-sm font-bold text-primary-600 uppercase tracking-widest mb-3">Subjek: {selectedMessage.subject || 'N/A'}</h4>
                 <div className="text-gray-700 leading-relaxed bg-white border border-gray-100 p-6 rounded-xl shadow-sm italic">
-                  "{selectedMessage.message}"
+                  &ldquo;{selectedMessage.message}&rdquo;
                 </div>
               </div>
             </div>

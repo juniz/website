@@ -1,6 +1,7 @@
 import { api } from '@/lib/api';
 import { Handshake, Plus, Edit2, ExternalLink, CheckCircle, XCircle, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getImageUrl } from '@/lib/utils';
 
 export const metadata = {
@@ -125,7 +126,7 @@ export default async function PartnerAdminPage() {
                       <div className="pt-item-cell">
                         <div className="pt-img-wrap">
                           {pt.logo_url ? (
-                            <img src={getImageUrl(pt.logo_url)} alt={pt.name} className="pt-img" />
+                            <Image src={getImageUrl(pt.logo_url)} alt={pt.name} fill style={{ objectFit: 'contain', padding: '4px' }} unoptimized />
                           ) : (
                             <ImageIcon size={18} className="pt-img-placeholder" />
                           )}
@@ -332,6 +333,7 @@ export default async function PartnerAdminPage() {
           background: var(--admin-surface-2); overflow: hidden;
           display: flex; align-items: center; justify-content: center;
           border: 1px solid var(--admin-border-soft); flex-shrink: 0;
+          position: relative;
         }
         .pt-img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
         .pt-img-placeholder { color: var(--admin-text-s); opacity: 0.5; }

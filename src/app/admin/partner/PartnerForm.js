@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { createPartner, updatePartner } from '@/app/actions/admin/partner';
 import {
   Save, Loader2, Handshake, Globe, Upload, Image as ImageIcon,
@@ -254,8 +255,14 @@ export default function PartnerForm({ mode = 'create', partner = null }) {
                 {logoPreview ? (
                   <>
                     {/* Preview */}
-                    <div className="pf-logo-preview-wrap">
-                      <img src={logoPreview} alt="Preview logo" className="pf-logo-preview" />
+                    <div className="pf-logo-preview-wrap" style={{ position: 'relative' }}>
+                      <NextImage 
+                        src={logoPreview} 
+                        alt="Preview logo" 
+                        fill 
+                        style={{ objectFit: 'contain', mixBlendMode: 'multiply' }} 
+                        unoptimized 
+                      />
                     </div>
                     <div className="pf-dropzone-overlay">
                       <Upload size={18} />

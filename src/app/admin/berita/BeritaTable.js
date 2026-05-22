@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Pencil, Trash2, Search, Newspaper, ExternalLink } from 'lucide-react';
 import { deleteBerita } from '@/app/actions/admin/berita';
 import { getImageUrl } from '@/lib/utils';
@@ -113,12 +114,14 @@ export default function BeritaTable({ articles }) {
                           width: 40, height: 40, borderRadius: 'var(--admin-radius-sm)',
                           overflow: 'hidden', flexShrink: 0,
                           background: 'var(--admin-primary-l)',
+                          position: 'relative',
                         }}>
-                          <img
+                          <Image
                             src={getImageUrl(a.image)}
                             alt=""
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            loading="lazy"
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            unoptimized
                           />
                         </div>
                       )}
@@ -188,7 +191,7 @@ export default function BeritaTable({ articles }) {
             </div>
             <div className="admin-modal-body">
               <p style={{ fontSize: '0.875rem', color: 'var(--admin-text-b)', lineHeight: 1.6 }}>
-                Hapus artikel "<strong>{confirmDel.title}</strong>"? Tindakan ini tidak dapat dibatalkan.
+                Hapus artikel &quot;<strong>{confirmDel.title}</strong>&quot;? Tindakan ini tidak dapat dibatalkan.
               </p>
             </div>
             <div className="admin-modal-footer">

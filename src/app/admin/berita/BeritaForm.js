@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { createBerita, updateBerita } from '@/app/actions/admin/berita';
 import TiptapEditor from '@/components/admin/TiptapEditor';
 import { Upload, Image as ImageIcon, Trash2, CheckCircle2, Loader2 } from 'lucide-react';
@@ -379,7 +380,7 @@ export default function BeritaForm({ mode = 'create', article = null }) {
                 >
                   <div className="admin-profile-preview-container" style={{ width: '240px', height: '160px', minWidth: '240px' }}>
                     {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" />
+                      <NextImage src={imagePreview} alt="Preview" fill style={{ objectFit: 'cover' }} unoptimized />
                     ) : (
                       <div className="admin-profile-placeholder">
                         <ImageIcon size={32} strokeWidth={1.5} />

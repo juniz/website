@@ -110,7 +110,6 @@ export default function PejabatTable({ items }) {
                 <th scope="col">Pejabat</th>
                 <th scope="col">Jabatan</th>
                 <th scope="col">Pangkat</th>
-                <th scope="col">NRP</th>
                 <th scope="col">Status</th>
                 <th scope="col" style={{ textAlign: 'right' }}>Aksi</th>
               </tr>
@@ -130,12 +129,21 @@ export default function PejabatTable({ items }) {
                           getInitials(pj.name)
                         )}
                       </div>
-                      <span style={{ fontWeight: 600, color: 'var(--admin-text-h)' }}>{pj.name}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--admin-text-h)' }}>{pj.name}</span>
+                        <a
+                          href={`/pejabat/${pj.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: '0.75rem', color: 'var(--admin-primary)', textDecoration: 'none', width: 'fit-content' }}
+                        >
+                          /{pj.slug}
+                        </a>
+                      </div>
                     </div>
                   </td>
                   <td style={{ color: 'var(--admin-text-m)' }}>{pj.jabatan}</td>
                   <td style={{ color: 'var(--admin-text-m)', fontSize: '0.8125rem' }}>{pj.pangkat || '—'}</td>
-                  <td style={{ color: 'var(--admin-text-s)', fontSize: '0.8125rem', fontFamily: 'monospace' }}>{pj.nrp || '—'}</td>
                   <td>
                     <span className={`admin-badge ${pj.isActive ? 'success' : 'neutral'}`}>
                       {pj.isActive ? 'Aktif' : 'Nonaktif'}

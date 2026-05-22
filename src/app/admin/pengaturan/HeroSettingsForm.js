@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { updateSiteSettings, uploadHeroImage } from '@/app/actions/admin/settings';
 import { getImageUrl } from '@/lib/utils';
+import NextImage from 'next/image';
 import {
   Save, Loader2, Award, Type, AlignLeft, BarChart3, Image as ImageIcon,
   Upload, CheckCircle2, AlertCircle, MousePointerClick, Link2, Sparkles, X
@@ -339,7 +340,7 @@ export default function HeroSettingsForm({ initialData }) {
               >
                 {data.image_url ? (
                   <>
-                    <img src={getImageUrl(data.image_url)} alt="Preview gambar hero" className="hero-preview-img" />
+                    <NextImage src={getImageUrl(data.image_url)} alt="Preview gambar hero" fill style={{ objectFit: 'cover' }} unoptimized className="hero-preview-img" />
                     <div className="hero-dropzone-overlay">
                       <Upload size={20} />
                       <span>{isDragging ? 'Lepas untuk ganti' : 'Klik atau drag untuk ganti'}</span>

@@ -1,6 +1,7 @@
 import { api } from '@/lib/api';
 import { MessageSquareQuote, Plus, Edit2, Star, User } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getImageUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/Badge';
 
@@ -51,7 +52,7 @@ export default async function TestimonialsAdminPage() {
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 font-bold overflow-hidden">
                   {testi.avatar_url ? (
-                    <img src={getImageUrl(testi.avatar_url)} alt={testi.patient_name} className="w-full h-full object-cover" />
+                    <Image src={getImageUrl(testi.avatar_url)} alt={testi.patient_name} width={40} height={40} className="w-full h-full object-cover" />
                   ) : (
                     <User size={20} />
                   )}
@@ -68,7 +69,7 @@ export default async function TestimonialsAdminPage() {
             </div>
 
             <p className="text-sm text-gray-600 italic line-clamp-3 mb-4">
-              "{testi.content}"
+              &ldquo;{testi.content}&rdquo;
             </p>
 
             <div className="flex items-center justify-between pt-4 border-t border-gray-50">

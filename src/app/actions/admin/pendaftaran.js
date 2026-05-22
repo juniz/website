@@ -39,3 +39,33 @@ export async function deletePendaftaran(id) {
     return { error: err.message };
   }
 }
+
+export async function scanQrCode(token) {
+  try {
+    const headers = await getHeaders();
+    const result = await api.get(`/pre-registration/scan/${token}`, { headers });
+
+    if (!result.success) {
+      return { error: result.error || 'Token QR tidak valid atau sudah kedaluwarsa.' };
+    }
+
+    // Backend wraps response in { data: ... }
+    return { success: true, data: result.data.data || result.data };
+  } catch (err) {
+    return { error: 'Terjadi kesalahan sistem saat memindai QR.' };
+  }
+}
+
+export async function updatePreRegStatus(id, status) {
+  try {
+    const headers = await getHeaders();
+    const result = await api.patch(`/pre-registration/status/${id}`, { status }, { headers });
+
+    if (!result.success) return { error: result.error };
+
+    revalidatePath('/admin/pendaftaran');
+    return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
+}

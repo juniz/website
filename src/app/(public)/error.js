@@ -7,6 +7,7 @@
    ============================================================ */
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { getHeaderSettings } from '@/app/actions/public';
 
 export default function PublicError({ error, unstable_retry }) {
@@ -51,17 +52,17 @@ export default function PublicError({ error, unstable_retry }) {
           </p>
 
           <div className="ep-actions" role="group" aria-label="Pilihan tindakan">
-            <a href="/login" className="ep-btn ep-btn-warning" id="ep-login-btn">
+            <Link href="/login" className="ep-btn ep-btn-warning" id="ep-login-btn">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
                 <polyline points="10 17 15 12 10 7"/>
                 <line x1="15" y1="12" x2="3" y2="12"/>
               </svg>
               Masuk ke Akun
-            </a>
-            <a href="/" className="ep-btn ep-btn-secondary" id="ep-home-btn">
+            </Link>
+            <Link href="/" className="ep-btn ep-btn-secondary" id="ep-home-btn">
               Kembali ke Beranda
-            </a>
+            </Link>
           </div>
 
           <hr className="ep-divider" aria-hidden="true" />
@@ -110,9 +111,9 @@ export default function PublicError({ error, unstable_retry }) {
             </svg>
             Coba Lagi
           </button>
-          <a href="/" className="ep-btn ep-btn-secondary" id="ep-home-btn">
+          <Link href="/" className="ep-btn ep-btn-secondary" id="ep-home-btn">
             Kembali ke Beranda
-          </a>
+          </Link>
         </div>
 
         <hr className="ep-divider" aria-hidden="true" />

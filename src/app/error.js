@@ -7,6 +7,7 @@
    ============================================================ */
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { getHeaderSettings } from '@/app/actions/public';
 
 export default function Error({ error, unstable_retry }) {
@@ -63,9 +64,9 @@ export default function Error({ error, unstable_retry }) {
             </svg>
             Coba Lagi
           </button>
-          <a href="/" className="ep-btn ep-btn-secondary" id="ep-home-btn">
+          <Link href="/" className="ep-btn ep-btn-secondary" id="ep-home-btn">
             Kembali ke Beranda
-          </a>
+          </Link>
         </div>
 
         <hr className="ep-divider" aria-hidden="true" />

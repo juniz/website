@@ -207,3 +207,16 @@ export async function getPublicPejabat() {
     return [];
   }
 }
+
+/**
+ * Fetch Single Pejabat by Slug
+ */
+export async function getPublicPejabatBySlug(slug) {
+  try {
+    const res = await api.get(`/pejabat/slug/${slug}`);
+    return extractSingle(res);
+  } catch (err) {
+    console.error(`Error fetching public pejabat by slug ${slug}:`, err);
+    return null;
+  }
+}

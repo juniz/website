@@ -6,7 +6,15 @@ import Image from 'next/image';
 import { createPejabat, updatePejabat } from '@/app/actions/admin/pejabat';
 import { getImageUrl } from '@/lib/utils';
 import TiptapEditor from '@/components/admin/TiptapEditor';
-import { Upload, User, X, CheckCircle2 } from 'lucide-react';
+import { Upload, User, X, CheckCircle2, Plus, Trash2, ArrowUp, ArrowDown, Briefcase } from 'lucide-react';
+
+function generateSlug(name) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export default function PejabatForm({ mode = 'create', pejabat = null }) {
   const router = useRouter();
@@ -19,6 +27,21 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
   const [imageFile, setImageFile] = useState(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [bio, setBio] = useState(pejabat?.bio || '');
+  const [timeline, setTimeline] = useState(pejabat?.timeline || []);
+  const [slug, setSlug] = useState(pejabat?.slug || '');
+  const [slugEdited, setSlugEdited] = useState(mode === 'edit');
+
+  function handleNameChange(e) {
+    const value = e.target.value;
+    if (!slugEdited) {
+      setSlug(generateSlug(value));
+    }
+  }
+
+  function handleSlugChange(e) {
+    setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, ''));
+    setSlugEdited(true);
+  }
 
   const MAX_WIDTH = 1000;
   const MAX_HEIGHT = 1000;
@@ -108,6 +131,7 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
     }
 
     formData.set('bio', bio);
+    formData.set('timeline', JSON.stringify(timeline));
 
     startTransition(async () => {
       const result =
@@ -163,8 +187,29 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
                   className="admin-input"
                   placeholder="Contoh: Dr. H. Ahmad Sudirman, S.H."
                   defaultValue={pejabat?.name || ''}
+                  onChange={handleNameChange}
                   required
                 />
+              </div>
+
+              {/* Slug URL */}
+              <div className="admin-field">
+                <label className="admin-label" htmlFor="pf-slug">
+                  Slug URL <span style={{ color: 'var(--admin-danger)' }}>*</span>
+                </label>
+                <input
+                  id="pf-slug"
+                  name="slug"
+                  type="text"
+                  className="admin-input"
+                  placeholder="contoh: dr-h-ahmad-sudirman-s-h"
+                  value={slug}
+                  onChange={handleSlugChange}
+                  required
+                />
+                <span style={{ fontSize: '0.6875rem', color: 'var(--admin-text-s)' }}>
+                  Akan digunakan sebagai URL profil publik: <code>/pejabat/{slug || 'nama-pejabat'}</code>
+                </span>
               </div>
 
               {/* Jabatan */}
@@ -183,30 +228,17 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
                 />
               </div>
 
-              {/* Pangkat & NRP side by side */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div className="admin-field">
-                  <label className="admin-label" htmlFor="pf-pangkat">Pangkat / Golongan</label>
-                  <input
-                    id="pf-pangkat"
-                    name="pangkat"
-                    type="text"
-                    className="admin-input"
-                    placeholder="Contoh: AKBP"
-                    defaultValue={pejabat?.pangkat || ''}
-                  />
-                </div>
-                <div className="admin-field">
-                  <label className="admin-label" htmlFor="pf-nrp">NRP / NIP</label>
-                  <input
-                    id="pf-nrp"
-                    name="nrp"
-                    type="text"
-                    className="admin-input"
-                    placeholder="Nomor Registrasi Pokok"
-                    defaultValue={pejabat?.nrp || ''}
-                  />
-                </div>
+              {/* Pangkat */}
+              <div className="admin-field">
+                <label className="admin-label" htmlFor="pf-pangkat">Pangkat / Golongan</label>
+                <input
+                  id="pf-pangkat"
+                  name="pangkat"
+                  type="text"
+                  className="admin-input"
+                  placeholder="Contoh: AKBP"
+                  defaultValue={pejabat?.pangkat || ''}
+                />
               </div>
 
               {/* Bio */}
@@ -216,6 +248,164 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
                   value={bio}
                   onChange={setBio}
                 />
+              </div>
+
+              {/* Work Experience Timeline */}
+              <div className="admin-field" style={{ marginTop: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <label className="admin-label" style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Briefcase size={16} style={{ color: 'var(--admin-primary)' }} />
+                    Riwayat Pengalaman Kerja
+                  </label>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-ghost"
+                    style={{ padding: '6px 12px', fontSize: '0.8125rem' }}
+                    onClick={() => {
+                      setTimeline([
+                        ...timeline,
+                        {
+                          id: Math.random().toString(36).substring(2, 9),
+                          year: '',
+                          position: '',
+                          institution: '',
+                        },
+                      ]);
+                    }}
+                  >
+                    <Plus size={14} /> Tambah Riwayat
+                  </button>
+                </div>
+
+                {timeline.length === 0 ? (
+                  <div style={{ 
+                    border: '1px dashed var(--admin-border)', 
+                    borderRadius: '8px', 
+                    padding: '24px', 
+                    textAlign: 'center', 
+                    color: 'var(--admin-text-s)',
+                    background: 'var(--admin-surface-2)',
+                    fontSize: '0.8125rem'
+                  }}>
+                    Belum ada riwayat pengalaman kerja. Klik &quot;Tambah Riwayat&quot; untuk menambahkan.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {timeline.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '140px 1fr 1fr 90px',
+                          gap: '12px',
+                          alignItems: 'center',
+                          padding: '12px',
+                          background: 'var(--admin-surface-2)',
+                          border: '1px solid var(--admin-border)',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        {/* Period/Year */}
+                        <div>
+                          <input
+                            type="text"
+                            className="admin-input"
+                            placeholder="Tahun (cth: 2022-2024)"
+                            value={item.year}
+                            style={{ fontSize: '0.8125rem' }}
+                            onChange={(e) => {
+                              const newTimeline = [...timeline];
+                              newTimeline[idx].year = e.target.value;
+                              setTimeline(newTimeline);
+                            }}
+                            required
+                          />
+                        </div>
+
+                        {/* Position */}
+                        <div>
+                          <input
+                            type="text"
+                            className="admin-input"
+                            placeholder="Jabatan/Posisi (cth: Kasat Lantas)"
+                            value={item.position}
+                            style={{ fontSize: '0.8125rem' }}
+                            onChange={(e) => {
+                              const newTimeline = [...timeline];
+                              newTimeline[idx].position = e.target.value;
+                              setTimeline(newTimeline);
+                            }}
+                            required
+                          />
+                        </div>
+
+                        {/* Institution */}
+                        <div>
+                          <input
+                            type="text"
+                            className="admin-input"
+                            placeholder="Institusi (cth: Polres Nganjuk)"
+                            value={item.institution}
+                            style={{ fontSize: '0.8125rem' }}
+                            onChange={(e) => {
+                              const newTimeline = [...timeline];
+                              newTimeline[idx].institution = e.target.value;
+                              setTimeline(newTimeline);
+                            }}
+                            required
+                          />
+                        </div>
+
+                        {/* Actions */}
+                        <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-ghost"
+                            style={{ padding: '6px', height: '32px', width: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            disabled={idx === 0}
+                            onClick={() => {
+                              const newTimeline = [...timeline];
+                              const temp = newTimeline[idx];
+                              newTimeline[idx] = newTimeline[idx - 1];
+                              newTimeline[idx - 1] = temp;
+                              setTimeline(newTimeline);
+                            }}
+                            title="Pindah ke atas"
+                          >
+                            <ArrowUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-ghost"
+                            style={{ padding: '6px', height: '32px', width: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            disabled={idx === timeline.length - 1}
+                            onClick={() => {
+                              const newTimeline = [...timeline];
+                              const temp = newTimeline[idx];
+                              newTimeline[idx] = newTimeline[idx + 1];
+                              newTimeline[idx + 1] = temp;
+                              setTimeline(newTimeline);
+                            }}
+                            title="Pindah ke bawah"
+                          >
+                            <ArrowDown size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-ghost"
+                            style={{ padding: '6px', height: '32px', width: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-danger)' }}
+                            onClick={() => {
+                              setTimeline(timeline.filter((_, i) => i !== idx));
+                            }}
+                            title="Hapus"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -230,7 +420,7 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
               </div>
               <div className="admin-card-body">
                 {/* Preview */}
-                <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '10px', overflow: 'hidden', background: 'var(--admin-surface-2)', border: '1px solid var(--admin-border)', marginBottom: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '100%', aspectRatio: '3/4', borderRadius: '10px', overflow: 'hidden', background: 'var(--admin-surface-2)', border: '1px solid var(--admin-border)', marginBottom: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {photoPreview ? (
                     <>
                       <Image src={photoPreview} alt="Preview foto" fill style={{ objectFit: 'cover', objectPosition: 'top' }} sizes="280px" />

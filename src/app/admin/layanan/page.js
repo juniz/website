@@ -1,5 +1,6 @@
 import { Activity, Plus, Edit2, Heart, CheckCircle, XCircle, Layers } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { api } from '@/lib/api';
 import { getImageUrl } from '@/lib/utils';
 
@@ -136,14 +137,15 @@ export default async function ServicesAdminPage() {
                           }}
                           aria-hidden="true"
                         >
-                          <img 
+                          <Image 
                             src={getImageUrl(service.imageUrl)} 
                             alt="" 
+                            width={28}
+                            height={28}
                             style={{ 
-                              width: '100%', 
-                              height: '100%', 
                               objectFit: 'contain' 
                             }} 
+                            unoptimized
                           />
                         </div>
                         <div className="svc-service-info">

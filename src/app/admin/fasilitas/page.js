@@ -1,6 +1,7 @@
 import { api } from '@/lib/api';
 import { Building2, Plus, Edit2, CheckCircle, XCircle, Building, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getImageUrl } from '@/lib/utils';
 
 export const metadata = {
@@ -123,9 +124,16 @@ export default async function FacilitiesAdminPage() {
                     {/* Fasilitas */}
                     <td className="fac-td" style={{ minWidth: '240px' }}>
                       <div className="fac-item-cell">
-                        <div className="fac-img-wrap">
+                        <div className="fac-img-wrap" style={{ position: 'relative' }}>
                           {fac.image_url ? (
-                            <img src={getImageUrl(fac.image_url)} alt={fac.title} className="fac-img" />
+                            <Image
+                              src={getImageUrl(fac.image_url)}
+                              alt={fac.title}
+                              fill
+                              className="fac-img"
+                              style={{ objectFit: 'cover' }}
+                              unoptimized
+                            />
                           ) : (
                             <ImageIcon size={18} className="fac-img-placeholder" />
                           )}

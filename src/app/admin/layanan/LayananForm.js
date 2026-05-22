@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { upsertService } from '@/app/actions/admin/content';
 import { getImageUrl } from '@/lib/utils';
+import NextImage from 'next/image';
 import {
   Save, Loader2, Activity, Type, Hash, Info,
   Palette, CheckCircle2, AlertCircle, ArrowLeft,
@@ -381,7 +382,7 @@ export default function LayananForm({ mode = 'create', service = null }) {
                   >
                     {imagePreview ? (
                       <div className="lf-preview-box">
-                        <img src={imagePreview} alt="Preview Ikon" className="lf-custom-icon-preview-img" />
+                        <NextImage src={imagePreview} alt="Preview Ikon" width={80} height={80} className="lf-custom-icon-preview-img" style={{ objectFit: 'contain' }} unoptimized />
                         <button type="button" className="lf-remove-img" onClick={clearImage}>
                           <X size={14} />
                         </button>
@@ -416,7 +417,7 @@ export default function LayananForm({ mode = 'create', service = null }) {
                   style={{ background: form.bg_color_code, color: form.color_code }}
                 >
                   {imagePreview ? (
-                    <img src={imagePreview} alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+                    <NextImage src={imagePreview} alt="" width={22} height={22} style={{ objectFit: 'contain' }} unoptimized />
                   ) : (
                     <ImageIcon size={22} />
                   )}
@@ -527,7 +528,7 @@ export default function LayananForm({ mode = 'create', service = null }) {
                   </label>
                   <div className="lf-icon-preview" style={previewStyle} aria-label="Preview ikon layanan">
                     {imagePreview ? (
-                      <img src={imagePreview} alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+                      <NextImage src={imagePreview} alt="" width={22} height={22} style={{ objectFit: 'contain' }} unoptimized />
                     ) : (
                       <ImageIcon size={22} />
                     )}

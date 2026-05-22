@@ -136,20 +136,23 @@ export default function ConsentForm() {
               icon: UserPlus,
               label: 'Belum Pernah',
               sub: 'Pasien Baru',
+              disabled: true,
             },
             {
               value: 'lama',
               icon: UserCheck,
               label: 'Sudah Pernah',
               sub: 'Pasien Lama',
+              disabled: false,
             },
-          ].map(({ value, icon: Icon, label, sub }) => {
+          ].map(({ value, icon: Icon, label, sub, disabled }) => {
             const selected = pasienType === value;
             return (
               <button
                 key={value}
                 type="button"
-                onClick={() => setPasienType(value)}
+                disabled={disabled}
+                onClick={() => !disabled && setPasienType(value)}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -159,13 +162,31 @@ export default function ConsentForm() {
                   background: selected ? 'var(--color-primary-600)' : '#fff',
                   border: `2px solid ${selected ? 'var(--color-primary-600)' : 'var(--color-neutral-200)'}`,
                   borderRadius: '14px',
-                  cursor: 'pointer',
+                  cursor: disabled ? 'not-allowed' : 'pointer',
                   transition: 'all 200ms ease',
                   boxShadow: selected ? '0 4px 16px rgba(24, 95, 165, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
                   textAlign: 'center',
+                  opacity: disabled ? 0.6 : 1,
+                  position: 'relative',
                 }}
                 className="patient-type-btn"
               >
+                {disabled && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    fontSize: '0.625rem',
+                    fontWeight: 800,
+                    background: 'var(--color-neutral-200)',
+                    color: 'var(--color-neutral-600)',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    textTransform: 'uppercase'
+                  }}>
+                    Nonaktif
+                  </span>
+                )}
                 <div style={{
                   width: '40px',
                   height: '40px',
@@ -195,7 +216,7 @@ export default function ConsentForm() {
                     margin: 0,
                     transition: 'color 200ms ease',
                   }}>
-                    {sub}
+                    {disabled ? 'Maaf, layanan ditutup sementara' : sub}
                   </p>
                 </div>
               </button>
