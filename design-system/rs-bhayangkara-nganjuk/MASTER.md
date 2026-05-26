@@ -14,33 +14,37 @@
 
 ## Global Rules
 
-### Color Palette
+### Color Palette (Azure Blue Medical)
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#0284C7` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#0891B2` | `--color-secondary` |
-| Accent/CTA | `#DC2626` | `--color-accent` |
-| Background | `#F0F9FF` | `--color-background` |
-| Foreground | `#0F172A` | `--color-foreground` |
-| Muted | `#EFF7FB` | `--color-muted` |
-| Border | `#E0F0F8` | `--color-border` |
-| Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#0284C7` | `--color-ring` |
+| Role | Hex | CSS Variable | Purpose |
+|------|-----|--------------|---------|
+| Primary Deep | `#042C53` | `--color-primary-900` | Navy terdalam: BG navbar, footer, hero dark |
+| Primary Dark | `#0C447C` | `--color-primary-800` | Hover state dark, hero section bg |
+| Primary Brand | `#185FA5` | `--color-primary-600` | Primary brand, CTA, link, border aktif |
+| Primary Active | `#378ADD` | `--color-primary-400` | Button utama, badge aktif, highlight |
+| Primary Muted | `#85B7EB` | `--color-primary-200` | Teks muted di atas dark bg |
+| Primary Border | `#B5D4F4` | `--color-primary-100` | Border di dark surface, teks sekunder |
+| Primary Light BG | `#E6F1FB` | `--color-primary-50` | BG chip, icon container, input dark bg |
+| Accent Success | `#1D9E75` | `--color-accent-teal` | Status tersedia, sukses, dot ketersediaan |
+| Accent Success BG | `#E1F5EE` | `--color-accent-teal-light` | BG badge tersedia |
+| Accent Danger | `#E24B4A` | `--color-danger` | Alert, status penuh, error |
+| Neutral Background | `#F1EFE8` | `--color-neutral-50` | Page background (warm medical gray) |
+| Neutral Border | `#D3D1C7` | `--color-neutral-200` | Border default |
+| Neutral Muted Text | `#5F5E5A` | `--color-neutral-600` | Teks muted / secondary |
+| Neutral Body Text | `#2C2C2A` | `--color-neutral-900` | Teks body |
 
-**Color Notes:** Medical blue + alert red
+**Color Notes:** Azure Blue Medical system. All interactive components must implement transitions of 150-300ms. Emojis are strictly forbidden as structural icons.
 
 ### Typography
 
 - **Heading Font:** Figtree
-- **Body Font:** Noto Sans
-- **Mood:** medical, clean, accessible, professional, healthcare, trustworthy
-- **Google Fonts:** [Figtree + Noto Sans](https://fonts.google.com/share?selection.family=Figtree:wght@300;400;500;600;700|Noto+Sans:wght@300;400;500;700)
+- **Body Font:** Inter / Noto Sans
+- **Mood:** medical, clean, accessible, professional, healthcare, trustworthy, minimalist
+- **Google Fonts:** [Figtree + Inter](https://fonts.google.com/share?selection.family=Figtree:wght@300;400;500;600;700|Inter:wght@300;400;500;700)
 
 **CSS Import:**
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Inter:wght@300;400;500;700&display=swap');
 ```
 
 ### Spacing Variables

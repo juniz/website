@@ -358,6 +358,7 @@ export default function LamaForm() {
   const [error, setError] = useState(null);
   const receiptRef = useRef(null);
 
+  // Mounting effect: Initialise available dates, check consent guard, and restore active draft
   useEffect(() => {
     const initDates = () => {
       const dates = [];
@@ -376,9 +377,84 @@ export default function LamaForm() {
         });
       }
       setAvailableDates(dates);
+      return dates;
     };
-    initDates();
-  }, []);
+
+    const dates = initDates();
+
+    if (typeof window !== 'undefined') {
+      // 1. Enforce Terms Acceptance Guard
+      const consentId = sessionStorage.getItem('consent_id');
+      if (!consentId) {
+        toast.error('Anda harus menyetujui syarat & ketentuan sebelum melakukan pendaftaran.');
+        router.push('/pendaftaran');
+        return;
+      }
+
+      // 2. Restore auto-saved draft if present
+      const savedDraft = sessionStorage.getItem('nganjuk_registration_draft');
+      if (savedDraft) {
+        try {
+          const draft = JSON.parse(savedDraft);
+          
+          // Defer state updates to avoid React's synchronous cascading render warning
+          setTimeout(() => {
+            if (draft.step) setStep(draft.step);
+            if (draft.verifiedPatient) setVerifiedPatient(draft.verifiedPatient);
+            if (draft.selectedDate) {
+              const matchedDate = dates.find(d => d.iso === draft.selectedDate.iso);
+              setSelectedDate(matchedDate || draft.selectedDate);
+            }
+            if (draft.selectedSchedule) setSelectedSchedule(draft.selectedSchedule);
+            if (draft.searchQuery !== undefined) setSearchQuery(draft.searchQuery);
+
+            // If a date was restored, dynamically trigger the schedule fetching for that day
+            if (draft.selectedDate) {
+              setIsLoadingSchedules(true);
+              getSchedulesByDay(draft.selectedDate.dayName).then(result => {
+                setIsLoadingSchedules(false);
+                if (result.success) {
+                  setSchedules(result.data);
+                }
+              });
+            }
+          }, 0);
+          
+          toast.success('Melanjutkan draf pendaftaran sebelumnya.');
+        } catch (e) {
+          console.error('Failed to parse registration draft', e);
+        }
+      }
+    }
+  }, [router]);
+
+  // Serialise and commit form state changes to sessionStorage (Auto-Save Wizard)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (step > 1 && step < 4 && verifiedPatient) {
+        sessionStorage.setItem('nganjuk_registration_draft', JSON.stringify({
+          step,
+          verifiedPatient,
+          selectedDate,
+          selectedSchedule,
+          searchQuery
+        }));
+      }
+    }
+  }, [step, verifiedPatient, selectedDate, selectedSchedule, searchQuery]);
+
+  // Cancel registration and clean up draft state
+  const handleCancel = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('nganjuk_registration_draft');
+    }
+    setVerifiedPatient(null);
+    setSelectedDate(null);
+    setSelectedSchedule(null);
+    setSearchQuery('');
+    setError(null);
+    setStep(1);
+  };
 
   async function handleVerify(e) {
     e.preventDefault();
@@ -443,6 +519,10 @@ export default function LamaForm() {
       setError(null);
       toast.success('Booking berhasil!');
       setBookingResult(result.data);
+      // Evict registration draft upon successful booking completion
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('nganjuk_registration_draft');
+      }
       setStep(4);
     } else {
       setError(result.message || 'Gagal melakukan booking.');
@@ -823,7 +903,7 @@ export default function LamaForm() {
           <PrimaryBtn onClick={handleBooking} disabled={!selectedSchedule || isSubmitting}>
             {isSubmitting ? <><Loader2 size={16} style={{ animation: 'lf-spin 1s linear infinite' }} /> Memproses…</> : <>Konfirmasi Booking <ArrowRight size={16} /></>}
           </PrimaryBtn>
-          <GhostBtn onClick={() => { setStep(1); setSelectedDate(null); setSelectedSchedule(null); }}>
+          <GhostBtn onClick={handleCancel}>
             <ArrowLeft size={16} /> Batal
           </GhostBtn>
         </div>
