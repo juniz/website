@@ -20,8 +20,12 @@ export async function createDokter(formData) {
     body.append('isAvailable', formData.get('isAvailable'));
     
     const image = formData.get('image');
-    if (image && typeof image !== 'string' && image.size > 0) {
-      body.append('image', image);
+    if (image) {
+      if (typeof image !== 'string' && image.size > 0) {
+        body.append('image', image);
+      } else if (typeof image === 'string' && image.startsWith('/uploads/')) {
+        body.append('image', image);
+      }
     }
 
     const result = await api.post('/doctors', body, { headers });
@@ -47,9 +51,12 @@ export async function updateDokter(id, formData) {
     body.append('isAvailable', formData.get('isAvailable'));
     
     const image = formData.get('image');
-    // Hanya kirim field image jika ada file baru yang diunggah
-    if (image && typeof image !== 'string' && image.size > 0) {
-      body.append('image', image);
+    if (image) {
+      if (typeof image !== 'string' && image.size > 0) {
+        body.append('image', image);
+      } else if (typeof image === 'string' && image.startsWith('/uploads/')) {
+        body.append('image', image);
+      }
     }
 
     const result = await api.patch(`/doctors/${id}`, body, { headers });
@@ -89,6 +96,18 @@ export async function bulkDeleteDokter(ids) {
     revalidatePath('/admin/dokter');
     revalidatePath('/');
     return { success: true };
+  } catch (err) {
+    return { error: err.message };
+  }
+}
+
+export async function getSimrsPhoto(name) {
+  try {
+    const headers = await getHeaders();
+    const result = await api.get(`/simrs/pegawai-photo?name=${encodeURIComponent(name)}`, { headers });
+    if (!result.success) return { error: result.error };
+    // NestJS response is wrapped in { data: { ... } } by TransformInterceptor
+    return result.data?.data || result.data;
   } catch (err) {
     return { error: err.message };
   }

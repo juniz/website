@@ -4,8 +4,8 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { createDokter, updateDokter } from '@/app/actions/admin/dokter';
-import { Upload, Image as ImageIcon, Trash2, CheckCircle2, Loader2 } from 'lucide-react';
+import { createDokter, updateDokter, getSimrsPhoto } from '@/app/actions/admin/dokter';
+import { Upload, Image as ImageIcon, Trash2, CheckCircle2, Loader2, Database } from 'lucide-react';
 import { getImageUrl } from '@/lib/utils';
 
 const MAX_WIDTH = 800;
@@ -76,12 +76,40 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
   const [imagePreview, setImagePreview] = useState(doctor?.image ? getImageUrl(doctor.image) : '');
   const [isDragging, setIsDragging] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isFetchingSimrs, setIsFetchingSimrs] = useState(false);
 
   const [form, setForm] = useState({
     name: doctor?.name || '',
     specialization: doctor?.specialization || '',
     isAvailable: doctor?.isAvailable ?? true,
   });
+
+  async function fetchSimrsPhoto() {
+    if (!form.name.trim()) {
+      setErrors((prev) => ({ ...prev, name: 'Nama dokter wajib diisi untuk mencari foto di SIMRS.' }));
+      showToast('Nama dokter wajib diisi terlebih dahulu.', 'danger');
+      return;
+    }
+
+    setIsFetchingSimrs(true);
+    try {
+      const response = await getSimrsPhoto(form.name);
+      if (response?.error) {
+        showToast(response.error, 'danger');
+      } else if (response?.success && response?.imagePath) {
+        setImagePreview(getImageUrl(response.imagePath));
+        setImageFile(response.imagePath); // Save string path
+        showToast(`Foto berhasil diambil dari SIMRS (Pegawai: ${response.nama})`, 'success');
+      } else {
+        const errorMsg = response?.message || response?.error || 'Foto tidak ditemukan di database SIMRS untuk dokter ini.';
+        showToast(errorMsg, 'danger');
+      }
+    } catch (e) {
+      showToast(`Gagal mengambil foto: ${e.message}`, 'danger');
+    } finally {
+      setIsFetchingSimrs(false);
+    }
+  }
 
   async function processSelectedFile(file) {
     if (!file) return;
@@ -272,7 +300,7 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
                       </p>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                       <div className="admin-file-custom">
                         <input
                           id="image"
@@ -280,18 +308,51 @@ export default function DokterForm({ mode = 'create', doctor = null }) {
                           type="file"
                           accept="image/*"
                           onChange={handleImageChange}
-                          disabled={isCompressing}
+                          disabled={isCompressing || isFetchingSimrs}
                         />
-                        <div className="admin-file-trigger" style={isCompressing ? { opacity: 0.7, pointerEvents: 'none' } : {}}>
+                        <div className="admin-file-trigger" style={isCompressing || isFetchingSimrs ? { opacity: 0.7, pointerEvents: 'none' } : {}}>
                           {isCompressing ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
                           {isCompressing ? 'Mengompresi...' : (imageFile ? 'Ganti Foto' : 'Pilih File')}
                         </div>
                       </div>
 
-                      {imageFile && !isCompressing && (
+                      <button
+                        type="button"
+                        onClick={fetchSimrsPhoto}
+                        disabled={isFetchingSimrs || isCompressing}
+                        className="admin-btn admin-btn-secondary"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '8px 14px',
+                          fontSize: '0.8125rem',
+                          height: '38px',
+                          border: '1px solid var(--color-primary-200)',
+                          borderRadius: '6px',
+                          backgroundColor: 'var(--color-primary-50)',
+                          color: 'var(--color-primary-600)',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        {isFetchingSimrs ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <Database size={14} />
+                        )}
+                        {isFetchingSimrs ? 'Mengambil...' : 'Ambil Foto dari SIMRS'}
+                      </button>
+
+                      {imageFile && !isCompressing && !isFetchingSimrs && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--admin-success)', fontSize: '0.8125rem', fontWeight: 600 }}>
                           <CheckCircle2 size={14} />
-                          <span>Siap diunggah (Teroptimasi)</span>
+                          <span>
+                            {typeof imageFile === 'string' && imageFile.startsWith('/uploads/') 
+                              ? 'Foto dari SIMRS (Teroptimasi)' 
+                              : 'Siap diunggah (Teroptimasi)'}
+                          </span>
                         </div>
                       )}
                     </div>
