@@ -171,7 +171,7 @@ export default async function NewsDetailPage({ params }) {
             <p style={{ fontSize: '0.8125rem', color: 'var(--color-neutral-600)', lineHeight: 1.55, marginBottom: '1rem' }}>
               Buatlah janji temu dengan dokter spesialis kami untuk penanganan yang tepat.
             </p>
-            <Link href="/register" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-primary-400)', color: '#fff', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none', transition: 'background 150ms' }} className="news-cta-btn">
+            <Link href="/pendaftaran" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', padding: '0.625rem 1rem', borderRadius: '8px', background: 'var(--color-primary-400)', color: '#fff', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none', transition: 'background 150ms' }} className="news-cta-btn">
               Daftar Online
             </Link>
           </div>

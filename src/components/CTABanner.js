@@ -158,7 +158,7 @@ export default function CTABanner() {
           </div>
 
           <Link
-            href="/register"
+            href="/pendaftaran"
             style={{
               display: 'inline-flex',
               alignItems: 'center',

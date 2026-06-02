@@ -120,7 +120,7 @@ export default async function SettingsPage() {
             </TabsContent>
 
             <TabsContent value="seo" className="settings-tab-panel">
-              <SEOSettingsForm initialData={seo} />
+              <SEOSettingsForm initialData={seo} headerData={header} />
             </TabsContent>
 
             <TabsContent value="status" className="settings-tab-panel">

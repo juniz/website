@@ -1,20 +1,35 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { updatePageSEO, uploadSEOImage } from '@/app/actions/admin/settings';
+import { updatePageSEO, uploadSEOImage, updateSiteSettings } from '@/app/actions/admin/settings';
 import { getImageUrl } from '@/lib/utils';
-import { Save, Loader2, Globe, Search, Type, ExternalLink, ChevronRight, CheckCircle2, AlertCircle, Edit3, X, Image as ImageIcon, Upload, Trash2 } from 'lucide-react';
+import { Save, Loader2, Globe, Search, Type, ExternalLink, ChevronRight, CheckCircle2, AlertCircle, Edit3, X, Image as ImageIcon, Upload, Trash2, Plus } from 'lucide-react';
 
-export default function SEOSettingsForm({ initialData }) {
+export default function SEOSettingsForm({ initialData, headerData }) {
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [status, setStatus] = useState(null); // 'success' | 'error' | null
   const [seoList, setSeoList] = useState(initialData || []);
+  const [headerSettings, setHeaderSettings] = useState(headerData || {});
+  const [menuItems, setMenuItems] = useState(headerData?.menu || []);
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newRouteData, setNewRouteData] = useState({
+    route: '',
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: '',
+  });
+
   const [formData, setFormData] = useState({
     meta_title: '',
     meta_description: '',
     meta_keywords: '',
     og_image: '',
+    show_in_navbar: false,
+    menu_label: '',
+    menu_order: 10,
+    is_active: true,
   });
   const [ogPreview, setOgPreview] = useState(null);
   const [ogUploading, setOgUploading] = useState(false);
@@ -25,12 +40,16 @@ export default function SEOSettingsForm({ initialData }) {
     setEditingId(item.id);
     setStatus(null);
     setOgPreview(null);
+    const existingMenu = menuItems.find(m => m.route === item.route) || {};
     setFormData({
       meta_title: item.meta_title || '',
       meta_description: item.meta_description || '',
       meta_keywords: item.meta_keywords?.join(', ') || '',
       is_active: item.is_active ?? true,
       og_image: item.og_image || '',
+      show_in_navbar: existingMenu.showInNavbar ?? false,
+      menu_label: existingMenu.label || item.meta_title || '',
+      menu_order: existingMenu.order ?? 10,
     });
   };
 
@@ -72,8 +91,47 @@ export default function SEOSettingsForm({ initialData }) {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    const val = type === 'checkbox' ? checked : value;
+    setFormData(prev => ({ ...prev, [name]: val }));
+  };
+
+  const handleAddRoute = async (e) => {
+    e.preventDefault();
+    if (!newRouteData.route.startsWith('/')) {
+      alert('Rute harus diawali dengan "/" (misal: /layanan)');
+      return;
+    }
+    setLoading(true);
+    
+    const formattedData = {
+      meta_title: newRouteData.meta_title,
+      meta_description: newRouteData.meta_description,
+      meta_keywords: newRouteData.meta_keywords.split(',').map(k => k.trim()).filter(k => k !== ''),
+      is_active: true,
+      og_image: null,
+    };
+
+    const res = await updatePageSEO(newRouteData.route, formattedData);
+    setLoading(false);
+
+    if (res.success) {
+      const newSeoItem = {
+        id: newRouteData.route,
+        route: newRouteData.route,
+        ...formattedData,
+      };
+      setSeoList(prev => [...prev, newSeoItem]);
+      setNewRouteData({
+        route: '',
+        meta_title: '',
+        meta_description: '',
+        meta_keywords: '',
+      });
+      setShowAddForm(false);
+    } else {
+      alert('Gagal menambahkan rute: ' + res.error);
+    }
   };
 
   const handleSave = async (e) => {
@@ -90,16 +148,57 @@ export default function SEOSettingsForm({ initialData }) {
     };
 
     const res = await updatePageSEO(editingId, formattedData);
-    setLoading(false);
 
     if (res.success) {
-      setSeoList(prev => prev.map(item => item.id === editingId ? { ...item, ...formattedData } : item));
-      setStatus('success');
-      setTimeout(() => {
-        setEditingId(null);
-        setStatus(null);
-      }, 1600);
+      const menuLabel = formData.menu_label || formData.meta_title || editingId;
+      const menuOrder = Number(formData.menu_order) || 10;
+      const showInNavbar = formData.show_in_navbar ?? false;
+
+      const exists = menuItems.some(m => m.route === editingId);
+      let updatedMenu;
+      if (exists) {
+        updatedMenu = menuItems.map(m => m.route === editingId ? {
+          ...m,
+          label: menuLabel,
+          order: menuOrder,
+          showInNavbar
+        } : m);
+      } else {
+        updatedMenu = [
+          ...menuItems,
+          {
+            route: editingId,
+            label: menuLabel,
+            order: menuOrder,
+            showInNavbar
+          }
+        ];
+      }
+
+      updatedMenu.sort((a, b) => a.order - b.order);
+
+      const updatedHeader = {
+        ...headerSettings,
+        menu: updatedMenu
+      };
+
+      const settingsRes = await updateSiteSettings('header', updatedHeader);
+      
+      setLoading(false);
+      if (settingsRes.success) {
+        setHeaderSettings(updatedHeader);
+        setMenuItems(updatedMenu);
+        setSeoList(prev => prev.map(item => item.id === editingId ? { ...item, ...formattedData } : item));
+        setStatus('success');
+        setTimeout(() => {
+          setEditingId(null);
+          setStatus(null);
+        }, 1600);
+      } else {
+        setStatus('error');
+      }
     } else {
+      setLoading(false);
       setStatus('error');
     }
   };
@@ -119,6 +218,149 @@ export default function SEOSettingsForm({ initialData }) {
             Klik tombol <strong>Edit SEO</strong> di bawah untuk mengubah metadata tiap rute dan meningkatkan visibilitas di mesin pencari.
           </p>
         </div>
+      </div>
+
+      {/* Add Custom Route Form */}
+      <div style={{
+        background: 'var(--admin-surface)',
+        border: '1px solid var(--admin-border)',
+        borderRadius: 'var(--admin-radius-lg)',
+        padding: '16px',
+        boxShadow: 'var(--admin-shadow-xs)',
+        marginBottom: '16px'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: 'var(--admin-text-h)' }}>
+              Rute & Halaman Kustom
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-s)', margin: '2px 0 0 0' }}>
+              Tambahkan halaman baru ke website untuk dikelola SEO dan Navigasinya.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="seo-edit-btn"
+            style={{
+              backgroundColor: showAddForm ? 'var(--admin-surface-2)' : 'var(--admin-primary)',
+              color: showAddForm ? 'var(--admin-text-b)' : '#ffffff',
+              border: showAddForm ? '1px solid var(--admin-border)' : 'none',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              minHeight: '36px'
+            }}
+          >
+            {showAddForm ? <X size={14} /> : <span style={{ fontSize: '1.1rem', lineHeight: 0, fontWeight: 'bold' }}>+</span>}
+            {showAddForm ? 'Batal' : 'Tambah Halaman'}
+          </button>
+        </div>
+
+        {showAddForm && (
+          <form onSubmit={handleAddRoute} style={{
+            marginTop: '16px',
+            borderTop: '1px solid var(--admin-border-soft)',
+            paddingTop: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="settings-form-group">
+                <label className="settings-label" htmlFor="new_route_path">
+                  Rute Halaman (Path URL) <span className="settings-required">*</span>
+                </label>
+                <div className="settings-input-wrap">
+                  <input
+                    id="new_route_path"
+                    className="settings-input"
+                    style={{ paddingLeft: '12px' }}
+                    type="text"
+                    name="route"
+                    value={newRouteData.route}
+                    onChange={(e) => setNewRouteData(p => ({ ...p, route: e.target.value }))}
+                    placeholder="/halaman-baru"
+                    required
+                  />
+                </div>
+                <span className="settings-helper">Harus diawali slash (misal: /layanan-unggul)</span>
+              </div>
+
+              <div className="settings-form-group">
+                <label className="settings-label" htmlFor="new_route_title">
+                  Meta Title (Judul Halaman) <span className="settings-required">*</span>
+                </label>
+                <div className="settings-input-wrap">
+                  <input
+                    id="new_route_title"
+                    className="settings-input"
+                    style={{ paddingLeft: '12px' }}
+                    type="text"
+                    name="meta_title"
+                    value={newRouteData.meta_title}
+                    onChange={(e) => setNewRouteData(p => ({ ...p, meta_title: e.target.value }))}
+                    placeholder="Judul Halaman · RS Bhayangkara"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="settings-form-group">
+              <label className="settings-label" htmlFor="new_route_desc">
+                Meta Description (Deskripsi)
+              </label>
+              <textarea
+                id="new_route_desc"
+                className="settings-textarea"
+                rows={2}
+                name="meta_description"
+                value={newRouteData.meta_description}
+                onChange={(e) => setNewRouteData(p => ({ ...p, meta_description: e.target.value }))}
+                placeholder="Deskripsi untuk penelusuran search engine..."
+              />
+            </div>
+
+            <div className="settings-form-group">
+              <label className="settings-label" htmlFor="new_route_keywords">
+                Meta Keywords
+              </label>
+              <div className="settings-input-wrap">
+                <input
+                  id="new_route_keywords"
+                  className="settings-input"
+                  style={{ paddingLeft: '12px' }}
+                  type="text"
+                  name="meta_keywords"
+                  value={newRouteData.meta_keywords}
+                  onChange={(e) => setNewRouteData(p => ({ ...p, meta_keywords: e.target.value }))}
+                  placeholder="keyword1, keyword2"
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '4px' }}>
+              <button
+                type="submit"
+                disabled={loading}
+                className="settings-btn-save settings-btn-save-sm"
+                style={{ minHeight: '36px' }}
+              >
+                {loading ? <Loader2 size={13} className="animate-spin" /> : 'Simpan Halaman Baru'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* SEO List */}
@@ -238,6 +480,87 @@ export default function SEOSettingsForm({ initialData }) {
                       />
                     </div>
                     <span className="settings-helper">Pisahkan dengan koma. Keywords tidak terlalu berpengaruh di Google modern.</span>
+                  </div>
+
+                  {/* Navbar Menu Settings */}
+                  <div className="seo-navbar-section" style={{
+                    border: '1px solid var(--admin-border-soft)',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    backgroundColor: 'var(--admin-surface-2)',
+                    marginTop: '8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <h4 style={{
+                      fontSize: '0.8125rem',
+                      fontWeight: 700,
+                      color: 'var(--admin-text-h)',
+                      margin: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}>
+                      <Globe size={14} style={{ color: 'var(--admin-primary)' }} />
+                      Pengaturan Menu Navigasi (Header)
+                    </h4>
+                    
+                    <div className="seo-status-toggle-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                      <div className="seo-status-info">
+                        <span className="seo-status-label" style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Tampilkan di Navbar</span>
+                        <span className="seo-status-hint" style={{ display: 'block', fontSize: '0.75rem', color: 'var(--admin-text-s)' }}>Munculkan halaman ini di menu header publik.</span>
+                      </div>
+                      <label className="seo-switch">
+                        <input
+                          type="checkbox"
+                          name="show_in_navbar"
+                          checked={formData.show_in_navbar}
+                          onChange={handleChange}
+                        />
+                        <span className="seo-slider"></span>
+                      </label>
+                    </div>
+
+                    {formData.show_in_navbar && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '4px' }}>
+                        <div className="settings-form-group">
+                          <label className="settings-label" htmlFor={`menu_label_${item.id}`}>
+                            Label Menu Navigasi
+                          </label>
+                          <div className="settings-input-wrap">
+                            <input
+                              id={`menu_label_${item.id}`}
+                              className="settings-input"
+                              style={{ paddingLeft: '12px' }}
+                              type="text"
+                              name="menu_label"
+                              value={formData.menu_label}
+                              onChange={handleChange}
+                              placeholder={formData.meta_title || "Label Menu"}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="settings-form-group">
+                          <label className="settings-label" htmlFor={`menu_order_${item.id}`}>
+                            Urutan Menu
+                          </label>
+                          <div className="settings-input-wrap">
+                            <input
+                              id={`menu_order_${item.id}`}
+                              className="settings-input"
+                              style={{ paddingLeft: '12px' }}
+                              type="number"
+                              name="menu_order"
+                              value={formData.menu_order}
+                              onChange={handleChange}
+                              min={1}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* OG Image Upload */}

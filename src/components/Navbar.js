@@ -5,14 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
-const navLinks = [
-  { href: '/',         label: 'Beranda',  key: 'home' },
-  { href: '/about',    label: 'Profil',   key: 'about' },
-  { href: '/doctors',  label: 'Dokter',   key: 'doctors' },
-  { href: '/schedule', label: 'Jadwal',   key: 'schedule' },
-  { href: '/news',     label: 'Berita',   key: 'news' },
-  { href: '/pejabat',  label: 'Pejabat',  key: 'pejabat' },
-  { href: '/faq',      label: 'FAQ',      key: 'faq' },
+const defaultNavLinks = [
+  { href: '/',         label: 'Beranda',  key: 'home',     showInNavbar: true, order: 1 },
+  { href: '/about',    label: 'Profil',   key: 'about',    showInNavbar: true, order: 2 },
+  { href: '/doctors',  label: 'Dokter',   key: 'doctors',  showInNavbar: true, order: 3 },
+  { href: '/schedule', label: 'Jadwal',   key: 'schedule', showInNavbar: true, order: 4 },
+  { href: '/news',     label: 'Berita',   key: 'news',     showInNavbar: true, order: 5 },
+  { href: '/pejabat',  label: 'Pejabat',  key: 'pejabat',  showInNavbar: true, order: 6 },
+  { href: '/faq',      label: 'FAQ',      key: 'faq',      showInNavbar: true, order: 7 },
 ];
 
 export default function Navbar({ data, pageStatuses = [] }) {
@@ -24,8 +24,21 @@ export default function Navbar({ data, pageStatuses = [] }) {
     return status ? status.isActive : true; // Default to true if not found
   };
 
-  const filteredNavLinks = navLinks.filter(link => isPageActive(link.href));
-  const showRegisterCTA = isPageActive('/register');
+  // Build navLinks from dynamic data.menu or defaultNavLinks
+  const rawLinks = (data?.menu && Array.isArray(data.menu) && data.menu.length > 0)
+    ? data.menu.map(item => ({
+        href: item.route,
+        label: item.label,
+        key: item.route,
+        showInNavbar: item.showInNavbar ?? true,
+        order: item.order ?? 10,
+      }))
+    : defaultNavLinks;
+
+  const filteredNavLinks = rawLinks
+    .filter(link => link.showInNavbar && isPageActive(link.href))
+    .sort((a, b) => a.order - b.order);
+  const showRegisterCTA = isPageActive('/pendaftaran');
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -180,7 +193,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
             {/* CTA */}
             {showRegisterCTA && (
               <Link
-                href="/register"
+                href="/pendaftaran"
                 style={{
                   marginLeft: '0.75rem',
                   display: 'inline-flex',
@@ -301,7 +314,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
 
         {showRegisterCTA && (
           <Link
-            href="/register"
+            href="/pendaftaran"
             style={{
               marginTop: '1rem',
               display: 'flex',

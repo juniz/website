@@ -179,7 +179,7 @@ export default async function DoctorDetailPage({ params }) {
               Ingin berobat dengan {doctor.name.split(',')[0]}?
             </p>
             <Link
-              href={`/register?doctorId=${doctor.id}`}
+              href="/pendaftaran"
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                 background: 'var(--color-primary-400)', color: '#fff',

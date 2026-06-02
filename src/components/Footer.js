@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 
 const quickLinks = [
   { href: '/doctors',  label: 'Profil Dokter' },
   { href: '/schedule', label: 'Jadwal Dokter' },
-  { href: '/register', label: 'Daftar Online' },
+  { href: '/pendaftaran', label: 'Daftar Online' },
   { href: '/news',     label: 'Berita & Info' },
   { href: '/pejabat',  label: 'Pejabat RS' },
   { href: '/about',    label: 'Tentang Kami' },
@@ -91,17 +92,21 @@ export default function Footer({ data, pageStatuses = [] }) {
                   width: '34px',
                   height: '34px',
                   borderRadius: '8px',
-                  background: 'var(--color-primary-600)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
+                  overflow: 'hidden'
                 }}
                 aria-hidden="true"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2C11.45 2 11 2.45 11 3V11H3C2.45 11 2 11.45 2 12C2 12.55 2.45 13 3 13H11V21C11 21.55 11.45 22 12 22C12.55 22 13 21.55 13 21V13H21C21.55 13 22 12.55 22 12C22 11.45 21.55 11 21 11H13V3C13 2.45 12.55 2 12 2Z"/>
-                </svg>
+                <Image 
+                  src="/images/logo/rs.png" 
+                  alt="Logo RS" 
+                  width={34} 
+                  height={34} 
+                  style={{ objectFit: 'contain' }} 
+                />
               </div>
               <div>
                 <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-primary-50)', fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)', lineHeight: 1.2 }}>

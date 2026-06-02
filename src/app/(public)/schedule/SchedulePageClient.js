@@ -194,7 +194,7 @@ export default function SchedulePageClient({ initialSchedules = [] }) {
                 ({days[selectedDay]?.date} {days[selectedDay]?.month})
               </span>
             </h2>
-            <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 1rem', borderRadius: '8px', background: 'var(--color-primary-400)', color: '#fff', fontSize: '0.8125rem', fontWeight: 500, textDecoration: 'none', transition: 'background 150ms' }} className="sch-register-btn">
+            <Link href="/pendaftaran" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 1rem', borderRadius: '8px', background: 'var(--color-primary-400)', color: '#fff', fontSize: '0.8125rem', fontWeight: 500, textDecoration: 'none', transition: 'background 150ms' }} className="sch-register-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               Daftar Online
             </Link>
@@ -273,7 +273,7 @@ export default function SchedulePageClient({ initialSchedules = [] }) {
                             </span>
                           ) : (
                             <Link
-                              href={`/register?scheduleId=${row.id}&doctorId=${row.doctorId}`}
+                              href="/pendaftaran"
                               style={{ display: 'inline-flex', alignItems: 'center', padding: '0.375rem 0.875rem', borderRadius: '6px', background: 'var(--color-primary-400)', color: '#fff', fontSize: '0.75rem', fontWeight: 500, textDecoration: 'none', minHeight: '34px', transition: 'background 150ms' }}
                               className="sch-daftar-btn"
                               aria-label={`Daftar ke ${row.doctorName}`}

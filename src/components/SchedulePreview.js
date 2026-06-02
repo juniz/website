@@ -169,7 +169,7 @@ export default async function SchedulePreview() {
                       </Badge>
                       {row.filledQuota < row.totalQuota && (
                         <Link
-                          href={`/register?scheduleId=${row.id}`}
+                          href="/pendaftaran"
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',

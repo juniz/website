@@ -220,3 +220,25 @@ export async function getPublicPejabatBySlug(slug) {
     return null;
   }
 }
+
+/**
+ * Fetch Facilities
+ */
+export async function getPublicFacilities() {
+  try {
+    const res = await api.get('/facilities', { cache: 'force-cache', next: { revalidate: 3600 } });
+    const items = extractData(res);
+    return items.map(f => ({
+      id: f.id,
+      title: f.title,
+      description: f.description,
+      category: f.category || 'Umum',
+      image_url: f.imageUrl || null,
+      sort_order: f.sortOrder || 0,
+      is_active: f.isActive ?? true,
+    })).filter(f => f.is_active).sort((a, b) => a.sort_order - b.sort_order);
+  } catch (err) {
+    console.error('Error fetching public facilities:', err);
+    return [];
+  }
+}

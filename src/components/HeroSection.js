@@ -160,7 +160,7 @@ export default function HeroSection({ data }) {
             className="hero-cta-group hero-anim-cta"
           >
             <Link
-              href={data?.cta_primary?.href || '/register'}
+              href={data?.cta_primary?.href || '/pendaftaran'}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
