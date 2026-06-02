@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react';
 import { checkLogin } from '@/app/actions/auth';
 import Image from 'next/image';
+import Turnstile from '@/components/common/Turnstile';
 
 /* ─── Trustworthy Split-Layout Login (Style 2) ───────────────────────────────
    Design System: Trust & Authority · Minimalism & Swiss Style
@@ -49,6 +50,7 @@ const TRUST_ITEMS = [
 export default function LoginPageClient() {
   const [errorMessage, formAction, isPending] = useActionState(checkLogin, undefined);
   const [showPassword, setShowPassword] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
 
   return (
     <>
@@ -632,6 +634,12 @@ export default function LoginPageClient() {
                     )}
                   </button>
                 </div>
+              </div>
+
+              {/* Turnstile */}
+              <input type="hidden" name="captcha_token" value={captchaToken || ''} />
+              <div style={{ marginTop: '12px', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+                <Turnstile onVerify={(token) => setCaptchaToken(token)} />
               </div>
 
               {/* Submit */}
