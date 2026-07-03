@@ -10,11 +10,11 @@ RS Bhayangkara Nganjuk is a premier healthcare institution in Nganjuk, East Java
 
 *   **Technology Stack:** Next.js 16.2.2 (React 19, Tailwind CSS v4, Base UI, Lucide Icons, Sonner Toasting)
 *   **Target Audience:** Patients seeking treatment (new & returning), families, medical practitioners, and administrators.
-*   **Design Archetype:** Minimalist, trustworthy, and distraction-free, featuring an **Azure Blue** healthcare color identity.
+*   **Design Archetype:** Minimalist, trustworthy, and distraction-free, featuring a **Coastal Medical** color identity — sky blue primary, deep space navy anchors, amber flame CTAs.
 
 ---
 
-## 2. Global Design System (Azure Blue Medical)
+## 2. Global Design System (Coastal Medical)
 
 All visual elements, layout structures, and components must adhere to the Master Design System rules to ensure a harmonious, highly trustworthy hospital atmosphere.
 
@@ -23,20 +23,41 @@ The colors are meticulously selected for maximum medical authority, accessibilit
 
 | Role | HEX Code | CSS Token Name | Purpose / Application |
 | :--- | :--- | :--- | :--- |
-| **Primary Deep** | `#042C53` | `--color-primary-900` | Deep navy background for navigation bar, footer, and dark hero layouts. |
-| **Primary Dark** | `#0C447C` | `--color-primary-800` | Hover states on dark elements, secondary hero panel accents. |
-| **Primary Brand** | `#185FA5` | `--color-primary-600` | Core brand blue: main call-to-actions (CTA), interactive link colors, active borders. |
-| **Primary Active** | `#378ADD` | `--color-primary-400` | Primary buttons, active state badges, interactive highlights. |
-| **Primary Muted** | `#85B7EB` | `--color-primary-200` | Secondary text, placeholders, and descriptions on dark backgrounds. |
-| **Primary Border** | `#B5D4F4` | `--color-primary-100` | Borders on dark surfaces, divider lines on dark background sections. |
-| **Primary Light BG** | `#E6F1FB` | `--color-primary-50` | Accent background chips, icon container panels, light inputs. |
-| **Accent Success** | `#1D9E75` | `--color-accent-teal` | Active doctor status indicator, success notices, valid slot badges. |
-| **Accent Success BG**| `#E1F5EE` | `--color-accent-teal-light` | Soft background for success alerts or active patient slots. |
-| **Accent Danger** | `#E24B4A` | `--color-danger` | IGD Urgent alerts, error highlights, fully-booked slot indications. |
-| **Neutral Background**| `#F1EFE8` | `--color-neutral-50` | Global page container background (warm, clinical gray). |
+| **Primary Deep** | `#023047` | `--color-primary-900` | Deep navy background for navigation bar, footer, and dark hero layouts. *(deep_space_blue)* |
+| **Primary Dark** | `#04699b` | `--color-primary-800` | Hover states on dark elements, secondary hero panel accents. *(deep_space_blue-600)* |
+| **Primary Brand** | `#219ebc` | `--color-primary-600` | Core brand: interactive link colors, active borders, icon accents. *(blue_green)* |
+| **Primary Active** | `#8ecae6` | `--color-primary-400` | Focus rings, active state badges, interactive highlights. *(sky_blue)* |
+| **Primary Muted** | `#bbdff0` | `--color-primary-200` | Secondary text and descriptions on dark backgrounds. *(sky_blue-700)* |
+| **Primary Border** | `#d2eaf5` | `--color-primary-100` | Borders on dark surfaces, divider lines on dark sections. *(sky_blue-800)* |
+| **Primary Light BG** | `#e8f4fa` | `--color-primary-50` | Accent background chips, icon container panels, light inputs. *(sky_blue-900)* |
+| **CTA Button** | `#ffb703` | `--color-cta` | Primary action buttons: Daftar, Booking Jadwal, Pendaftaran CTA. *(amber_flame)* |
+| **CTA Hover** | `#d09500` | `--color-cta-dark` | CTA button hover and pressed state. *(amber_flame-400)* |
+| **CTA Light BG** | `#fff1cd` | `--color-cta-light` | Ghost CTA background, soft amber chip. *(amber_flame-900)* |
+| **CTA Text** | `#342500` | `--color-cta-text` | Text on amber CTA buttons (dark brown, WCAG AAA). *(amber_flame-100)* |
+| **Accent Success** | `#219ebc` | `--color-accent-teal` | Active doctor status indicator, success notices, valid slot badges. *(blue_green)* |
+| **Accent Success BG** | `#ceeef6` | `--color-accent-teal-light` | Soft background for success alerts or active patient slots. *(blue_green-900)* |
+| **Accent Danger** | `#fb8500` | `--color-danger` | IGD Urgent alerts, error highlights, fully-booked slot indications. *(princeton_orange)* |
+| **Accent Danger BG** | `#ffe7cb` | `--color-danger-light` | Background for danger/full badges. *(princeton_orange-900)* |
+| **Warning** | `#d09500` | `--color-warning` | Status sisa sedikit, low availability warning. *(amber_flame-400)* |
+| **Warning BG** | `#fff1cd` | `--color-warning-light` | Background for warning badges. *(amber_flame-900)* |
+| **Neutral Background** | `#FFFFFF` | `--color-neutral-50` | Global page container background (clean clinical white). |
 | **Neutral Border** | `#D3D1C7` | `--color-neutral-200` | Default subtle borders for cards, inputs, and layout blocks. |
-| **Neutral Muted Text**| `#5F5E5A` | `--color-neutral-600` | Subtitles, disabled helper text, secondary descriptions. |
+| **Neutral Muted Text** | `#5F5E5A` | `--color-neutral-600` | Subtitles, disabled helper text, secondary descriptions. |
 | **Neutral Body Text** | `#2C2C2A` | `--color-neutral-900` | High-contrast main content body text (4.5:1 minimum AA). |
+
+### 2.1.1 Source Palette Reference
+All colors are derived from the following five canonical families:
+
+```js
+// Source palette (do not modify tokens — use CSS vars above)
+{
+  sky_blue:        { DEFAULT: '#8ecae6', 700: '#bbdff0', 800: '#d2eaf5', 900: '#e8f4fa' },
+  blue_green:      { DEFAULT: '#219ebc', 900: '#ceeef6' },
+  deep_space_blue: { DEFAULT: '#023047', 600: '#04699b' },
+  amber_flame:     { DEFAULT: '#ffb703', 400: '#d09500', 900: '#fff1cd', 100: '#342500' },
+  princeton_orange:{ DEFAULT: '#fb8500', 900: '#ffe7cb' },
+}
+```
 
 ### 2.2 Typography
 *   **Headings (H1, H2, H3, H4, H5, H6):** **Figtree** (`var(--font-figtree)`). Displaying a modern, highly legible, geometric sans-serif aesthetic with bold letter weights.
@@ -186,7 +207,7 @@ RS Bhayangkara Nganjuk is committed to digital inclusivity and high search engin
 ## 7. Frontend Pre-Delivery Checklist
 Before submitting any new feature, layout tweak, or routing update to production:
 
-*   [ ] **Design Compliance:** Verify that color palettes strictly map to Azure Blue CSS variables. Ensure no hot-pink or generic colors exist.
+*   [ ] **Design Compliance:** Verify color palettes map to Coastal Medical CSS variables. No old Azure Blue hex codes remain. No hot-pink or generic colors.
 *   [ ] **Icon Consistency:** Verify all icons originate from the `Lucide React` SVG library. No raw emojis.
 *   [ ] **Cursor Pointer:** Assert that `cursor: pointer` is applied to all clickable elements.
 *   [ ] **Transitions:** Verify hover states utilize smooth `transition` intervals (150ms-300ms).
@@ -198,5 +219,6 @@ Before submitting any new feature, layout tweak, or routing update to production
 *   [ ] **Wizard Persistence:** Ensure `sessionStorage` stores active inputs for NIK booking flows, restoring draft values correctly upon browser refresh.
 
 ---
-*Document Version: 1.1.0*
-*Established by developers of RS Bhayangkara Nganjuk.*
+*Document Version: 1.2.0*
+*Established by developers of RS Bhayangkara Nganjuk.
+Palette update: June 2025 — Coastal Medical (Sky Blue + Amber Flame + Deep Space Navy)*

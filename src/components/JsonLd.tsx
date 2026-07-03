@@ -1,0 +1,12 @@
+/**
+ * JsonLd — Inject JSON-LD structured data into <head>
+ * Usage: <JsonLd data={schemaObject} />
+ */
+export default function JsonLd({ data }: { data: Record<string, any> }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}

@@ -6,13 +6,13 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 const defaultNavLinks = [
-  { href: '/',         label: 'Beranda',  key: 'home',     showInNavbar: true, order: 1 },
-  { href: '/about',    label: 'Profil',   key: 'about',    showInNavbar: true, order: 2 },
-  { href: '/doctors',  label: 'Dokter',   key: 'doctors',  showInNavbar: true, order: 3 },
-  { href: '/schedule', label: 'Jadwal',   key: 'schedule', showInNavbar: true, order: 4 },
-  { href: '/news',     label: 'Berita',   key: 'news',     showInNavbar: true, order: 5 },
-  { href: '/pejabat',  label: 'Pejabat',  key: 'pejabat',  showInNavbar: true, order: 6 },
-  { href: '/faq',      label: 'FAQ',      key: 'faq',      showInNavbar: true, order: 7 },
+  { href: '/', label: 'Beranda', key: 'home', showInNavbar: true, order: 1 },
+  { href: '/about', label: 'Profil', key: 'about', showInNavbar: true, order: 2 },
+  { href: '/doctors', label: 'Dokter', key: 'doctors', showInNavbar: true, order: 3 },
+  { href: '/schedule', label: 'Jadwal', key: 'schedule', showInNavbar: true, order: 4 },
+  { href: '/news', label: 'Berita', key: 'news', showInNavbar: true, order: 5 },
+  { href: '/pejabat', label: 'Pejabat', key: 'pejabat', showInNavbar: true, order: 6 },
+  { href: '/faq', label: 'FAQ', key: 'faq', showInNavbar: true, order: 7 },
 ];
 
 export default function Navbar({ data, pageStatuses = [] }) {
@@ -27,12 +27,12 @@ export default function Navbar({ data, pageStatuses = [] }) {
   // Build navLinks from dynamic data.menu or defaultNavLinks
   const rawLinks = (data?.menu && Array.isArray(data.menu) && data.menu.length > 0)
     ? data.menu.map(item => ({
-        href: item.route,
-        label: item.label,
-        key: item.route,
-        showInNavbar: item.showInNavbar ?? true,
-        order: item.order ?? 10,
-      }))
+      href: item.route,
+      label: item.label,
+      key: item.route,
+      showInNavbar: item.showInNavbar ?? true,
+      order: item.order ?? 10,
+    }))
     : defaultNavLinks;
 
   const filteredNavLinks = rawLinks
@@ -84,7 +84,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          backgroundColor: 'var(--color-primary-900)',
+          backgroundColor: 'var(--color-primary-800)',
           boxShadow: scrolled
             ? '0 2px 20px rgba(4, 44, 83, 0.5)'
             : '0 1px 0 rgba(255,255,255,0.08)',
@@ -126,12 +126,12 @@ export default function Navbar({ data, pageStatuses = [] }) {
               }}
               aria-hidden="true"
             >
-              <Image 
-                src="/images/logo/rs.png" 
-                alt="Logo RS" 
-                width={34} 
-                height={34} 
-                style={{ objectFit: 'contain' }} 
+              <Image
+                src="/images/logo/rs.png"
+                alt="Logo RS"
+                width={34}
+                height={34}
+                style={{ objectFit: 'contain' }}
               />
             </div>
             <div>
@@ -201,7 +201,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
                   gap: '0.375rem',
                   padding: '0.5rem 1rem',
                   borderRadius: '8px',
-                  backgroundColor: 'var(--color-primary-400)',
+                  backgroundColor: 'var(--color-primary-600)',
                   color: '#ffffff',
                   fontSize: '0.875rem',
                   fontWeight: 500,
@@ -212,10 +212,10 @@ export default function Navbar({ data, pageStatuses = [] }) {
                 className="nav-cta"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
                 Daftar Sekarang
               </Link>
@@ -248,13 +248,13 @@ export default function Navbar({ data, pageStatuses = [] }) {
           >
             {menuOpen ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             ) : (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <line x1="3" y1="8" x2="21" y2="8"/>
-                <line x1="3" y1="16" x2="21" y2="16"/>
+                <line x1="3" y1="8" x2="21" y2="8" />
+                <line x1="3" y1="16" x2="21" y2="16" />
               </svg>
             )}
           </button>
@@ -323,7 +323,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
               gap: '0.5rem',
               padding: '0.875rem 1rem',
               borderRadius: '10px',
-              backgroundColor: 'var(--color-primary-400)',
+              backgroundColor: 'var(--color-primary-600)',
               color: '#ffffff',
               fontSize: '0.9375rem',
               fontWeight: 600,
@@ -332,10 +332,10 @@ export default function Navbar({ data, pageStatuses = [] }) {
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
             Daftar Sekarang
           </Link>

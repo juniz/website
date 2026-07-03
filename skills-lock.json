@@ -1,10 +1,22 @@
 {
   "version": 1,
   "skills": {
+    "design-taste-frontend": {
+      "source": "leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "6d838b246d0e35d0b53f4f23f98ba7a1dd561937e64f7d0c7553b0928e376c3e"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "landing-page-guide-v2": {
+      "source": "bear2u/my-skills",
+      "sourceType": "github",
+      "skillPath": "skills/landing-page-guide-v2/SKILL.md",
+      "computedHash": "637be8675a5d6a6949e0ad34993b77082f719bc6384d46135987bc9f8b7fa64c"
     },
     "lint-and-validate": {
       "source": "sickn33/antigravity-awesome-skills",
@@ -50,6 +62,12 @@
       "sourceType": "github",
       "computedHash": "f4cd7570115d97af6bcb2946eb891a958c8d04a43b479871c9ccadbc670ad058"
     },
+    "typescript-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/typescript-expert/SKILL.md",
+      "computedHash": "525e74a7220ed67832001ca89b46deae8f2bab1abc9d25c56c8716d6550c795f"
+    },
     "ui-ux-pro-max": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
       "sourceType": "github",
@@ -60,6 +78,12 @@
       "sourceType": "github",
       "skillPath": "skills/unit-testing-framework/SKILL.md",
       "computedHash": "d94955a01a3b6986a7bc7a0b6994f590434db2f996801412e0e8c34a8f09e5b2"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
     }
   }
 }

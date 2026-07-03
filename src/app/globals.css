@@ -5,39 +5,50 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   AZURE BLUE DESIGN SYSTEM — RS Bhayangkara Nganjuk
-   Trustworthy Healthcare · April 2025
+   COASTAL MEDICAL DESIGN SYSTEM — RS Bhayangkara Nganjuk
+   Sky Blue · Amber Flame · Deep Space Navy · June 2025
    ============================================================ */
 
 :root {
-  /* Azure Blue — Primary Palette */
-  --color-primary-900: #042C53;   /* Navy terdalam: BG navbar, footer, hero dark */
-  --color-primary-800: #0C447C;   /* Hover state dark, hero section bg */
-  --color-primary-600: #185FA5;   /* Primary brand, CTA, link, border aktif */
-  --color-primary-400: #378ADD;   /* Button utama, badge aktif, highlight */
-  --color-primary-200: #85B7EB;   /* Teks muted di atas dark bg */
-  --color-primary-100: #B5D4F4;   /* Border di dark surface, teks sekunder */
-  --color-primary-50:  #E6F1FB;   /* BG chip, icon container, input dark bg */
+  /* ── Primary Scale: sky_blue ─────────────────────────────
+     Role: interactive links, hover rings, light chips, borders    */
+  --color-primary-900: #023047;   /* deep_space_blue DEFAULT — navbar, footer, hero dark */
+  --color-primary-800: #04699b;   /* deep_space_blue-600   — hover state on dark elements */
+  --color-primary-600: #219ebc;   /* blue_green DEFAULT     — brand CTA link, active border */
+  --color-primary-400: #8ecae6;   /* sky_blue DEFAULT       — focus ring, badge highlight */
+  --color-primary-200: #bbdff0;   /* sky_blue-700           — muted text on dark bg */
+  --color-primary-100: #d2eaf5;   /* sky_blue-800           — border on dark surface */
+  --color-primary-50:  #e8f4fa;   /* sky_blue-900           — chip BG, icon panel, input bg */
 
-  /* Accent */
-  --color-accent-teal:       #1D9E75;   /* Status tersedia, sukses, dot ketersediaan */
-  --color-accent-teal-light: #E1F5EE;   /* BG badge tersedia */
+  /* ── CTA: amber_flame ───────────────────────────────────
+     Role: primary action buttons (Daftar, Booking, etc.)          */
+  --color-cta:         #ffb703;   /* amber_flame DEFAULT    — primary button fill */
+  --color-cta-dark:    #d09500;   /* amber_flame-400        — button hover / pressed */
+  --color-cta-light:   #fff1cd;   /* amber_flame-900        — CTA ghost BG, soft chip */
+  --color-cta-text:    #342500;   /* amber_flame-100        — text on amber CTA button */
 
-  /* Neutral */
-  --color-neutral-50:  #F1EFE8;   /* Page background */
+  /* ── Accent Success: blue_green ─────────────────────────
+     Role: active doctor badge, available slot dot, success toast   */
+  --color-accent-teal:       #219ebc;   /* blue_green DEFAULT  — success status, active dot */
+  --color-accent-teal-light: #ceeef6;   /* blue_green-900      — BG badge tersedia */
+
+  /* ── Neutral ─────────────────────────────────────────────*/
+  --color-neutral-50:  #FFFFFF;   /* Page background — clean clinical white */
   --color-neutral-200: #D3D1C7;   /* Border default */
   --color-neutral-600: #5F5E5A;   /* Teks muted / secondary */
   --color-neutral-900: #2C2C2A;   /* Teks body */
 
-  /* Semantic */
-  --color-danger:        #E24B4A; /* Alert, status penuh, error */
-  --color-danger-light:  #FCEBEB; /* BG badge penuh */
-  --color-warning:       #EF9F27; /* Status sisa sedikit */
-  --color-warning-light: #FAEEDA; /* BG badge sisa sedikit */
+  /* ── Semantic: princeton_orange / amber_flame ────────────
+     Role: danger = orange (alert IGD, error, penuh)
+           warning = amber (sisa sedikit, low-stock)               */
+  --color-danger:        #fb8500; /* princeton_orange DEFAULT — alert, error, penuh */
+  --color-danger-light:  #ffe7cb; /* princeton_orange-900    — BG badge penuh */
+  --color-warning:       #d09500; /* amber_flame-400         — status sisa sedikit */
+  --color-warning-light: #fff1cd; /* amber_flame-900         — BG badge sisa sedikit */
 
-  /* Surface */
+  /* ── Surface ─────────────────────────────────────────────*/
   --color-surface:       #FFFFFF;
-  --color-surface-raised:#F8FAFC;
+  --color-surface-raised:#f0f9fe;  /* sky_blue tinted card surface */
 
   /* Animation tokens */
   --duration-fast:   150ms;
@@ -98,6 +109,12 @@
 
   --color-accent-teal:       var(--color-accent-teal);
   --color-accent-teal-light: var(--color-accent-teal-light);
+
+  /* CTA: amber_flame family */
+  --color-cta:         var(--color-cta);
+  --color-cta-dark:    var(--color-cta-dark);
+  --color-cta-light:   var(--color-cta-light);
+  --color-cta-text:    var(--color-cta-text);
 
   --color-neutral-50:  var(--color-neutral-50);
   --color-neutral-200: var(--color-neutral-200);
@@ -199,7 +216,7 @@ p { line-height: 1.65; }
   position: absolute;
   top: -100%;
   left: 0;
-  background: var(--color-primary-400);
+  background: var(--color-primary-900);  /* deep_space_blue — dark enough for white text AAA */
   color: white;
   padding: 0.5rem 1rem;
   font-weight: 600;
@@ -279,20 +296,56 @@ p { line-height: 1.65; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .section-title {
   font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
   color: var(--color-neutral-900);
+  letter-spacing: -0.02em;
 }
 
 .section-subtitle {
-  font-size: 0.875rem;
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
   color: var(--color-neutral-600);
-  margin-top: 0.25rem;
+  margin-top: 0.375rem;
+}
+
+/* Badge pills */
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+  border: 1px solid var(--color-primary-100);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--font-figtree, 'Figtree', sans-serif);
+  padding: 0.375rem 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+.section-badge-white {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-primary-200);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--font-figtree, 'Figtree', sans-serif);
+  padding: 0.375rem 0.875rem;
+  margin-bottom: 0.75rem;
 }
 
 /* ============================================================
