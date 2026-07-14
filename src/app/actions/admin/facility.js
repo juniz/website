@@ -30,6 +30,7 @@ export async function upsertFacilityAction(id, formData) {
     body.append('category', category);
     body.append('sortOrder', sortOrder);
     body.append('isActive', isActive ? 'true' : 'false');
+    body.append('imageUrl', existingImg);
 
     const file = formData.get('image');
     if (file && file.size > 0) {

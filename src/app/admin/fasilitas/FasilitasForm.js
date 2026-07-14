@@ -126,7 +126,10 @@ export default function FasilitasForm({ mode = 'create', facility = null }) {
       formData.append('category', form.category);
       formData.append('sort_order', form.sort_order);
       formData.append('is_active', form.is_active);
-      formData.append('existing_image', facility?.image_url || '');
+      // Use imagePreview as source of truth. Exclude blob: URLs — those mean a new file
+      // is being uploaded via imageFile, so the backend will use file.filename instead.
+      const existingImagePath = imagePreview && !imagePreview.startsWith('blob:') ? imagePreview : '';
+      formData.append('existing_image', existingImagePath);
 
       if (imageFile) {
         formData.append('image', imageFile);
