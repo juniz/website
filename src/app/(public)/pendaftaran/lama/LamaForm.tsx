@@ -4,9 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import * as htmlToImage from 'html-to-image';
 import { verifyOldPatient, getSchedulesByDay, submitBookingRegistrasi } from '@/app/actions/pre-registration';
-import { Loader2, CheckCircle2, Calendar, Clock, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, UserCheck, Stethoscope, Search, X, Download, Printer, AlertTriangle } from 'lucide-react';
+import { Loader2, CheckCircle2, Calendar, Clock, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, UserCheck, Stethoscope, Search, X, Download, Printer, AlertTriangle, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import Turnstile from '@/components/common/Turnstile';
+import MobileStepHeader from '@/components/pendaftaran/MobileStepHeader';
+import MobileBottomSheet from '@/components/pendaftaran/MobileBottomSheet';
 import { Patient, Schedule, BookingResult } from '@/types/api';
 
 /* ── DateOption structure ── */
@@ -21,10 +23,10 @@ interface DateOption {
 /* ── shared input style ── */
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  padding: '0.75rem 1rem',
+  padding: '0.875rem 1rem',
   fontSize: '0.9375rem',
   border: '1.5px solid var(--color-neutral-200)',
-  borderRadius: '10px',
+  borderRadius: '12px',
   background: '#fff',
   color: 'var(--color-neutral-900)',
   outline: 'none',
@@ -43,7 +45,7 @@ const labelStyle: React.CSSProperties = {
   letterSpacing: '0.01em',
 };
 
-const reqMark = <span style={{ color: 'var(--color-accent)', marginLeft: '2px' }}>*</span>;
+const reqMark = <span style={{ color: 'var(--color-danger)', marginLeft: '2px' }}>*</span>;
 
 interface FieldGroupProps {
   label: string;
@@ -55,9 +57,9 @@ interface FieldGroupProps {
 function FieldGroup({ label, required, hint, children }: FieldGroupProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <label style={labelStyle}>{label}{required && reqMark}</label>
+      <label style={labelStyle} className="lf-label">{label}{required && reqMark}</label>
       {children}
-      {hint && <p style={{ fontSize: '0.75rem', color: 'var(--color-neutral-400)', marginTop: '0.375rem' }}>{hint}</p>}
+      {hint && <p style={{ fontSize: '0.75rem', color: 'var(--color-neutral-500)', marginTop: '0.375rem' }} className="lf-hint">{hint}</p>}
     </div>
   );
 }
@@ -79,13 +81,14 @@ function PrimaryBtn({ children, disabled, onClick, type = 'button', style: extra
       style={{
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
         padding: '0.875rem 1.75rem',
-        background: disabled ? 'var(--color-neutral-200)' : 'var(--color-primary-600)',
-        color: disabled ? 'var(--color-neutral-400)' : '#fff',
-        border: 'none', borderRadius: '10px',
-        fontSize: '0.9375rem', fontWeight: 700, fontFamily: 'var(--font-figtree)',
+        background: disabled ? 'var(--color-neutral-200)' : 'var(--color-cta)',
+        color: disabled ? 'var(--color-neutral-400)' : 'var(--color-cta-text)',
+        border: 'none', borderRadius: '12px',
+        fontSize: '0.9375rem', fontWeight: 800, fontFamily: 'var(--font-figtree)',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        transition: 'background 200ms ease, box-shadow 200ms ease',
-        boxShadow: disabled ? 'none' : '0 4px 14px rgba(24,95,165,0.3)',
+        transition: 'all 200ms ease',
+        boxShadow: disabled ? 'none' : '0 4px 14px rgba(255, 183, 3, 0.35)',
+        minHeight: '48px',
         ...extra,
       }}
       className={disabled ? '' : 'lf-primary-btn'}
@@ -107,14 +110,15 @@ function GhostBtn({ children, onClick, style: extra = {} }: GhostBtnProps) {
       type="button"
       onClick={onClick}
       style={{
-        display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
         padding: '0.875rem 1.5rem',
         background: 'transparent',
-        color: 'var(--color-neutral-600)',
-        border: '1.5px solid var(--color-neutral-200)', borderRadius: '10px',
-        fontSize: '0.9375rem', fontWeight: 600, fontFamily: 'var(--font-figtree)',
+        color: 'var(--color-neutral-700)',
+        border: '1.5px solid var(--color-neutral-200)', borderRadius: '12px',
+        fontSize: '0.9375rem', fontWeight: 700, fontFamily: 'var(--font-figtree)',
         cursor: 'pointer',
-        transition: 'border-color 200ms ease, color 200ms ease',
+        transition: 'all 200ms ease',
+        minHeight: '48px',
         ...extra,
       }}
       className="lf-ghost-btn"
@@ -130,8 +134,11 @@ function LamaStyles() {
         /* ── Base interactive ── */
         .lf-input:focus { border-color: var(--color-primary-400); box-shadow: 0 0 0 3px rgba(55,138,221,0.15); outline: none; }
         .lf-search-input:focus { border-color: var(--color-primary-400); box-shadow: 0 0 0 3px rgba(55,138,221,0.15); outline: none; }
-        .lf-primary-btn:hover:not(:disabled) { background: var(--color-primary-800) !important; box-shadow: 0 6px 20px rgba(24,95,165,0.4) !important; }
-        .lf-ghost-btn:hover { border-color: var(--color-primary-300); color: var(--color-primary-700); }
+        .lf-primary-btn:hover:not(:disabled) { background: var(--color-cta-dark) !important; box-shadow: 0 6px 20px rgba(208, 149, 0, 0.4) !important; }
+        .lf-primary-btn:active:not(:disabled) { transform: scale(0.98); }
+        .lf-ghost-btn:hover { border-color: var(--color-primary-300); color: var(--color-primary-800); }
+        .lf-ghost-btn:active { transform: scale(0.98); }
+
         @keyframes lf-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes lf-slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -144,6 +151,23 @@ function LamaStyles() {
           padding-top: 1.5rem;
           border-top: 1px solid var(--color-neutral-100);
         }
+
+        @media (max-width: 639px) {
+          .lf-form-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--color-neutral-200);
+            padding: 0.75rem 1rem max(0.875rem, env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(2, 48, 71, 0.08);
+          }
+        }
+
         .lf-form-footer button {
           width: 100%;
           justify-content: center;
@@ -163,32 +187,37 @@ function LamaStyles() {
           flex-direction: column;
           align-items: center;
           gap: 2px;
-          padding: 0.625rem 0.375rem;
-          border-radius: 10px;
+          padding: 0.75rem 0.5rem;
+          border-radius: 12px;
           border: 2px solid var(--color-neutral-200);
           background: #fff;
           cursor: pointer;
-          transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+          transition: all 200ms ease;
           flex-shrink: 0;
+          min-height: 64px;
+          justify-content: center;
+        }
+        .lf-date-chip:active:not(.lf-dc-closed) {
+          transform: scale(0.95);
         }
         .lf-date-chip:hover:not(:disabled):not(.lf-dc-sel) {
-          border-color: var(--color-primary-200);
+          border-color: var(--color-primary-300);
           background: var(--color-primary-50);
         }
         .lf-dc-sel {
           border-color: var(--color-primary-600) !important;
           background: var(--color-primary-600) !important;
-          box-shadow: 0 4px 14px rgba(24,95,165,0.28);
+          box-shadow: 0 4px 14px rgba(33,158,188,0.28);
         }
         .lf-dc-closed { border-color: transparent !important; background: var(--color-neutral-100) !important; opacity: 0.45; cursor: not-allowed; }
-        .lf-dc-day { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; color: var(--color-neutral-400); }
-        .lf-dc-num { font-size: 1.25rem; font-weight: 800; font-family: var(--font-figtree); color: var(--color-neutral-800); line-height: 1; }
-        .lf-dc-mon { font-size: 0.6rem; color: var(--color-neutral-400); }
-        .lf-dc-sel .lf-dc-day { color: rgba(255,255,255,0.75); }
+        .lf-dc-day { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; color: var(--color-neutral-500); }
+        .lf-dc-num { font-size: 1.25rem; font-weight: 800; font-family: var(--font-figtree); color: var(--color-neutral-900); line-height: 1; }
+        .lf-dc-mon { font-size: 0.6875rem; color: var(--color-neutral-500); }
+        .lf-dc-sel .lf-dc-day { color: rgba(255,255,255,0.8); }
         .lf-dc-sel .lf-dc-num { color: #fff; }
-        .lf-dc-sel .lf-dc-mon { color: rgba(255,255,255,0.65); }
+        .lf-dc-sel .lf-dc-mon { color: rgba(255,255,255,0.75); }
 
-        /* ── Mobile scroll strip (hidden ≥640px) ── */
+        /* ── Mobile scroll strip ── */
         .lf-date-scroll-mobile {
           display: flex;
           gap: 0.5rem;
@@ -207,7 +236,7 @@ function LamaStyles() {
           .lf-date-scroll-mobile .lf-date-chip { min-width: calc(28% - 0.5rem); }
         }
 
-        /* ── Desktop carousel (hidden <640px) ── */
+        /* ── Desktop carousel ── */
         .lf-date-carousel-desktop { display: none; }
         @media (min-width: 640px) {
           .lf-date-scroll-mobile { display: none; }
@@ -221,35 +250,37 @@ function LamaStyles() {
           }
         }
 
-        /* ── Date arrow buttons ── */
-        .lf-date-arrow {
-          flex-shrink: 0;
-          width: 36px;
-          height: 36px;
-          border-radius: 8px;
-          border: 1.5px solid var(--color-neutral-200);
-          background: #fff;
+        /* ── Mobile Sheet Trigger ── */
+        .mobile-sheet-trigger {
           display: flex;
           align-items: center;
-          justify-content: center;
-          transition: border-color 200ms ease, background 200ms ease;
+          justify-content: space-between;
+          width: 100%;
+          padding: 0.875rem 1rem;
+          border: 2px solid var(--color-neutral-200);
+          border-radius: 12px;
+          background: #fff;
+          cursor: pointer;
+          text-align: left;
+          transition: all 150ms ease;
+          margin-top: 0.5rem;
         }
-        .lf-date-arrow:not(:disabled):hover { border-color: var(--color-primary-300); background: var(--color-primary-50); }
-
-        /* ── Schedule header ── */
-        .lf-sched-header {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          margin-bottom: 0;
+        .mobile-sheet-trigger:active {
+          transform: scale(0.98);
+          background: var(--color-primary-50);
         }
         @media (min-width: 640px) {
-          .lf-sched-header {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
+          .mobile-sheet-trigger { display: none; }
+        }
+
+        /* ── Desktop Schedule Grid ── */
+        .desktop-schedule-view {
+          display: none;
+        }
+        @media (min-width: 640px) {
+          .desktop-schedule-view {
+            display: block;
           }
-          .lf-sched-header > div { max-width: 240px; }
         }
 
         /* ── Schedule card ── */
@@ -258,32 +289,34 @@ function LamaStyles() {
           align-items: flex-start;
           gap: 0.875rem;
           padding: 1rem 1.125rem;
-          border-radius: 12px;
+          border-radius: 14px;
           border: 2px solid var(--color-neutral-200);
           background: #fff;
           cursor: pointer;
           text-align: left;
           width: 100%;
           box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-          transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+          transition: all 200ms ease;
+        }
+        .lf-sched-card:active {
+          transform: scale(0.98);
         }
         .lf-sched-card:hover:not(.lf-sched-card--sel) {
-          border-color: var(--color-primary-200);
-          box-shadow: 0 4px 12px rgba(24,95,165,0.08);
+          border-color: var(--color-primary-300);
+          box-shadow: 0 4px 12px rgba(33,158,188,0.1);
         }
         .lf-sched-card--sel {
-          border-color: var(--color-primary-500);
-          background: rgba(24,95,165,0.04);
-          box-shadow: 0 0 0 4px rgba(55,138,221,0.1);
+          border-color: var(--color-primary-600);
+          background: var(--color-primary-50);
+          box-shadow: 0 0 0 4px rgba(33,158,188,0.12);
         }
 
-        /* ── Schedule icon ── */
         .lf-sched-icon {
-          width: 38px;
-          height: 38px;
-          min-width: 38px;
-          border-radius: 10px;
-          background: var(--color-primary-50);
+          width: 40px;
+          height: 40px;
+          min-width: 40px;
+          border-radius: 12px;
+          background: var(--color-primary-100);
           color: var(--color-primary-600);
           display: flex;
           align-items: center;
@@ -292,212 +325,179 @@ function LamaStyles() {
         }
         .lf-si-sel { background: var(--color-primary-600); color: #fff; }
 
-        /* ── Schedule meta ── */
         .lf-sched-time {
           display: inline-flex;
           align-items: center;
           gap: 4px;
           font-size: 0.75rem;
           font-weight: 600;
-          color: var(--color-neutral-500);
-          background: var(--color-neutral-100);
-          border-radius: 999px;
-          padding: 2px 9px;
+          color: var(--color-primary-600);
         }
         .lf-sched-kuota {
-          display: inline-flex;
-          align-items: center;
-          font-size: 0.7rem;
+          font-size: 0.6875rem;
           font-weight: 700;
-          color: #065f46;
+          color: #059669;
           background: #d1fae5;
-          border-radius: 999px;
-          padding: 2px 8px;
-          letter-spacing: 0.01em;
+          padding: 1px 6px;
+          border-radius: 4px;
         }
-
-        /* ── Schedule radio dot ── */
         .lf-sched-radio {
           width: 20px;
           height: 20px;
-          min-width: 20px;
           border-radius: 50%;
           border: 2px solid var(--color-neutral-300);
-          background: transparent;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: border-color 200ms ease, background 200ms ease;
           margin-top: 2px;
+          flex-shrink: 0;
+          transition: all 200ms ease;
         }
-        .lf-sr-sel { border-color: var(--color-primary-500); background: var(--color-primary-500); }
+        .lf-sr-sel { border-color: var(--color-primary-600); background: var(--color-primary-600); }
 
-        /* ── Schedule text truncation ── */
-        .lf-sched-poli {
-          overflow: hidden;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          word-break: break-word;
-        }
-        .lf-sched-poli--sel {
-          -webkit-line-clamp: unset;
-          overflow: visible;
-          display: block;
-        }
-        .lf-sched-dokter {
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          max-width: 100%;
-        }
-
-        /* ── Schedule scroll list ── */
-        .lf-schedule-scroll {
-          max-height: 420px;
-          overflow-y: auto;
-          scrollbar-width: thin;
-          scrollbar-color: var(--color-neutral-200) transparent;
-          padding-right: 4px;
-        }
-        .lf-schedule-scroll::-webkit-scrollbar {
-          width: 5px;
-        }
-        .lf-schedule-scroll::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .lf-schedule-scroll::-webkit-scrollbar-thumb {
-          background: var(--color-neutral-200);
-          border-radius: 999px;
-        }
-        .lf-schedule-scroll::-webkit-scrollbar-thumb:hover {
-          background: var(--color-neutral-300);
-        }
-
-        /* ── Print ── */
-        @media print {
-          body * { visibility: hidden; }
-          .lf-success-card, .lf-success-card * { visibility: visible; }
-          .lf-success-card {
-            position: absolute; left: 0; top: 0;
-            width: 100%; padding: 20px;
-            background: #fff !important; color: #000 !important;
+        /* ── Mobile Compact Verification Form ── */
+        @media (max-width: 639px) {
+          .lf-verify-card {
+            background: transparent;
+            border-radius: 0;
+            border: none;
+            padding: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
           }
-          .lf-success-card p, .lf-success-card span { color: #000 !important; }
-          .lf-success-actions { display: none !important; }
+          .lf-label {
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 0.375rem !important;
+          }
+          .lf-hint {
+            font-size: 0.6875rem !important;
+            margin-top: 0.25rem !important;
+          }
+          .lf-input {
+            padding: 0.75rem 0.875rem !important;
+            font-size: 0.9375rem !important;
+            border-radius: 10px !important;
+          }
+          .lf-turnstile-wrapper {
+            background: var(--color-neutral-50);
+            border: 1px solid var(--color-neutral-100);
+            border-radius: 12px;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: center;
+          }
         }
-
-        @media (max-width: 380px) {
-          .lf-success-actions-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+    `}</style>
   );
 }
 
 export default function LamaForm() {
   const router = useRouter();
-  const [step, setStep] = useState<number>(1);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [verifiedPatient, setVerifiedPatient] = useState<Patient | null>(null);
-  const [selectedDate, setSelectedDate] = useState<DateOption | null>(null);
-  const [availableDates, setAvailableDates] = useState<DateOption[]>([]);
-  const [dateStartIndex, setDateStartIndex] = useState<number>(0);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [isLoadingSchedules, setIsLoadingSchedules] = useState<boolean>(false);
-  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
-  const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
-  const receiptRef = useRef<HTMLDivElement>(null);
 
-  // Mounting effect: Initialise available dates, check consent guard, and restore active draft
-  useEffect(() => {
-    const initDates = () => {
-      const dates: DateOption[] = [];
-      const today = new Date();
-      today.setDate(today.getDate() + 1);
-      const dayNames = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
-      for (let i = 0; i < 14; i++) {
-        const d = new Date(today);
-        d.setDate(d.getDate() + i);
-        dates.push({
-          date: d,
-          iso: d.toISOString().split('T')[0]!,
-          dayName: dayNames[d.getDay()]!,
-          label: d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }),
-          isSunday: d.getDay() === 0,
-        });
-      }
-      setAvailableDates(dates);
-      return dates;
-    };
-
-    const dates = initDates();
-
+  /* Draft recovery helper */
+  const getInitialDraft = () => {
     if (typeof window !== 'undefined') {
-      // 1. Enforce Terms Acceptance Guard
-      const consentId = sessionStorage.getItem('consent_id');
-      if (!consentId) {
-        toast.error('Anda harus menyetujui syarat & ketentuan sebelum melakukan pendaftaran.');
-        router.push('/pendaftaran');
-        return;
-      }
-
-      // 2. Restore auto-saved draft if present
-      const savedDraft = sessionStorage.getItem('nganjuk_registration_draft');
-      if (savedDraft) {
-        try {
-          const draft = JSON.parse(savedDraft);
-          
-          // Defer state updates to avoid React's synchronous cascading render warning
-          setTimeout(() => {
-            if (draft.step) setStep(draft.step);
-            if (draft.verifiedPatient) setVerifiedPatient(draft.verifiedPatient);
-            if (draft.selectedDate) {
-              const matchedDate = dates.find(d => d.iso === draft.selectedDate.iso);
-              setSelectedDate(matchedDate || draft.selectedDate);
-            }
-            if (draft.selectedSchedule) setSelectedSchedule(draft.selectedSchedule);
-            if (draft.searchQuery !== undefined) setSearchQuery(draft.searchQuery);
-
-            // If a date was restored, dynamically trigger the schedule fetching for that day
-            if (draft.selectedDate) {
-              setIsLoadingSchedules(true);
-              getSchedulesByDay(draft.selectedDate.dayName).then(result => {
-                setIsLoadingSchedules(false);
-                if (result.success && result.data) {
-                  setSchedules(result.data);
-                }
-              });
-            }
-          }, 0);
-          
-          toast.success('Melanjutkan draf pendaftaran sebelumnya.');
-        } catch (e) {
-          console.error('Failed to parse registration draft', e);
+      try {
+        const savedDraft = sessionStorage.getItem('nganjuk_registration_draft');
+        if (savedDraft) {
+          return JSON.parse(savedDraft);
         }
+      } catch {
+        // ignore
       }
     }
-  }, [router]);
+    return null;
+  };
 
-  // Serialise and commit form state changes to sessionStorage (Auto-Save Wizard)
+  const [step, setStep] = useState<1 | 2 | 4>(() => {
+    const draft = getInitialDraft();
+    return draft?.verifiedPatient ? 2 : 1;
+  });
+
+  /* Verification state */
+  const [verifiedPatient, setVerifiedPatient] = useState<Patient | null>(() => {
+    const draft = getInitialDraft();
+    return draft?.verifiedPatient || null;
+  });
+
+  /* Schedule selection state */
+  const [availableDates] = useState<DateOption[]>(() => {
+    const days: DateOption[] = [];
+    const now = new Date();
+    const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now);
+      d.setDate(now.getDate() + i);
+
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+
+      const isSunday = d.getDay() === 0;
+      const dayName = dayNames[d.getDay()];
+
+      days.push({
+        date: d,
+        iso: `${yyyy}-${mm}-${dd}`,
+        dayName,
+        label: `${dayName}, ${d.getDate()} ${d.toLocaleDateString('id-ID', { month: 'short' })} ${yyyy}`,
+        isSunday,
+      });
+    }
+    return days;
+  });
+  const [selectedDate, setSelectedDate] = useState<DateOption | null>(null);
+  const [dateStartIndex, setDateStartIndex] = useState(0);
+
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  /* Submission & feedback state */
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
+  /* Mobile Bottom Sheet State */
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+
+  /* Ref for PDF/Receipt image generation */
+  const receiptRef = useRef<HTMLDivElement>(null);
+
+  const triggerHaptic = (ms = 10) => {
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(ms);
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+
+
+  /* Serialize draft on state update */
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (step > 1 && step < 4 && verifiedPatient) {
-        sessionStorage.setItem('nganjuk_registration_draft', JSON.stringify({
-          step,
+    if (typeof window !== 'undefined' && verifiedPatient) {
+      sessionStorage.setItem(
+        'nganjuk_registration_draft',
+        JSON.stringify({
           verifiedPatient,
           selectedDate,
           selectedSchedule,
-          searchQuery
-        }));
-      }
+        })
+      );
     }
-  }, [step, verifiedPatient, selectedDate, selectedSchedule, searchQuery]);
+  }, [verifiedPatient, selectedDate, selectedSchedule]);
 
-  // Cancel registration and clean up draft state
   const handleCancel = () => {
+    triggerHaptic();
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('nganjuk_registration_draft');
     }
@@ -516,14 +516,15 @@ export default function LamaForm() {
       return;
     }
 
+    triggerHaptic();
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
     formData.append('captcha_token', captchaToken);
 
     const result = await verifyOldPatient(null, formData);
     setIsSubmitting(false);
-    setCaptchaToken(null); // Reset for next use
-    
+    setCaptchaToken(null);
+
     if (result.success && result.data) {
       setError(null);
       toast.success('Data pasien ditemukan.');
@@ -536,7 +537,11 @@ export default function LamaForm() {
   }
 
   async function handleDateSelect(dateObj: DateOption) {
-    if (dateObj.isSunday) { toast.error('Pendaftaran tutup pada hari Minggu.'); return; }
+    triggerHaptic(15);
+    if (dateObj.isSunday) {
+      toast.error('Pendaftaran tutup pada hari Minggu.');
+      return;
+    }
     setSelectedDate(dateObj);
     setSelectedSchedule(null);
     setSearchQuery('');
@@ -547,7 +552,8 @@ export default function LamaForm() {
       if (result.data.length === 0) toast.info(`Tidak ada jadwal untuk hari ${dateObj.dayName}.`);
       setSchedules(result.data);
     } else {
-      toast.error('Gagal mengambil jadwal.'); setSchedules([]);
+      toast.error('Gagal mengambil jadwal.');
+      setSchedules([]);
     }
   }
 
@@ -558,6 +564,7 @@ export default function LamaForm() {
       return;
     }
 
+    triggerHaptic(20);
     setIsSubmitting(true);
     const result = await submitBookingRegistrasi({
       no_rkm_medis: verifiedPatient.no_rkm_medis,
@@ -567,12 +574,11 @@ export default function LamaForm() {
       captcha_token: captchaToken,
     });
     setIsSubmitting(false);
-    
+
     if (result.success && result.data) {
       setError(null);
       toast.success('Booking berhasil!');
       setBookingResult(result.data);
-      // Evict registration draft upon successful booking completion
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('nganjuk_registration_draft');
       }
@@ -601,16 +607,17 @@ export default function LamaForm() {
   };
 
   const scrollDates = (dir: 'left' | 'right') => {
+    triggerHaptic();
     if (dir === 'left' && dateStartIndex > 0) setDateStartIndex(dateStartIndex - 1);
     else if (dir === 'right' && dateStartIndex < availableDates.length - 4) setDateStartIndex(dateStartIndex + 1);
   };
 
-  const filteredSchedules = schedules.filter(s => 
-    s.nm_poli.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredSchedules = schedules.filter((s) =>
+    s.nm_poli.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.nm_dokter.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  /* ── Step 4: Success ── */
+  /* ── Step 4: Booking Success (Pass View) ── */
   if (step === 4 && bookingResult && verifiedPatient && selectedDate && selectedSchedule) {
     return (
       <div className="lf-success-card" style={{ textAlign: 'center', padding: '1rem 0' }}>
@@ -618,20 +625,20 @@ export default function LamaForm() {
           <CheckCircle2 size={36} style={{ color: '#059669' }} />
         </div>
         <h2 style={{ fontSize: '1.625rem', fontWeight: 800, fontFamily: 'var(--font-figtree)', color: '#065F46', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Booking Berhasil!</h2>
-        <p style={{ color: 'var(--color-neutral-500)', marginBottom: '2rem', fontSize: '0.9375rem' }}>Anda telah terdaftar sebagai pasien Umum.</p>
+        <p style={{ color: 'var(--color-neutral-600)', marginBottom: '2rem', fontSize: '0.9375rem' }}>Anda telah terdaftar sebagai pasien Umum.</p>
 
-        <div style={{ background: 'var(--color-primary-900)', borderRadius: '16px', padding: '2rem', marginBottom: '1.5rem', textAlign: 'center' }}>
+        <div style={{ background: 'var(--color-primary-900)', borderRadius: '20px', padding: '2rem', marginBottom: '1.5rem', textAlign: 'center', boxShadow: '0 12px 30px rgba(2,48,71,0.2)' }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-primary-200)', marginBottom: '0.5rem', fontFamily: 'var(--font-figtree)' }}>Nomor Antrean Anda</p>
           <p style={{ fontSize: '3.5rem', fontWeight: 900, color: 'var(--color-primary-400)', fontFamily: 'var(--font-figtree)', lineHeight: 1, letterSpacing: '-0.04em', marginBottom: '1.5rem' }}>{bookingResult.no_reg}</p>
 
-          <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '12px', padding: '1.25rem', textAlign: 'left' }}>
+          <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '14px', padding: '1.25rem', textAlign: 'left' }}>
             {[
               { label: 'No. Rekam Medis', value: verifiedPatient.no_rkm_medis },
-              { label: 'Tanggal', value: selectedDate.label },
+              { label: 'Tanggal Periksa', value: selectedDate.label },
               { label: 'Poliklinik', value: selectedSchedule.nm_poli },
-              { label: 'Dokter', value: selectedSchedule.nm_dokter },
+              { label: 'Dokter Spesialis', value: selectedSchedule.nm_dokter },
             ].map(({ label, value }, i, arr) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '1rem', paddingBlock: '0.625rem', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '1rem', paddingBlock: '0.625rem', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
                 <span style={{ fontSize: '0.8125rem', color: 'var(--color-primary-200)', flexShrink: 0 }}>{label}</span>
                 <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#fff', textAlign: 'right' }}>{value}</span>
               </div>
@@ -640,31 +647,31 @@ export default function LamaForm() {
         </div>
 
         <div className="lf-success-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div className="lf-success-actions-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            <GhostBtn onClick={handleDownloadReceipt} style={{ border: '1.5px solid var(--color-primary-200)', color: 'var(--color-primary-700)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <GhostBtn onClick={handleDownloadReceipt} style={{ border: '1.5px solid var(--color-primary-200)', color: 'var(--color-primary-900)' }}>
               <Printer size={16} /> Cetak Bukti
             </GhostBtn>
-            <GhostBtn onClick={handleDownloadReceipt} style={{ border: '1.5px solid var(--color-primary-200)', color: 'var(--color-primary-700)' }}>
-              <Download size={16} /> Download
+            <GhostBtn onClick={handleDownloadReceipt} style={{ border: '1.5px solid var(--color-primary-200)', color: 'var(--color-primary-900)' }}>
+              <Download size={16} /> Simpan QR
             </GhostBtn>
           </div>
-          
+
           <PrimaryBtn onClick={() => router.push('/')} style={{ width: '100%' }}>
             Selesai &amp; Kembali ke Beranda <ArrowRight size={16} />
           </PrimaryBtn>
         </div>
 
-        {/* Hidden Thermal Receipt Template for Image Generation */}
+        {/* Hidden Thermal Receipt Template for PNG Export */}
         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-          <div 
+          <div
             ref={receiptRef}
-            style={{ 
-              width: '380px', 
-              padding: '40px 30px', 
-              background: '#fff', 
-              color: '#000', 
-              fontFamily: 'monospace', 
-              lineHeight: '1.4' 
+            style={{
+              width: '380px',
+              padding: '40px 30px',
+              background: '#fff',
+              color: '#000',
+              fontFamily: 'monospace',
+              lineHeight: '1.4'
             }}
           >
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -672,7 +679,7 @@ export default function LamaForm() {
               <p style={{ fontSize: '14px', margin: '4px 0' }}>BUKTI BOOKING PENDAFTARAN</p>
               <p style={{ fontSize: '12px', margin: 0 }}>----------------------------------</p>
             </div>
-            
+
             <div style={{ textAlign: 'center', margin: '20px 0' }}>
               <p style={{ fontSize: '14px', margin: 0 }}>NOMOR ANTREAN</p>
               <p style={{ fontSize: '48px', fontWeight: 'bold', margin: '10px 0' }}>{bookingResult.no_reg}</p>
@@ -700,76 +707,67 @@ export default function LamaForm() {
                   <tr>
                     <td style={{ padding: '4px 0', verticalAlign: 'top' }}>POLI</td>
                     <td style={{ padding: '4px 0', verticalAlign: 'top' }}>:</td>
-                    <td style={{ padding: '4px 0' }}>{selectedSchedule.nm_poli.toUpperCase()}</td>
+                    <td style={{ padding: '4px 0' }}>{selectedSchedule.nm_poli}</td>
                   </tr>
                   <tr>
                     <td style={{ padding: '4px 0', verticalAlign: 'top' }}>DOKTER</td>
                     <td style={{ padding: '4px 0', verticalAlign: 'top' }}>:</td>
-                    <td style={{ padding: '4px 0' }}>{selectedSchedule.nm_dokter.toUpperCase()}</td>
+                    <td style={{ padding: '4px 0' }}>{selectedSchedule.nm_dokter}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '12px' }}>
-              <p style={{ margin: 0 }}>----------------------------------</p>
-              <p style={{ margin: '8px 0' }}>SIMPAN BUKTI INI</p>
-              <p style={{ margin: 0 }}>Harap datang 15 menit sebelum</p>
-              <p style={{ margin: 0 }}>jam pelayanan dimulai.</p>
-              <p style={{ marginTop: '10px' }}>Terima Kasih</p>
+            <div style={{ textAlign: 'center', marginTop: '30px', fontSize: '11px', color: '#555' }}>
+              <p style={{ margin: 0 }}>Tunjukkan bukti ini di Loket Pendaftaran</p>
+              <p style={{ margin: '4px 0 0' }}>Terima kasih atas kepercayaan Anda</p>
             </div>
           </div>
         </div>
+        <LamaStyles />
       </div>
     );
   }
 
-  /* ── Step 2/3: Date & Schedule ── */
-  if ((step === 2 || step === 3) && verifiedPatient) {
+  /* ── Step 2: Schedule & Doctor Selection ── */
+  if (step === 2 && verifiedPatient) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-        <LamaStyles />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <MobileStepHeader
+          currentStep={2}
+          totalSteps={2}
+          stepTitle="Pilih Jadwal & Dokter"
+          onBack={handleCancel}
+        />
 
-        {error && (
-          <div style={{ 
-            background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '12px', padding: '1rem', 
-            display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: '#991b1b',
-            animation: 'lf-slideDown 300ms ease'
-          }}>
-            <AlertTriangle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
-            <div style={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.5 }}>{error}</div>
-          </div>
-        )}
-
-        {/* ── Verified patient strip ── */}
+        {/* ── Verified Patient Card Header ── */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '0.875rem',
           padding: '0.875rem 1rem',
           background: 'var(--color-primary-50)',
           border: '1px solid var(--color-primary-100)',
-          borderRadius: '12px',
+          borderRadius: '14px',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', overflow: 'hidden' }}>
             <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--color-primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <UserCheck size={16} style={{ color: '#fff' }} />
             </div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-primary-500)', margin: 0, fontFamily: 'var(--font-figtree)' }}>Pasien Terverifikasi</p>
+              <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-primary-600)', margin: 0, fontFamily: 'var(--font-figtree)' }}>Pasien Terverifikasi</p>
               <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-primary-900)', fontFamily: 'var(--font-figtree)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: '1px 0 0' }}>{verifiedPatient.nm_pasien}</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-600)', margin: '1px 0 0' }}>{verifiedPatient.no_rkm_medis}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-600)', margin: '1px 0 0' }}>No. RM: {verifiedPatient.no_rkm_medis}</p>
             </div>
           </div>
-          <CheckCircle2 size={18} style={{ color: 'var(--color-primary-500)', flexShrink: 0 }} />
+          <CheckCircle2 size={18} style={{ color: 'var(--color-primary-600)', flexShrink: 0 }} />
         </div>
 
-        {/* ── Date picker ── */}
+        {/* ── Date Picker ── */}
         <div>
-          <p style={{ ...labelStyle, marginBottom: '0.875rem' }}>1. Pilih Tanggal Periksa</p>
+          <p style={{ ...labelStyle, marginBottom: '0.75rem' }}>1. Pilih Tanggal Periksa</p>
 
-          {/* Mobile: native horizontal scroll-snap (no JS transform) */}
+          {/* Mobile horizontal scroll chip */}
           <div className="lf-date-scroll-mobile" role="listbox" aria-label="Pilih tanggal">
             {availableDates.map((d, i) => {
               const sel = selectedDate?.iso === d.iso;
@@ -791,7 +789,7 @@ export default function LamaForm() {
             })}
           </div>
 
-          {/* Desktop: arrow-button carousel (hidden on mobile) */}
+          {/* Desktop carousel */}
           <div className="lf-date-carousel-desktop">
             <button
               type="button"
@@ -846,80 +844,115 @@ export default function LamaForm() {
           </div>
         </div>
 
-        {/* ── Schedule Picker ── */}
+        {/* ── Doctor & Poli Selection Section ── */}
         {selectedDate && (
-          <div style={{ borderTop: '1px solid var(--color-neutral-100)', paddingTop: '1.75rem' }}>
+          <div style={{ borderTop: '1px solid var(--color-neutral-100)', paddingTop: '1.5rem' }}>
+            <p style={{ ...labelStyle, marginBottom: '0.75rem' }}>2. Pilih Poliklinik &amp; Dokter Spesialis</p>
 
-            {/* Header: label + search stacked on mobile, row on ≥640 */}
-            <div className="lf-sched-header">
-              <p style={{ ...labelStyle, marginBottom: 0 }}>2. Pilih Jadwal &amp; Dokter</p>
+            {/* Mobile Sheet Trigger Button */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic();
+                setIsBottomSheetOpen(true);
+              }}
+              className="mobile-sheet-trigger"
+            >
+              {selectedSchedule ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', overflow: 'hidden' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--color-primary-600)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Stethoscope size={18} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-primary-900)', margin: 0, fontFamily: 'var(--font-figtree)' }}>{selectedSchedule.nm_poli}</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-neutral-600)', margin: '1px 0 0' }}>{selectedSchedule.nm_dokter}</p>
+                  </div>
+                </div>
+              ) : (
+                <span style={{ fontSize: '0.875rem', color: 'var(--color-neutral-500)', fontWeight: 500 }}>
+                  Ketuk untuk memilih Poli &amp; Dokter...
+                </span>
+              )}
+              <ChevronDown size={18} style={{ color: 'var(--color-neutral-500)', flexShrink: 0 }} />
+            </button>
 
-              <div style={{ position: 'relative', width: '100%' }}>
-                <Search size={14} style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-neutral-400)', pointerEvents: 'none' }} />
-                <input
-                  type="text"
-                  placeholder="Cari poli atau dokter…"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="lf-input lf-search-input"
-                  style={{ ...inputStyle, padding: '0.5rem 2.25rem', fontSize: '0.8125rem', borderRadius: '8px', height: '40px' }}
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    aria-label="Hapus pencarian"
-                    style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', color: 'var(--color-neutral-400)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
-                  >
-                    <X size={14} />
-                  </button>
-                )}
+            {/* Desktop Schedule List View */}
+            <div className="desktop-schedule-view">
+              <div className="lf-sched-header" style={{ marginBottom: '1rem' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  width: '100%',
+                  height: '40px',
+                  padding: '0 0.75rem',
+                  borderRadius: '8px',
+                  border: '1.5px solid var(--color-neutral-200)',
+                  background: '#fff',
+                  boxSizing: 'border-box',
+                }}>
+                  <Search size={14} style={{ color: 'var(--color-neutral-400)', flexShrink: 0 }} />
+                  <input
+                    type="text"
+                    placeholder="Cari poli atau dokter…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      border: 'none',
+                      outline: 'none',
+                      background: 'transparent',
+                      fontSize: '0.8125rem',
+                      fontFamily: 'inherit',
+                      color: 'var(--color-neutral-900)',
+                    }}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      aria-label="Hapus pencarian"
+                      style={{ border: 'none', background: 'transparent', color: 'var(--color-neutral-400)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Schedule results */}
-            {isLoadingSchedules ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3.5rem 1rem', gap: '0.75rem' }}>
-                <Loader2 size={30} style={{ color: 'var(--color-primary-400)', animation: 'lf-spin 1s linear infinite' }} />
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-neutral-400)', margin: 0 }}>Memuat jadwal…</p>
-              </div>
-            ) : filteredSchedules.length > 0 ? (
-              <div className="lf-schedule-scroll">
-                <div className="lf-schedule-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginTop: '1rem', paddingBottom: '0.25rem' }}>
+              {isLoadingSchedules ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', gap: '0.75rem' }}>
+                  <Loader2 size={28} style={{ color: 'var(--color-primary-600)', animation: 'lf-spin 1s linear infinite' }} />
+                  <p style={{ fontSize: '0.875rem', color: 'var(--color-neutral-500)', margin: 0 }}>Memuat jadwal dokter…</p>
+                </div>
+              ) : filteredSchedules.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                   {filteredSchedules.map((sched, i) => {
                     const sel = selectedSchedule === sched;
                     return (
                       <button
                         key={i}
                         type="button"
-                        onClick={() => setSelectedSchedule(sched)}
+                        onClick={() => {
+                          triggerHaptic();
+                          setSelectedSchedule(sched);
+                        }}
                         className={`lf-sched-card${sel ? ' lf-sched-card--sel' : ''}`}
                       >
-                        {/* Icon */}
                         <div className={`lf-sched-icon${sel ? ' lf-si-sel' : ''}`}>
-                          <Stethoscope size={17} />
+                          <Stethoscope size={18} />
                         </div>
-
-                        {/* Content */}
                         <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                          <p className={`lf-sched-poli${sel ? ' lf-sched-poli--sel' : ''}`}
-                            style={{ fontSize: '0.9375rem', fontWeight: 700, fontFamily: 'var(--font-figtree)', color: sel ? 'var(--color-primary-800)' : 'var(--color-neutral-900)', margin: 0 }}
-                          >{sched.nm_poli}</p>
-
-                          <p className="lf-sched-dokter" style={{ fontSize: '0.8125rem', color: 'var(--color-neutral-500)', margin: '3px 0 0' }}>{sched.nm_dokter}</p>
-
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '5px', flexWrap: 'wrap' }}>
+                          <p style={{ fontSize: '0.9375rem', fontWeight: 700, fontFamily: 'var(--font-figtree)', color: sel ? 'var(--color-primary-900)' : 'var(--color-neutral-900)', margin: 0 }}>{sched.nm_poli}</p>
+                          <p style={{ fontSize: '0.8125rem', color: 'var(--color-neutral-600)', margin: '2px 0 0' }}>{sched.nm_dokter}</p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '4px' }}>
                             <span className="lf-sched-time">
-                              <Clock size={10} style={{ flexShrink: 0 }} />
-                              {sched.jam_mulai.substring(0, 5)} – {sched.jam_selesai.substring(0, 5)}
+                              <Clock size={11} /> {sched.jam_mulai.substring(0, 5)} – {sched.jam_selesai.substring(0, 5)}
                             </span>
-                            {sched.kuota > 0 && (
-                              <span className="lf-sched-kuota">{sched.kuota} slot</span>
-                            )}
+                            {sched.kuota > 0 && <span className="lf-sched-kuota">{sched.kuota} slot</span>}
                           </div>
                         </div>
-
-                        {/* Radio indicator */}
                         <div className={`lf-sched-radio${sel ? ' lf-sr-sel' : ''}`}>
                           {sel && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fff' }} />}
                         </div>
@@ -927,25 +960,26 @@ export default function LamaForm() {
                     );
                   })}
                 </div>
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-neutral-50)', borderRadius: '12px', border: '1.5px dashed var(--color-neutral-200)', marginTop: '1rem' }}>
-                {searchQuery ? (
-                  <>
-                    <Search size={26} style={{ color: 'var(--color-neutral-300)', marginBottom: '0.625rem' }} />
-                    <p style={{ color: 'var(--color-neutral-500)', fontSize: '0.9rem', margin: '0 0 0.75rem' }}>Tidak ada hasil untuk &quot;{searchQuery}&quot;</p>
-                    <button type="button" onClick={() => setSearchQuery('')} style={{ fontSize: '0.8125rem', color: 'var(--color-primary-600)', fontWeight: 600, border: 'none', background: 'transparent', cursor: 'pointer' }}>
-                      Reset Pencarian
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Calendar size={26} style={{ color: 'var(--color-neutral-300)', marginBottom: '0.625rem' }} />
-                    <p style={{ color: 'var(--color-neutral-500)', fontSize: '0.9rem', margin: 0 }}>Tidak ada jadwal dokter pada tanggal ini.</p>
-                  </>
-                )}
-              </div>
-            )}
+              ) : (
+                <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'var(--color-neutral-50)', borderRadius: '12px', border: '1.5px dashed var(--color-neutral-200)' }}>
+                  <Calendar size={24} style={{ color: 'var(--color-neutral-400)', marginBottom: '0.5rem' }} />
+                  <p style={{ color: 'var(--color-neutral-600)', fontSize: '0.875rem', margin: 0 }}>Tidak ada jadwal dokter pada tanggal ini.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Bottom Sheet Modal Component */}
+            <MobileBottomSheet
+              isOpen={isBottomSheetOpen}
+              onClose={() => setIsBottomSheetOpen(false)}
+              title="Pilih Poliklinik & Dokter"
+              searchQuery={searchQuery}
+              onSearchChange={(q) => setSearchQuery(q)}
+              schedules={filteredSchedules}
+              selectedSchedule={selectedSchedule}
+              onSelectSchedule={(sched) => setSelectedSchedule(sched)}
+              isLoading={isLoadingSchedules}
+            />
           </div>
         )}
 
@@ -953,49 +987,88 @@ export default function LamaForm() {
           <Turnstile onVerify={(token) => setCaptchaToken(token)} />
         </div>
 
-        {/* ── Actions ── */}
+        {/* ── Form Actions Sticky Mobile Footer ── */}
         <div className="lf-form-footer">
           <PrimaryBtn onClick={handleBooking} disabled={!selectedSchedule || isSubmitting}>
-            {isSubmitting ? <><Loader2 size={16} style={{ animation: 'lf-spin 1s linear infinite' }} /> Memproses…</> : <>Konfirmasi Booking <ArrowRight size={16} /></>}
+            {isSubmitting ? (
+              <><Loader2 size={16} style={{ animation: 'lf-spin 1s linear infinite' }} /> Memproses…</>
+            ) : (
+              <>Konfirmasi Booking <ArrowRight size={16} /></>
+            )}
           </PrimaryBtn>
           <GhostBtn onClick={handleCancel}>
             <ArrowLeft size={16} /> Batal
           </GhostBtn>
         </div>
+
+        <LamaStyles />
       </div>
     );
   }
 
-  /* ── Step 1: Verify ── */
+  /* ── Step 1: Patient Verification ── */
   return (
-    <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {error && (
-        <div style={{ 
-          background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '12px', padding: '1rem', 
-          display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: '#991b1b',
-          animation: 'lf-slideDown 300ms ease'
-        }}>
-          <AlertTriangle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
-          <div style={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.5 }}>{error}</div>
+    <form onSubmit={handleVerify} className="lf-verify-form" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <MobileStepHeader
+        currentStep={1}
+        totalSteps={2}
+        stepTitle="Verifikasi Identitas Pasien"
+        showBack={false}
+      />
+
+      <div className="lf-verify-card">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <FieldGroup label="Nomor KTP (NIK)" required hint="16 digit NIK sesuai e-KTP.">
+            <input
+              id="no_ktp"
+              name="no_ktp"
+              type="number"
+              required
+              placeholder="16 digit angka NIK"
+              style={inputStyle}
+              className="lf-input"
+            />
+          </FieldGroup>
+
+          <FieldGroup label="Tanggal Lahir" required hint="Sesuai data rekam medis Anda.">
+            <input
+              id="tgl_lahir"
+              name="tgl_lahir"
+              type="date"
+              required
+              style={inputStyle}
+              className="lf-input"
+            />
+          </FieldGroup>
         </div>
-      )}
-      <FieldGroup label="Nomor KTP (NIK)" required>
-        <input id="no_ktp" name="no_ktp" type="number" required placeholder="16 digit angka" style={inputStyle} className="lf-input" />
-      </FieldGroup>
 
-      <FieldGroup label="Tanggal Lahir" required hint="Sesuai data rekam medis Anda.">
-        <input id="tgl_lahir" name="tgl_lahir" type="date" required style={inputStyle} className="lf-input" />
-      </FieldGroup>
+        <div className="lf-turnstile-wrapper">
+          <Turnstile onVerify={(token) => setCaptchaToken(token)} />
+        </div>
 
-      <div style={{ marginTop: '0.5rem' }}>
-        <Turnstile onVerify={(token) => setCaptchaToken(token)} />
+        {error && (
+          <div className="lf-error-banner" style={{
+            background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '10px', padding: '0.625rem 0.875rem',
+            display: 'flex', alignItems: 'center', gap: '0.625rem', color: '#991b1b',
+            animation: 'lf-slideDown 300ms ease', marginTop: '0.25rem'
+          }}>
+            <AlertTriangle size={16} style={{ flexShrink: 0 }} />
+            <div style={{ fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.4 }}>{error}</div>
+          </div>
+        )}
       </div>
 
-      <div className="lf-form-footer" style={{ borderTop: 'none', paddingTop: '0.5rem' }}>
+      <div className="lf-form-footer">
         <PrimaryBtn type="submit" disabled={isSubmitting}>
-          {isSubmitting ? <><Loader2 size={16} style={{ animation: 'lf-spin 1s linear infinite' }} /> Memverifikasi...</> : <>Verifikasi Data <ArrowRight size={16} /></>}
+          {isSubmitting ? (
+            <><Loader2 size={16} style={{ animation: 'lf-spin 1s linear infinite' }} /> Memverifikasi...</>
+          ) : (
+            <>Verifikasi Data <ArrowRight size={16} /></>
+          )}
         </PrimaryBtn>
-        <GhostBtn onClick={() => router.back()}><ArrowLeft size={16} /> Kembali</GhostBtn>
+        <GhostBtn onClick={() => router.back()}>
+          <ArrowLeft size={16} /> Kembali
+        </GhostBtn>
       </div>
 
       <LamaStyles />

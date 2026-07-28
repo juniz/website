@@ -47,8 +47,8 @@ export default function QrDisplay({ token }: QrDisplayProps) {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-        <Loader2 size={36} style={{ color: 'var(--color-primary-400)', animation: 'qr-spin 1s linear infinite', marginBottom: '1rem' }} />
-        <p style={{ color: 'var(--color-neutral-500)', fontSize: '0.9375rem' }}>Memuat status QR Code...</p>
+        <Loader2 size={36} style={{ color: 'var(--color-primary-600)', animation: 'qr-spin 1s linear infinite', marginBottom: '1rem' }} />
+        <p style={{ color: 'var(--color-neutral-600)', fontSize: '0.9375rem', fontWeight: 500 }}>Memuat status QR Code...</p>
         <style>{`@keyframes qr-spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }`}</style>
       </div>
     );
@@ -62,11 +62,11 @@ export default function QrDisplay({ token }: QrDisplayProps) {
           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', borderRadius: '50%', background: '#FEE2E2', marginBottom: '1rem' }}>
             <AlertCircle size={28} style={{ color: '#DC2626' }} />
           </div>
-          <h2 style={{ fontSize: '1.375rem', fontWeight: 700, fontFamily: 'var(--font-figtree)', color: '#991B1B', marginBottom: '0.5rem' }}>QR Code Tidak Valid</h2>
+          <h2 style={{ fontSize: '1.375rem', fontWeight: 800, fontFamily: 'var(--font-figtree)', color: '#991B1B', marginBottom: '0.5rem' }}>QR Code Tidak Valid</h2>
           <p style={{ color: '#B91C1C', fontSize: '0.9375rem' }}>Token tidak ditemukan atau sudah kedaluwarsa.</p>
         </div>
         <div style={{ padding: '1.75rem' }}>
-          <Link href="/pendaftaran" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.875rem', background: 'var(--color-primary-600)', color: '#fff', borderRadius: '10px', fontWeight: 700, fontFamily: 'var(--font-figtree)', textDecoration: 'none', fontSize: '0.9375rem', boxShadow: '0 4px 14px rgba(24,95,165,0.3)' }}>
+          <Link href="/pendaftaran" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', minHeight: '48px', padding: '0.875rem', background: 'var(--color-cta)', color: 'var(--color-cta-text)', borderRadius: '12px', fontWeight: 800, fontFamily: 'var(--font-figtree)', textDecoration: 'none', fontSize: '0.9375rem', boxShadow: '0 4px 14px rgba(255,183,3,0.35)' }}>
             Kembali ke Pendaftaran <ArrowRight size={16} />
           </Link>
         </div>
@@ -86,7 +86,7 @@ export default function QrDisplay({ token }: QrDisplayProps) {
           <p style={{ color: '#047857', fontSize: '0.9375rem' }}>Data Anda telah masuk ke sistem antrean Rumah Sakit.</p>
         </div>
         <div style={{ padding: '1.75rem' }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.875rem', background: 'var(--color-primary-600)', color: '#fff', borderRadius: '10px', fontWeight: 700, fontFamily: 'var(--font-figtree)', textDecoration: 'none', fontSize: '0.9375rem', boxShadow: '0 4px 14px rgba(24,95,165,0.3)' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', minHeight: '48px', padding: '0.875rem', background: 'var(--color-cta)', color: 'var(--color-cta-text)', borderRadius: '12px', fontWeight: 800, fontFamily: 'var(--font-figtree)', textDecoration: 'none', fontSize: '0.9375rem', boxShadow: '0 4px 14px rgba(255,183,3,0.35)' }}>
             <Home size={16} /> Kembali ke Beranda
           </Link>
         </div>
@@ -102,11 +102,11 @@ export default function QrDisplay({ token }: QrDisplayProps) {
           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', borderRadius: '50%', background: '#FEE2E2', marginBottom: '1rem' }}>
             <AlertCircle size={28} style={{ color: '#DC2626' }} />
           </div>
-          <h2 style={{ fontSize: '1.375rem', fontWeight: 700, fontFamily: 'var(--font-figtree)', color: '#991B1B', marginBottom: '0.5rem' }}>QR Code Kedaluwarsa</h2>
+          <h2 style={{ fontSize: '1.375rem', fontWeight: 800, fontFamily: 'var(--font-figtree)', color: '#991B1B', marginBottom: '0.5rem' }}>QR Code Kedaluwarsa</h2>
           <p style={{ color: '#B91C1C', fontSize: '0.9375rem' }}>Masa berlaku QR Code ini sudah habis (maks. 3 hari). Silakan daftar ulang.</p>
         </div>
         <div style={{ padding: '1.75rem' }}>
-          <Link href="/pendaftaran" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.875rem', background: 'var(--color-primary-600)', color: '#fff', borderRadius: '10px', fontWeight: 700, fontFamily: 'var(--font-figtree)', textDecoration: 'none', fontSize: '0.9375rem', boxShadow: '0 4px 14px rgba(24,95,165,0.3)' }}>
+          <Link href="/pendaftaran" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', minHeight: '48px', padding: '0.875rem', background: 'var(--color-cta)', color: 'var(--color-cta-text)', borderRadius: '12px', fontWeight: 800, fontFamily: 'var(--font-figtree)', textDecoration: 'none', fontSize: '0.9375rem', boxShadow: '0 4px 14px rgba(255,183,3,0.35)' }}>
             Daftar Ulang <ArrowRight size={16} />
           </Link>
         </div>
@@ -116,10 +116,10 @@ export default function QrDisplay({ token }: QrDisplayProps) {
 
   /* ── Pending / Scanned — show QR ── */
   return (
-    <div style={{ background: '#fff', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(4,44,83,0.1)', border: '1px solid var(--color-neutral-200)' }}>
-      {/* QR Code */}
-      <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-        <div style={{ background: '#fff', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--color-neutral-200)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+    <div style={{ background: '#fff', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(4,44,83,0.1)', border: '1px solid var(--color-neutral-200)' }}>
+      {/* QR Code Card */}
+      <div style={{ padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+        <div style={{ background: '#fff', padding: '1.25rem', borderRadius: '20px', border: '2px solid var(--color-primary-100)', boxShadow: '0 8px 30px rgba(33,158,188,0.12)' }}>
           {token && (
             <QRCodeSVG value={token} size={220} level="H" includeMargin={false} />
           )}
@@ -127,21 +127,21 @@ export default function QrDisplay({ token }: QrDisplayProps) {
 
         {/* Status strip */}
         {status === STATUS.PENDING && (
-          <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '1rem 1.25rem', background: 'var(--color-primary-50)', border: '1px solid var(--color-primary-100)', borderRadius: '12px' }}>
-            <Loader2 size={18} style={{ color: 'var(--color-primary-500)', flexShrink: 0, animation: 'qr-spin 1s linear infinite' }} />
+          <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '1rem 1.25rem', background: 'var(--color-primary-50)', border: '1px solid var(--color-primary-100)', borderRadius: '14px' }}>
+            <Loader2 size={20} style={{ color: 'var(--color-primary-600)', flexShrink: 0, animation: 'qr-spin 1s linear infinite' }} />
             <div>
-              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-primary-800)', fontFamily: 'var(--font-figtree)', margin: 0 }}>Menunggu proses scan di loket...</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-600)', margin: 0, marginTop: '2px' }}>Halaman ini akan otomatis diperbarui.</p>
+              <p style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--color-primary-900)', fontFamily: 'var(--font-figtree)', margin: 0 }}>Menunggu scan di loket...</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-600)', margin: '2px 0 0' }}>Halaman ini akan otomatis diperbarui.</p>
             </div>
           </div>
         )}
 
         {status === STATUS.SCANNED && (
-          <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '1rem 1.25rem', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '12px' }}>
-            <Loader2 size={18} style={{ color: '#D97706', flexShrink: 0, animation: 'qr-spin 1s linear infinite' }} />
+          <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '1rem 1.25rem', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '14px' }}>
+            <Loader2 size={20} style={{ color: '#D97706', flexShrink: 0, animation: 'qr-spin 1s linear infinite' }} />
             <div>
-              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#92400E', fontFamily: 'var(--font-figtree)', margin: 0 }}>QR Code sedang diproses oleh petugas...</p>
-              <p style={{ fontSize: '0.75rem', color: '#B45309', margin: 0, marginTop: '2px' }}>Harap tunggu sebentar.</p>
+              <p style={{ fontSize: '0.875rem', fontWeight: 800, color: '#92400E', fontFamily: 'var(--font-figtree)', margin: 0 }}>QR Code sedang diproses petugas...</p>
+              <p style={{ fontSize: '0.75rem', color: '#B45309', margin: '2px 0 0' }}>Harap tunggu sebentar.</p>
             </div>
           </div>
         )}
