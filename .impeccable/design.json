@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-06T00:00:00+07:00",
+  "title": "Design System: RS Bhayangkara Nganjuk",
+  "extensions": {
+    "colorMeta": {
+      "deep-navy": { "role": "primary", "displayName": "Deep Navy", "canonical": "#023047", "tonalRamp": ["#031522", "#05283b", "#073d56", "#075875", "#0b7690", "#4fa7bb", "#9bd3df", "#e8f4fa"] },
+      "deep-blue": { "role": "primary", "displayName": "Deep Blue", "canonical": "#04699b", "tonalRamp": ["#021623", "#062e42", "#064b68", "#05678a", "#1786a9", "#5bb6c8", "#a8dce5", "#e8f4fa"] },
+      "clinical-teal": { "role": "primary", "displayName": "Clinical Teal", "canonical": "#219ebc", "tonalRamp": ["#06202a", "#073e4e", "#075d70", "#087b91", "#219ebc", "#69c5d4", "#a9e1e8", "#ceeef6"] },
+      "sky-blue": { "role": "primary", "displayName": "Sky Blue", "canonical": "#8ecae6", "tonalRamp": ["#102b36", "#204b5b", "#3c7183", "#5f9aac", "#8ecae6", "#acd9eb", "#cbe8f3", "#e8f4fa"] },
+      "amber-cta": { "role": "secondary", "displayName": "Amber Signal", "canonical": "#ffb703", "tonalRamp": ["#3c2900", "#705000", "#a47500", "#d09500", "#ffb703", "#ffc943", "#ffdf87", "#fff1cd"] },
+      "paper": { "role": "neutral", "displayName": "Clinical Paper", "canonical": "#ffffff", "tonalRamp": ["#1a1a1a", "#3a3a39", "#5f5e5a", "#8c8b86", "#b7b6b0", "#d3d1c7", "#e9e8e3", "#ffffff"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Figtree Display", "purpose": "Hero headlines and high-level patient orientation." },
+      "body": { "displayName": "Inter Body", "purpose": "Readable explanations, metadata, and form content." }
+    },
+    "shadows": [
+      { "name": "sticky-navigation", "value": "0 2px 20px rgba(4, 44, 83, 0.5)", "purpose": "Persistent navigation after scroll." },
+      { "name": "interactive-lift", "value": "0 4px 16px rgba(55, 138, 221, 0.35)", "purpose": "Subtle hover confirmation on interactive controls." },
+      { "name": "mobile-sheet", "value": "0 -10px 40px rgba(2, 48, 71, 0.2)", "purpose": "Separate a mobile task sheet from page content." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)", "purpose": "Default responsive interaction and reveal easing." },
+      { "name": "fast-state", "value": "150ms", "purpose": "Button, link, focus, and navigation state changes." },
+      { "name": "scroll-reveal", "value": "600ms", "purpose": "Section entrance motion; disabled by reduced-motion preference." }
+    ],
+    "breakpoints": [
+      { "name": "tablet", "value": "768px" },
+      { "name": "desktop", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary clinical action for ordinary high-priority interactions.",
+      "html": "<button class=\"ds-btn-primary\">Lihat Jadwal</button>",
+      "css": ".ds-btn-primary { background: var(--color-accent-teal); color: #fff; padding: 0.6875rem 1.75rem; min-height: 48px; border: 1.5px solid var(--color-accent-teal); border-radius: 8px; font: 500 0.9375rem/1.2 Inter, system-ui, sans-serif; transition: background-color 150ms ease-out, box-shadow 150ms ease-out, transform 100ms ease-out; } .ds-btn-primary:hover { background: var(--color-primary-800); border-color: var(--color-primary-800); box-shadow: 0 4px 16px rgba(55, 138, 221, 0.35); } .ds-btn-primary:focus-visible { outline: 2.5px solid var(--color-primary-400); outline-offset: 2px; } .ds-btn-primary:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "Registration CTA",
+      "kind": "button",
+      "refersTo": "button-cta",
+      "description": "Warm, unmistakable action for online registration and booking.",
+      "html": "<button class=\"ds-btn-cta\">Daftar Sekarang</button>",
+      "css": ".ds-btn-cta { background: var(--color-cta); color: var(--color-cta-text); padding: 0.6875rem 1.75rem; min-height: 48px; border: 1.5px solid var(--color-cta); border-radius: 8px; font: 600 0.9375rem/1.2 Figtree, system-ui, sans-serif; transition: background-color 150ms ease-out, box-shadow 150ms ease-out, transform 100ms ease-out; } .ds-btn-cta:hover { background: var(--color-cta-dark); border-color: var(--color-cta-dark); box-shadow: 0 4px 16px rgba(208, 149, 0, 0.3); } .ds-btn-cta:focus-visible { outline: 2.5px solid var(--color-primary-400); outline-offset: 2px; } .ds-btn-cta:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Quietly elevated container for services, doctors, news, and supporting information.",
+      "html": "<article class=\"ds-card\"><h3>Poli Anak</h3><p>Informasi layanan dan jadwal.</p></article>",
+      "css": ".ds-card { background: var(--color-surface); color: var(--color-neutral-900); padding: 1rem; border-radius: 16px; border: 1px solid var(--color-primary-100); box-shadow: 0 1px 0 rgba(2, 48, 71, 0.04); } .ds-card h3 { margin: 0 0 0.5rem; font: 600 1.125rem/1.3 Figtree, system-ui, sans-serif; } .ds-card p { margin: 0; color: var(--color-neutral-600); font: 400 0.875rem/1.65 Inter, system-ui, sans-serif; }"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Compact, readable field for patient and administrative forms.",
+      "html": "<label class=\"ds-field\"><span>Nama lengkap</span><input placeholder=\"Nama lengkap\" /></label>",
+      "css": ".ds-field { display: grid; gap: 0.375rem; color: var(--color-neutral-900); font: 600 0.8125rem/1.2 Figtree, system-ui, sans-serif; } .ds-field input { width: 100%; min-height: 40px; padding: 0.5rem 0.625rem; border: 1.5px solid var(--color-neutral-200); border-radius: 10px; background: var(--color-surface); color: var(--color-neutral-900); font: 400 0.875rem/1.4 Inter, system-ui, sans-serif; transition: border-color 150ms ease-out, box-shadow 150ms ease-out; } .ds-field input:hover { border-color: var(--color-primary-400); } .ds-field input:focus-visible { border-color: var(--color-accent-teal); outline: 2.5px solid var(--color-primary-400); outline-offset: 2px; }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Sticky deep-blue orientation bar with active-route clarity.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-active\" href=\"#\">Beranda</a><a href=\"#\">Dokter</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 0.25rem; align-items: center; padding: 0.75rem 1rem; background: var(--color-primary-800); } .ds-nav a { padding: 0.5rem 0.75rem; border-radius: 6px; color: var(--color-primary-200); text-decoration: none; font: 500 0.875rem/1.2 Figtree, system-ui, sans-serif; transition: color 150ms ease-out, background-color 150ms ease-out; } .ds-nav a:hover, .ds-nav-active { color: var(--color-primary-50) !important; background: rgba(255, 255, 255, 0.08); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Trusted Clinical Beacon",
+    "overview": "The interface presents the hospital as a dependable point of orientation: calm enough to reduce anxiety, direct enough to help patients act quickly, and precise enough to support real care decisions. It uses a light clinical canvas with a deep navy anchor, a sky-blue information scale, and a warm amber action signal.\n\nThe visual language is simple, modern, and professional. It favors clear hierarchy, familiar web patterns, and practical density over ornament. Rounded controls and cards soften the clinical setting without becoming luxurious; motion is brief and functional, used to reveal content and confirm state rather than entertain.",
+    "keyCharacteristics": ["Deep navy structure with sky-blue information accents", "Amber reserved for high-value patient actions", "Figtree headings paired with Inter body copy", "Rounded, touch-friendly controls and restrained depth", "Clear, non-luxurious and non-playful clinical presentation"],
+    "rules": [
+      { "name": "The Amber Signal Rule", "body": "Amber should identify a patient action or meaningful warning, never become a general decorative wash.", "section": "colors" },
+      { "name": "The Two-Voice Rule", "body": "Use Figtree to orient and Inter to explain; do not turn body copy into display typography.", "section": "typography" },
+      { "name": "The Calm Depth Rule", "body": "Elevation should clarify hierarchy or state; never use large, glossy shadows to simulate luxury.", "section": "elevation" }
+    ],
+    "dos": ["Do use deep navy to establish trust and structure.", "Do reserve amber for actions, warnings, and moments that deserve attention.", "Do keep headings in Figtree and explanatory copy in Inter.", "Do preserve visible focus states and touch-friendly minimum heights.", "Do use tonal layering and restrained shadows to keep the interface calm."],
+    "donts": ["Don't introduce luxury cues such as metallic finishes, ornate typography, or glossy gradients.", "Don't add playful illustrations, novelty motion, or decorative clutter that competes with care information.", "Don't make the interface bureaucratic with dense tables, unexplained labels, or long unbroken instruction blocks.", "Don't use amber as a general background or treat danger colors as brand accents.", "Don't remove the active route, skip link, or keyboard focus signals in pursuit of minimalism."]
+  }
+}
