@@ -128,7 +128,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
             >
               <Image
                 src="/images/logo/rs.png"
-                alt="Logo RS"
+                alt=""
                 width={34}
                 height={34}
                 style={{ objectFit: 'contain' }}
@@ -180,7 +180,9 @@ export default function Navbar({ data, pageStatuses = [] }) {
                     borderRadius: '6px',
                     borderBottom: isActive ? '1.5px solid var(--color-primary-400)' : '1.5px solid transparent',
                     transition: 'color 150ms ease-out, border-color 150ms ease-out, background 150ms ease-out',
-                    display: 'block',
+                    display: 'flex',
+                    minHeight: '44px',
+                    alignItems: 'center',
                   }}
                   className="nav-link"
                 >
@@ -207,7 +209,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
                   fontWeight: 500,
                   textDecoration: 'none',
                   transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out',
-                  minHeight: '40px',
+                  minHeight: '44px',
                 }}
                 className="nav-cta"
               >
@@ -267,6 +269,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
         role="dialog"
         aria-label="Menu navigasi"
         aria-modal="true"
+        aria-hidden={!menuOpen}
         style={{
           position: 'fixed',
           top: '64px',
@@ -299,12 +302,14 @@ export default function Navbar({ data, pageStatuses = [] }) {
                 fontWeight: 500,
                 color: isActive ? 'var(--color-primary-50)' : 'var(--color-primary-200)',
                 textDecoration: 'none',
-                padding: '0.875rem 1rem',
+                padding: '0.75rem 1rem',
                 borderRadius: '8px',
                 background: isActive ? 'rgba(133, 183, 235, 0.1)' : 'transparent',
-                borderLeft: isActive ? '3px solid var(--color-primary-400)' : '3px solid transparent',
+                boxShadow: isActive ? 'inset 3px 0 var(--color-primary-400)' : 'none',
                 transition: 'background 150ms ease-out, color 150ms ease-out',
-                display: 'block',
+                display: 'flex',
+                alignItems: 'center',
+                minHeight: '44px',
               }}
             >
               {link.label}
@@ -324,7 +329,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
               padding: '0.875rem 1rem',
               borderRadius: '10px',
               backgroundColor: 'var(--color-primary-600)',
-              color: '#ffffff',
+              color: 'var(--color-primary-50)',
               fontSize: '0.9375rem',
               fontWeight: 600,
               textDecoration: 'none',
@@ -352,9 +357,8 @@ export default function Navbar({ data, pageStatuses = [] }) {
             lineHeight: 1.6,
           }}
         >
-          <div>📍 {data?.address || 'Nganjuk, Jawa Timur 64418'}</div>
-          <div style={{ marginTop: '0.25rem' }}>📞 {data?.phone || '(0358) XXXXXX'}</div>
-          <div style={{ marginTop: '0.25rem' }}>🏥 IGD 24 Jam Siaga</div>
+          {data?.address && <div>Alamat: {data.address}</div>}
+          {data?.phone && <div style={{ marginTop: '0.25rem' }}>Telepon: {data.phone}</div>}
         </div>
       </div>
 

@@ -43,7 +43,7 @@ export default async function SchedulePreview() {
           <Link
             href="/schedule"
             style={{
-              fontSize: '0.8125rem',
+              fontSize: '0.75rem',
               color: 'var(--color-primary-600)',
               textDecoration: 'none',
               display: 'flex',
@@ -77,14 +77,14 @@ export default async function SchedulePreview() {
               <div
                 key={row.id}
                 style={{
-                  background: '#ffffff',
-                  borderRadius: '14px',
+                  background: 'var(--color-neutral-50)',
+                  borderRadius: '12px',
                   border: '1px solid var(--color-neutral-200)',
                   padding: '1.25rem 1.5rem',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '1rem',
-                  transition: 'all 200ms ease-out',
+                  transition: 'border-color 200ms ease-out, box-shadow 200ms ease-out, transform 200ms ease-out',
                 }}
                 className="schedule-card-row"
               >
@@ -100,7 +100,7 @@ export default async function SchedulePreview() {
                 >
                   {/* Doctor details & tags */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-neutral-900)', fontFamily: 'var(--font-figtree, Figtree, sans-serif)' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-neutral-900)', fontFamily: 'var(--font-figtree, Figtree, sans-serif)' }}>
                       {row.doctorName}
                     </span>
                     <span
@@ -161,12 +161,12 @@ export default async function SchedulePreview() {
                           borderRadius: '8px',
                           background: 'var(--color-cta)',
                           color: 'var(--color-cta-text)',
-                          fontSize: '0.8125rem',
+                          fontSize: '0.75rem',
                           fontWeight: 700,
                           textDecoration: 'none',
-                          transition: 'all 150ms ease-out',
+                          transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out',
                           boxShadow: '0 2px 6px rgba(255, 183, 3, 0.2)',
-                          minHeight: '34px',
+                          minHeight: '44px',
                         }}
                         className="schedule-card-daftar-btn"
                         aria-label={`Daftar ke ${row.doctorName}`}
@@ -182,11 +182,11 @@ export default async function SchedulePreview() {
                           borderRadius: '8px',
                           background: 'var(--color-neutral-200)',
                           color: 'var(--color-neutral-600)',
-                          fontSize: '0.8125rem',
+                          fontSize: '0.75rem',
                           fontWeight: 600,
                           opacity: 0.7,
                           cursor: 'not-allowed',
-                          minHeight: '34px',
+                          minHeight: '44px',
                         }}
                       >
                         Penuh
@@ -204,7 +204,7 @@ export default async function SchedulePreview() {
                     </span>
                   </div>
                   <div style={{ width: '100%', height: '6px', background: 'var(--color-primary-50)', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ width: `${percent}%`, height: '100%', background: isFull ? 'var(--color-danger)' : 'var(--color-primary-600)', borderRadius: '3px', transition: 'width 0.4s ease-out' }} />
+                    <div style={{ width: '100%', height: '100%', background: isFull ? 'var(--color-danger)' : 'var(--color-primary-600)', borderRadius: '3px', transform: `scaleX(${percent / 100})`, transformOrigin: 'left center', transition: 'transform 0.4s ease-out' }} />
                   </div>
                 </div>
               </div>

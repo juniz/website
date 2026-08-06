@@ -33,7 +33,7 @@ export default async function NewsPreview() {
           <Link
             href="/news"
             style={{
-              fontSize: '0.8125rem',
+              fontSize: '0.75rem',
               color: 'var(--color-primary-600)',
               textDecoration: 'none',
               display: 'flex',
@@ -80,11 +80,11 @@ export default async function NewsPreview() {
               borderRadius: '12px',
               border: '1.5px solid var(--color-primary-200)',
               color: 'var(--color-primary-600)',
-              fontSize: '0.9375rem',
+              fontSize: '0.875rem',
               fontWeight: 600,
               textDecoration: 'none',
-              transition: 'all 200ms ease-out',
-              backgroundColor: '#ffffff',
+              transition: 'border-color 200ms ease-out, background-color 200ms ease-out, transform 200ms ease-out, box-shadow 200ms ease-out',
+              backgroundColor: 'var(--color-neutral-50)',
               boxShadow: '0 2px 8px rgba(33, 158, 188, 0.08)',
             }}
             className="news-see-all-btn"

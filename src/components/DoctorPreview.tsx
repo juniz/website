@@ -33,7 +33,7 @@ export default async function DoctorPreview() {
           <Link
             href="/doctors"
             style={{
-              fontSize: '0.8125rem',
+              fontSize: '0.75rem',
               color: 'var(--color-primary-600)',
               textDecoration: 'none',
               display: 'flex',
@@ -82,10 +82,10 @@ export default async function DoctorPreview() {
               borderRadius: '12px',
               backgroundColor: 'var(--color-cta)',
               color: 'var(--color-cta-text)',
-              fontSize: '0.9375rem',
+              fontSize: '0.875rem',
               fontWeight: 700,
               textDecoration: 'none',
-              transition: 'all 200ms ease-out',
+              transition: 'border-color 200ms ease-out, box-shadow 200ms ease-out, transform 200ms ease-out',
               boxShadow: '0 4px 14px rgba(255, 183, 3, 0.25)',
             }}
             className="doctors-see-all-btn"

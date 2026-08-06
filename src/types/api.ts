@@ -19,9 +19,7 @@ export interface ConsentResult {
 export interface Patient {
   no_rkm_medis: string;
   nm_pasien: string;
-  no_ktp: string;
-  tgl_lahir: string;
-  // potentially other fields returned by SIMRS
+  verification_token: string;
 }
 
 export interface Schedule {
@@ -243,5 +241,3 @@ export interface Doctor {
   image?: string | null;
   [key: string]: any;
 }
-
-

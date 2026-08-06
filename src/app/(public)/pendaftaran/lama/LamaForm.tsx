@@ -567,10 +567,10 @@ export default function LamaForm() {
     triggerHaptic(20);
     setIsSubmitting(true);
     const result = await submitBookingRegistrasi({
-      no_rkm_medis: verifiedPatient.no_rkm_medis,
       tanggal_periksa: selectedDate.iso,
       kd_dokter: selectedSchedule.kd_dokter,
       kd_poli: selectedSchedule.kd_poli,
+      verification_token: verifiedPatient.verification_token,
       captcha_token: captchaToken,
     });
     setIsSubmitting(false);
@@ -584,6 +584,11 @@ export default function LamaForm() {
       }
       setStep(4);
     } else {
+      if (result.message?.toLowerCase().includes('verification token')) {
+        handleCancel();
+        toast.error('Sesi verifikasi berakhir. Silakan verifikasi ulang.');
+        return;
+      }
       setError(result.message || 'Gagal melakukan booking.');
       toast.error(result.message || 'Gagal melakukan booking.');
     }

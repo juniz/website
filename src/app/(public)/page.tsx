@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
   
   return {
     title: seo?.meta_title || seo?.title || 'RS Bhayangkara Nganjuk — Layanan Kesehatan Terpercaya',
-    description: seo?.meta_description || seo?.description || 'Rumah sakit terakreditasi dengan 32+ dokter spesialis di Nganjuk. Daftar online, cek jadwal dokter, dan layanan IGD 24 jam.',
+    description: seo?.meta_description || seo?.description || 'Temukan layanan kesehatan, jadwal dokter, dan pendaftaran online RS Bhayangkara Nganjuk.',
     keywords: seo?.meta_keywords || seo?.keywords || [
       'rumah sakit Nganjuk',
       'RS Bhayangkara Nganjuk',
@@ -73,12 +73,7 @@ export default async function HomePage() {
       postalCode: '64411',
       addressCountry: 'ID',
     },
-    openingHours: ['Mo-Su 00:00-23:59'], // IGD 24 Jam
     hasMap: 'https://maps.google.com/?q=RS+Bhayangkara+Nganjuk',
-    medicalSpecialty: [
-      'Cardiology', 'Pediatrics', 'GeneralSurgery', 'Neurology', 'Obstetrics', 'Ophthalmology',
-    ],
-    numberOfBeds: 120,
     availableService: services.map(s => ({ '@type': 'MedicalTherapy', name: s.name })),
   };
 
@@ -88,11 +83,6 @@ export default async function HomePage() {
     '@type': 'WebSite',
     name: 'RS Bhayangkara Nganjuk',
     url: baseUrl,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${baseUrl}/search?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
   };
 
   return (

@@ -24,7 +24,7 @@ export default function ServiceGrid({ data = [] }: ServiceGridProps) {
               <p className="section-subtitle">Didukung tenaga medis spesialis berpengalaman</p>
             </div>
           </div>
-          <p style={{ color: 'var(--color-neutral-600)', fontSize: '0.9375rem', textAlign: 'center', padding: '3rem 0' }}>
+              <p style={{ color: 'var(--color-neutral-600)', fontSize: '0.875rem', textAlign: 'center', padding: '3rem 0' }}>
             Belum ada layanan tersedia saat ini.
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function ServiceGrid({ data = [] }: ServiceGridProps) {
           <Link
             href="/doctors"
             style={{
-              fontSize: '0.8125rem',
+              fontSize: '0.75rem',
               color: 'var(--color-primary-600)',
               textDecoration: 'none',
               display: 'flex',
@@ -90,16 +90,16 @@ export default function ServiceGrid({ data = [] }: ServiceGridProps) {
             >
               <article
                 style={{
-                  background: '#ffffff',
+                  background: 'var(--color-neutral-50)',
                   border: '1px solid var(--color-neutral-200)',
-                  borderLeft: '4px solid transparent',
+                  borderLeft: '1px solid var(--color-neutral-200)',
                   borderRadius: '12px',
                   padding: '1.25rem',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '0.875rem',
                   height: '100%',
-                  transition: 'all 200ms ease-out',
+                  transition: 'border-color 200ms ease-out, box-shadow 200ms ease-out, transform 200ms ease-out',
                 }}
                 className="service-card"
               >
@@ -131,7 +131,7 @@ export default function ServiceGrid({ data = [] }: ServiceGridProps) {
                         style={{ 
                           objectFit: 'contain' 
                         }} 
-                        unoptimized
+                        sizes="32px"
                       />
                     ) : (
                       <div style={{ width: 32, height: 32, background: 'rgba(0,0,0,0.05)', borderRadius: '4px' }} />
@@ -142,7 +142,7 @@ export default function ServiceGrid({ data = [] }: ServiceGridProps) {
                 <div>
                   <h3
                     style={{
-                      fontSize: '0.9375rem',
+                      fontSize: '0.875rem',
                       fontWeight: 700,
                       color: 'var(--color-neutral-900)',
                       lineHeight: 1.3,

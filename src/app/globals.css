@@ -357,7 +357,6 @@ p { line-height: 1.65; }
 
 /* ── Base (hidden state) ──────────────────────────────────── */
 .sr-base {
-  will-change: opacity, transform;
 }
 
 /* Variant: fade-up (default) */

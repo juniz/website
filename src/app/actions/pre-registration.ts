@@ -116,10 +116,10 @@ export async function getSchedulesByDay(day: string): Promise<{ success: boolean
 }
 
 export async function submitBookingRegistrasi(payload: {
-  no_rkm_medis: string;
   tanggal_periksa: string;
   kd_dokter: string;
   kd_poli: string;
+  verification_token: string;
   captcha_token: string;
 }): Promise<{ success: boolean; data?: BookingResult; message?: string }> {
   try {

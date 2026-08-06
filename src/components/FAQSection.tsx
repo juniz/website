@@ -60,7 +60,7 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
   if (data.length === 0) return null;
 
   return (
-    <section className="faq-section">
+    <section className="faq-section" aria-labelledby="faq-heading">
       <style>{`
         .faq-section {
           padding: 5rem 0;
@@ -208,7 +208,7 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
             Bantuan &amp; Informasi
           </div>
 
-          <h2 className="faq-heading">
+          <h2 className="faq-heading" id="faq-heading">
             Pertanyaan yang<br /><span>Sering Diajukan</span>
           </h2>
 

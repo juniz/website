@@ -151,7 +151,7 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
         /* ── Section wrapper ───────────────────────────────── */
         .ps-section {
           position: relative;
-          background: var(--color-neutral-50, #F8FAFC);
+          background: var(--color-neutral-50);
           overflow: hidden;
         }
 
@@ -164,9 +164,9 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
           height: 3px;
           background: linear-gradient(
             90deg,
-            var(--color-primary-400, #378ADD) 0%,
-            var(--color-primary-600, #185FA5) 50%,
-            var(--color-primary-400, #378ADD) 100%
+            var(--color-primary-400) 0%,
+            var(--color-primary-600) 50%,
+            var(--color-primary-400) 100%
           );
         }
 
@@ -202,9 +202,9 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
           align-items: center;
           gap: 6px;
           padding: 5px 14px;
-          background: var(--color-primary-50, #E6F1FB);
-          color: var(--color-primary-600, #185FA5);
-          border: 1px solid var(--color-primary-100, #B5D4F4);
+          background: var(--color-primary-50);
+          color: var(--color-primary-600);
+          border: 1px solid var(--color-primary-100);
           border-radius: 999px;
           font-size: 0.75rem;
           font-weight: 700;
@@ -217,15 +217,15 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
           font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
           font-size: clamp(1.5rem, 4vw, 2rem);
           font-weight: 700;
-          color: var(--color-primary-900, #042C53);
+          color: var(--color-primary-900);
           line-height: 1.25;
           letter-spacing: -0.01em;
           margin: 0;
         }
 
         .ps-subtitle {
-          font-size: 0.9375rem;
-          color: var(--color-neutral-600, #475569);
+          font-size: 0.875rem;
+          color: var(--color-neutral-600);
           line-height: 1.65;
           max-width: 560px;
           margin: 0;
@@ -273,12 +273,12 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
         }
 
         .ps-logo-link:focus-visible .ps-logo-card {
-          outline: 2.5px solid var(--color-primary-400, #378ADD);
+          outline: 2.5px solid var(--color-primary-400);
           outline-offset: 2px;
         }
 
         .ps-logo-link:not(.ps-logo-no-link):hover .ps-logo-card {
-          border-color: var(--color-primary-200, #85B7EB);
+          border-color: var(--color-primary-200);
           box-shadow: 0 6px 20px rgba(24, 95, 165, 0.12);
           transform: translateY(-2px);
         }
@@ -291,8 +291,8 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
           justify-content: center;
           gap: 0.625rem;
           padding: 1.25rem 1rem;
-          background: #ffffff;
-          border: 1px solid var(--color-neutral-200, #E2E8F0);
+          background: var(--color-neutral-50);
+          border: 1px solid var(--color-neutral-200);
           border-radius: 12px;
           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
           transition:
@@ -326,7 +326,7 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
           height: 52px;
           border-radius: 10px;
           background: var(--color-primary-50, #E6F1FB);
-          color: var(--color-primary-600, #185FA5);
+          color: var(--color-primary-600);
           font-size: 1.125rem;
           font-weight: 800;
           font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
@@ -336,9 +336,9 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
 
         /* Caption */
         .ps-logo-caption {
-          font-size: 0.6875rem;
+          font-size: 0.75rem;
           font-weight: 600;
-          color: var(--color-neutral-600, #475569);
+          color: var(--color-neutral-600);
           text-align: center;
           line-height: 1.3;
           max-width: 100%;
@@ -358,7 +358,7 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
           gap: 0.75rem 1.25rem;
           padding: 1rem 1.5rem;
           background: var(--color-primary-50, #E6F1FB);
-          border: 1px solid var(--color-primary-100, #B5D4F4);
+          border: 1px solid var(--color-primary-100);
           border-radius: 12px;
         }
 
@@ -366,9 +366,9 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-size: 0.8125rem;
+          font-size: 0.75rem;
           font-weight: 600;
-          color: var(--color-primary-600, #185FA5);
+          color: var(--color-primary-600);
           font-family: var(--font-figtree, 'Figtree', system-ui, sans-serif);
         }
 
@@ -377,7 +377,7 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
           width: 4px;
           height: 4px;
           border-radius: 50%;
-          background: var(--color-primary-200, #85B7EB);
+          background: var(--color-primary-200);
           flex-shrink: 0;
         }
 

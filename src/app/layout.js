@@ -56,9 +56,6 @@ export default function RootLayout({ children }) {
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
         {children}
         <Toaster position="top-center" richColors />
-      {/* impeccable-live-start */}
-<script src="http://localhost:8401/live.js?token=9b0faddb-2574-4f17-ab0b-a2cedece0d80"></script>
-{/* impeccable-live-end */}
 </body>
     </html>
   );

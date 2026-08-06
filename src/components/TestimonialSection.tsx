@@ -14,7 +14,7 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
     <section
       aria-labelledby="testimonials-heading"
       className="section-py"
-      style={{ background: 'var(--color-primary-900)', color: '#ffffff' }}
+      style={{ background: 'var(--color-primary-900)', color: 'var(--color-neutral-50)' }}
     >
       <div className="container-site">
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -22,7 +22,7 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
           <span className="section-badge-white">Testimoni Pasien</span>
           
           <div style={{ maxWidth: '600px', marginInline: 'auto', marginTop: '0.5rem' }}>
-            <h2 className="section-title" id="testimonials-heading" style={{ color: '#ffffff' }}>
+            <h2 className="section-title" id="testimonials-heading" style={{ color: 'var(--color-neutral-50)' }}>
               Apa Kata Pasien Kami?
             </h2>
             <p className="section-subtitle" style={{ color: 'var(--color-primary-200)' }}>
@@ -44,12 +44,11 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
                 borderRadius: '1rem',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
                 background: 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(12px)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '1.25rem',
                 position: 'relative',
-                transition: 'all 250ms ease-out',
+                transition: 'border-color 250ms ease-out, background-color 250ms ease-out, transform 250ms ease-out, box-shadow 250ms ease-out',
               }}
               className="testimonial-card"
             >
@@ -68,7 +67,7 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
                 ))}
               </div>
 
-              <p style={{ fontSize: '0.9375rem', color: 'rgba(255, 255, 255, 0.9)', fontStyle: 'italic', lineHeight: 1.8, position: 'relative', zIndex: 10 }}>
+              <p style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.9)', fontStyle: 'italic', lineHeight: 1.8, position: 'relative', zIndex: 10 }}>
                 &ldquo;{item.content}&rdquo;
               </p>
 
@@ -83,7 +82,7 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
                   alignItems: 'center', 
                   justifyContent: 'center', 
                   fontWeight: 'bold', 
-                  color: '#ffffff', 
+                  color: 'var(--color-neutral-50)',
                   fontSize: '0.875rem', 
                   overflow: 'hidden', 
                   position: 'relative' 
@@ -94,13 +93,13 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
                       alt={item.patient_name} 
                       fill 
                       style={{ objectFit: 'cover' }} 
-                      unoptimized 
+                      sizes="44px"
                     />
                   ) : item.patient_name?.charAt(0)}
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#ffffff' }}>{item.patient_name}</h4>
-                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-primary-200)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.patient_role}</p>
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-neutral-50)' }}>{item.patient_name}</h4>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-200)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.patient_role}</p>
                 </div>
               </div>
             </div>

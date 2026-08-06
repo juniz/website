@@ -34,11 +34,7 @@ interface HeroSectionProps {
  * CSS-only staggered entrance animations (no client JS needed).
  */
 export default function HeroSection({ data }: HeroSectionProps) {
-  const stats = data?.stats || [
-    { value: '32+', label: 'Dokter Spesialis' },
-    { value: '10', label: 'Poli Klinik' },
-    { value: '24/7', label: 'IGD Siaga' },
-  ];
+  const stats = data?.stats || [];
 
   const heroImageUrl = data?.image_url || 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=2053';
 
@@ -52,7 +48,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
-        color: '#fff',
+        color: 'var(--color-neutral-50)',
       }}
       className="hero-section-fhd"
     >
@@ -68,7 +64,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
         {/* Image — Optimized Next.js Image with priority loading */}
         <Image
           src={getImageUrl(heroImageUrl) || ''}
-          alt="RS Bhayangkara Nganjuk Hero Background"
+          alt=""
           fill
           priority
           quality={85}
@@ -116,7 +112,6 @@ export default function HeroSection({ data }: HeroSectionProps) {
               alignItems: 'center',
               gap: '0.4rem',
               background: 'rgba(33, 158, 188, 0.2)',
-              backdropFilter: 'blur(8px)',
               border: '1px solid rgba(33, 158, 188, 0.3)',
               color: 'var(--color-primary-100)',
               fontSize: '0.75rem',
@@ -138,7 +133,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
                 boxShadow: '0 0 10px var(--color-accent-teal)',
               }}
             />
-            {data?.accreditation || 'Terakreditasi Madya — RS Bhayangkara Nganjuk'}
+            {data?.accreditation || 'Pelayanan cepat dan terpercaya'}
           </div>
 
           {/* H1 */}
@@ -146,9 +141,9 @@ export default function HeroSection({ data }: HeroSectionProps) {
             id="hero-heading"
             className="hero-anim-title"
             style={{
-              fontSize: 'clamp(2.5rem, 6vw, 4.25rem)',
+              fontSize: 'clamp(2.25rem, 5vw, 3.75rem)',
               fontWeight: 800,
-              color: '#ffffff',
+              color: 'var(--color-neutral-50)',
               lineHeight: 1.05,
               marginBottom: '1.5rem',
               fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)',
@@ -157,9 +152,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
           >
             {data?.title || 'Kesehatan Anda,'}<br />
             <span style={{
-              background: 'linear-gradient(to right, #8ecae6, #bbdff0)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: 'var(--color-primary-200)',
             }}>
               {data?.title_accent || 'Prioritas Kami'}
             </span>
@@ -170,7 +163,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
             className="hero-anim-sub"
             style={{
               color: 'var(--color-primary-100)',
-              fontSize: 'clamp(1rem, 2vw, 1.125rem)',
+              fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
               lineHeight: 1.7,
               marginBottom: '2.5rem',
               maxWidth: '540px',
@@ -196,7 +189,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
                 fontSize: '1rem',
                 fontWeight: 700,
                 padding: '1rem 2rem',
-                borderRadius: '14px',
+                borderRadius: '12px',
                 textDecoration: 'none',
                 minHeight: '56px',
                 transition: 'background-color 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 300ms cubic-bezier(0.23, 1, 0.32, 1)',
@@ -220,16 +213,15 @@ export default function HeroSection({ data }: HeroSectionProps) {
                 alignItems: 'center',
                 gap: '0.625rem',
                 backgroundColor: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(10px)',
-                color: '#fff',
+                color: 'var(--color-neutral-50)',
                 fontSize: '1rem',
                 fontWeight: 600,
                 padding: '1rem 2rem',
-                borderRadius: '14px',
+                borderRadius: '12px',
                 border: '1.5px solid rgba(255,255,255,0.2)',
                 textDecoration: 'none',
                 minHeight: '56px',
-                transition: 'all 300ms ease-out',
+                transition: 'background-color 300ms ease-out, border-color 300ms ease-out, transform 300ms ease-out',
               }}
               className="hero-btn-outline"
             >
@@ -260,7 +252,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
                 <div style={{
                   fontSize: '2rem',
                   fontWeight: 800,
-                  color: '#fff',
+                  color: 'var(--color-neutral-50)',
                   fontFamily: 'var(--font-figtree, Figtree, sans-serif)',
                   lineHeight: 1,
                 }}>
@@ -290,9 +282,9 @@ export default function HeroSection({ data }: HeroSectionProps) {
             className="hero-trust-indicators hero-anim-trust"
           >
             {(data?.trust_indicators || [
-              { iconKey: 'hospital', label: 'BPJS Kesehatan' },
-              { iconKey: 'shield',   label: 'Data Terlindungi' },
-              { iconKey: 'award',    label: 'Akreditasi KARS' },
+                { iconKey: 'hospital', label: 'Layanan pasien' },
+                { iconKey: 'shield',   label: 'Informasi jelas' },
+                { iconKey: 'award',    label: 'Pendaftaran online' },
             ]).map((item) => {
               const TRUST_ICONS: Record<string, React.ComponentType<any>> = { hospital: Hospital, shield: ShieldCheck, award: Award };
               const Icon = TRUST_ICONS[item.iconKey] || ShieldCheck;
@@ -303,7 +295,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    fontSize: '0.8125rem',
+                    fontSize: '0.75rem',
                     color: 'var(--color-primary-100)',
                     fontWeight: 500,
                     opacity: 0.85,
