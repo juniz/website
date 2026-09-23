@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, X } from 'lucide-react';
+import { Search, X, Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { getScheduleStatus, scheduleFilters, getInitials } from '@/lib/data/shared';
+import { getLiveSchedules } from '@/lib/data/schedule';
 import { getImageUrl } from '@/lib/utils';
 import Badge from '@/components/ui/Badge';
 import PageHero from '@/components/PageHero';
@@ -19,6 +21,13 @@ interface DateStripOption {
   month: string;
   isToday: boolean;
   dateObj: Date;
+}
+
+function formatDateToIso(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 /* Days for the date strip (today + 6 days) */
@@ -55,34 +64,50 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
   const [selectedDay, setSelectedDay] = useState<number>(0);
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [schedules, setSchedules] = useState<DoctorSchedule[]>(initialSchedules);
+  const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
   const days = useMemo(() => buildDateStrip(), []);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const day = days[selectedDay];
+    if (!day) return;
+
+    const isoDate = formatDateToIso(day.dateObj);
+    let active = true;
+    setIsLoadingSchedules(true);
+
+    getLiveSchedules(isoDate)
+      .then((data) => {
+        if (active) {
+          setSchedules(data);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load live schedules:', err);
+        toast.error('Gagal memuat jadwal dokter terbaru');
+        if (active) {
+          setSchedules([]);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setIsLoadingSchedules(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedDay, days]);
 
   const visibleSchedule = useMemo(() => {
-    // Filter by the selected day string (Senin, Selasa, etc.)
-    let filtered = initialSchedules.filter((s) => {
-      if (!s.date) return false;
-      
-      const targetDay = days[selectedDay]?.labelFull?.toUpperCase();
-      const scheduleDate = s.date.trim().toUpperCase();
-      
-      // Exact match (e.g., "SENIN" === "SENIN")
-      if (scheduleDate === targetDay) return true;
-      
-      // Handle variations
-      if (targetDay === 'MINGGU' && scheduleDate === 'AKHAD') return true;
-      if (targetDay === 'JUMAT' && scheduleDate === "JUM'AT") return true;
-      
-      // If s.date is a full date string (e.g., "2024-05-11"), compare day name
-      try {
-        const d = new Date(s.date);
-        if (!isNaN(d.getTime())) {
-          const dayNamesFull = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
-          return dayNamesFull[d.getDay()] === targetDay;
-        }
-      } catch (e) {}
-      
-      return false;
-    });
+    let filtered = schedules;
     
     // Filter by specialization
     if (activeFilter !== 'all') {
@@ -104,7 +129,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
     }
     
     return filtered;
-  }, [selectedDay, activeFilter, initialSchedules, days, doctorId, searchQuery]);
+  }, [schedules, activeFilter, doctorId, searchQuery]);
 
   return (
     <>
@@ -280,7 +305,15 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
             </Link>
           </div>
 
-          {visibleSchedule.length === 0 ? (
+          {isLoadingSchedules ? (
+            <div style={{ background: '#fff', border: '1px solid var(--color-neutral-200)', borderRadius: '16px', padding: '4rem 2rem', textAlign: 'center', color: 'var(--color-neutral-600)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'var(--color-primary-50)', color: 'var(--color-primary-600)', marginBottom: '1rem' }}>
+                <Loader2 size={24} className="animate-spin" />
+              </div>
+              <p style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--color-neutral-900)' }}>Memuat jadwal dokter...</p>
+              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Mengambil ketersediaan kuota real-time</p>
+            </div>
+          ) : visibleSchedule.length === 0 ? (
             <div style={{ background: '#fff', border: '1px solid var(--color-neutral-200)', borderRadius: '16px', padding: '4rem 2rem', textAlign: 'center', color: 'var(--color-neutral-600)' }}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.35, marginBottom: '1rem' }} aria-hidden="true">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -300,10 +333,14 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
               }}
             >
               {visibleSchedule.map((row) => {
-                const status = getScheduleStatus(row.filledQuota, row.totalQuota);
-                const isFull = row.filledQuota >= row.totalQuota;
+                const totalQuota = row.totalQuota || 20;
+                const filledQuota = row.filledQuota || 0;
+                const isFull = filledQuota >= totalQuota;
+                const status = isFull
+                  ? { label: 'Penuh', variant: 'danger' as const }
+                  : getScheduleStatus(filledQuota, totalQuota);
                 const initials = getInitials(row.doctorName);
-                const percent = Math.min(100, Math.round((row.filledQuota / row.totalQuota) * 100));
+                const percent = Math.min(100, Math.round((filledQuota / totalQuota) * 100));
 
                 const avatarBg = 'var(--color-primary-50)';
                 const avatarColor = 'var(--color-primary-600)';
@@ -383,20 +420,34 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                     {/* Card Content info */}
                     <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
                       <div>
-                        <Link 
-                          href={`/doctors/${row.doctorId}`} 
-                          style={{ 
-                            fontSize: '1rem', 
-                            fontWeight: 700, 
-                            color: 'var(--color-primary-900)', 
-                            textDecoration: 'none',
-                            fontFamily: 'var(--font-figtree, Figtree, sans-serif)',
-                            lineHeight: 1.35,
-                          }} 
-                          className="sch-doc-card-link"
-                        >
-                          {row.doctorName}
-                        </Link>
+                        {Boolean(row.doctorId) && !String(row.doctorId).startsWith('D') && !isNaN(Number(row.doctorId)) ? (
+                          <Link 
+                            href={`/doctors/${row.doctorId}`} 
+                            style={{ 
+                              fontSize: '1rem', 
+                              fontWeight: 700, 
+                              color: 'var(--color-primary-900)', 
+                              textDecoration: 'none',
+                              fontFamily: 'var(--font-figtree, Figtree, sans-serif)',
+                              lineHeight: 1.35,
+                            }} 
+                            className="sch-doc-card-link"
+                          >
+                            {row.doctorName}
+                          </Link>
+                        ) : (
+                          <span 
+                            style={{ 
+                              fontSize: '1rem', 
+                              fontWeight: 700, 
+                              color: 'var(--color-primary-900)', 
+                              fontFamily: 'var(--font-figtree, Figtree, sans-serif)',
+                              lineHeight: 1.35,
+                            }}
+                          >
+                            {row.doctorName}
+                          </span>
+                        )}
                       </div>
 
                       {/* Time and Status */}
@@ -410,10 +461,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                             {row.time}
                           </span>
                           <Badge 
-                            variant={
-                              status.label === 'Tersedia' ? 'success' :
-                              status.label === 'Sisa Sedikit' ? 'warning' : 'danger'
-                            } 
+                            variant={status.variant} 
                             dot
                           >
                             {status.label}
@@ -426,7 +474,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--color-neutral-600)' }}>
                           <span>Kuota Terisi</span>
                           <span style={{ fontWeight: 600, color: 'var(--color-primary-900)' }}>
-                            {row.filledQuota} / {row.totalQuota}
+                            {filledQuota} / {totalQuota}
                           </span>
                         </div>
                         <div style={{ width: '100%', height: '5px', background: 'var(--color-primary-50)', borderRadius: '2.5px', overflow: 'hidden' }}>
@@ -438,9 +486,30 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                     {/* Bottom action button */}
                     <div style={{ padding: '0 1.25rem 1.25rem' }}>
                       {isFull ? (
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.625rem 1rem', borderRadius: '10px', background: 'var(--color-neutral-200)', color: 'var(--color-neutral-600)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'not-allowed', width: '100%', textAlign: 'center', minHeight: '38px', opacity: 0.7 }}>
+                        <button
+                          type="button"
+                          disabled
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '0.625rem 1rem',
+                            borderRadius: '10px',
+                            background: 'var(--color-neutral-200)',
+                            color: 'var(--color-neutral-600)',
+                            fontSize: '0.8125rem',
+                            fontWeight: 600,
+                            cursor: 'not-allowed',
+                            width: '100%',
+                            textAlign: 'center',
+                            minHeight: '38px',
+                            opacity: 0.7,
+                            border: 'none',
+                          }}
+                          aria-disabled="true"
+                        >
                           Penuh
-                        </span>
+                        </button>
                       ) : (
                         <Link
                           href="/pendaftaran"

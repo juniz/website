@@ -4,6 +4,12 @@ import { DoctorSchedule } from '@/types/api';
 
 export { scheduleFilters, getScheduleStatus };
 
+export async function getLiveSchedules(date: string): Promise<DoctorSchedule[]> {
+  const result = await api.get<any>(`/schedules/live?date=${encodeURIComponent(date)}`, { cache: 'no-store' });
+  const rawData = result.success ? (result.data as any)?.data || result.data : [];
+  return Array.isArray(rawData) ? rawData : [];
+}
+
 export async function getSchedules(): Promise<DoctorSchedule[]> {
   const result = await api.get<any>('/schedules?limit=100', { cache: 'no-store' });
   

@@ -1,5 +1,5 @@
 import SchedulePageClient from './SchedulePageClient';
-import { getSchedules } from '@/lib/data/schedule';
+import { getLiveSchedules } from '@/lib/data/schedule';
 import { getPageSEO } from '@/app/actions/public';
 import { notFound } from 'next/navigation';
 import { getImageUrl } from '@/lib/utils';
@@ -27,15 +27,18 @@ export async function generateMetadata(): Promise<Metadata> {
 export const dynamic = 'force-dynamic';
 
 export default async function SchedulePage() {
+  const todayStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jakarta',
+  }).format(new Date());
+
   const [schedules, seo] = await Promise.all([
-    getSchedules(),
-    getPageSEO('/schedule')
+    getLiveSchedules(todayStr),
+    getPageSEO('/schedule'),
   ]);
 
   if (seo && seo.is_active === false) {
     notFound();
   }
 
-  console.log('Public Schedule Page - Schedules Count:', schedules.length);
   return <SchedulePageClient initialSchedules={schedules} />;
 }
