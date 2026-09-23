@@ -102,9 +102,15 @@ export async function verifyOldPatient(
   }
 }
 
-export async function getSchedulesByDay(day: string): Promise<{ success: boolean; data?: Schedule[]; message?: string }> {
+export async function getSchedulesByDay(
+  day: string,
+  date?: string
+): Promise<{ success: boolean; data?: Schedule[]; message?: string }> {
   try {
-    const result = await api.get<Schedule[]>(`/patient/schedules?day=${day}`);
+    const url = date
+      ? `/patient/schedules?day=${encodeURIComponent(day)}&date=${encodeURIComponent(date)}`
+      : `/patient/schedules?day=${encodeURIComponent(day)}`;
+    const result = await api.get<Schedule[]>(url);
     if (result.success && result.data) {
       return { success: true, data: (result.data as any).data || result.data };
     }

@@ -341,6 +341,19 @@ function LamaStyles() {
           padding: 1px 6px;
           border-radius: 4px;
         }
+        .lf-sched-kuota-full {
+          background: #FEE2E2 !important;
+          color: #991B1B !important;
+          border: 1px solid #FECACA !important;
+        }
+        .lf-sched-card--full {
+          opacity: 0.55;
+          cursor: not-allowed !important;
+        }
+        .lf-sched-card--full:hover {
+          border-color: var(--color-neutral-200) !important;
+          box-shadow: none !important;
+        }
         .lf-sched-radio {
           width: 20px;
           height: 20px;
@@ -397,31 +410,44 @@ function LamaStyles() {
 export default function LamaForm() {
   const router = useRouter();
 
-  /* Draft recovery helper */
-  const getInitialDraft = () => {
-    if (typeof window !== 'undefined') {
-      try {
-        const savedDraft = sessionStorage.getItem('nganjuk_registration_draft');
-        if (savedDraft) {
-          return JSON.parse(savedDraft);
-        }
-      } catch {
-        // ignore
-      }
-    }
-    return null;
-  };
-
-  const [step, setStep] = useState<1 | 2 | 4>(() => {
-    const draft = getInitialDraft();
-    return draft?.verifiedPatient ? 2 : 1;
-  });
+  const [step, setStep] = useState<1 | 2 | 4>(1);
 
   /* Verification state */
-  const [verifiedPatient, setVerifiedPatient] = useState<Patient | null>(() => {
-    const draft = getInitialDraft();
-    return draft?.verifiedPatient || null;
-  });
+  const [verifiedPatient, setVerifiedPatient] = useState<Patient | null>(null);
+
+  /* Restore draft after mount (prevents SSR hydration mismatch) */
+  useEffect(() => {
+    try {
+      const savedDraft = sessionStorage.getItem('nganjuk_registration_draft');
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        if (draft?.verifiedPatient) {
+          setVerifiedPatient(draft.verifiedPatient);
+          setStep(2);
+          if (draft.selectedDate) {
+            setSelectedDate(draft.selectedDate);
+            getSchedulesByDay(draft.selectedDate.dayName, draft.selectedDate.iso).then((res) => {
+              if (res.success && res.data) {
+                setSchedules(res.data);
+                if (draft.selectedSchedule) {
+                  const match = res.data.find(
+                    (s) =>
+                      s.kd_dokter === draft.selectedSchedule.kd_dokter &&
+                      s.kd_poli === draft.selectedSchedule.kd_poli,
+                  );
+                  if (match && (match.sisa_kuota === undefined || match.sisa_kuota > 0)) {
+                    setSelectedSchedule(match);
+                  }
+                }
+              }
+            });
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   /* Schedule selection state */
   const [availableDates] = useState<DateOption[]>(() => {
@@ -546,7 +572,7 @@ export default function LamaForm() {
     setSelectedSchedule(null);
     setSearchQuery('');
     setIsLoadingSchedules(true);
-    const result = await getSchedulesByDay(dateObj.dayName);
+    const result = await getSchedulesByDay(dateObj.dayName, dateObj.iso);
     setIsLoadingSchedules(false);
     if (result.success && result.data) {
       if (result.data.length === 0) toast.info(`Tidak ada jadwal untuk hari ${dateObj.dayName}.`);
@@ -559,6 +585,10 @@ export default function LamaForm() {
 
   async function handleBooking() {
     if (!selectedDate || !selectedSchedule || !verifiedPatient) return;
+    if (selectedSchedule.sisa_kuota !== undefined && selectedSchedule.sisa_kuota <= 0) {
+      toast.error('Kuota dokter untuk jadwal ini sudah penuh.');
+      return;
+    }
     if (!captchaToken) {
       toast.error('Silakan selesaikan captcha terlebih dahulu.');
       return;
@@ -566,31 +596,45 @@ export default function LamaForm() {
 
     triggerHaptic(20);
     setIsSubmitting(true);
-    const result = await submitBookingRegistrasi({
-      tanggal_periksa: selectedDate.iso,
-      kd_dokter: selectedSchedule.kd_dokter,
-      kd_poli: selectedSchedule.kd_poli,
-      verification_token: verifiedPatient.verification_token,
-      captcha_token: captchaToken,
-    });
-    setIsSubmitting(false);
+    try {
+      const result = await submitBookingRegistrasi({
+        tanggal_periksa: selectedDate.iso,
+        kd_dokter: selectedSchedule.kd_dokter,
+        kd_poli: selectedSchedule.kd_poli,
+        verification_token: verifiedPatient.verification_token,
+        captcha_token: captchaToken,
+      });
 
-    if (result.success && result.data) {
-      setError(null);
-      toast.success('Booking berhasil!');
-      setBookingResult(result.data);
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('nganjuk_registration_draft');
+      if (result.success && result.data) {
+        setError(null);
+        toast.success('Booking berhasil!');
+        setBookingResult(result.data);
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('nganjuk_registration_draft');
+        }
+        setStep(4);
+      } else {
+        if (result.message?.toLowerCase().includes('verification token')) {
+          handleCancel();
+          toast.error('Sesi verifikasi berakhir. Silakan verifikasi ulang.');
+          return;
+        }
+        setError(result.message || 'Gagal melakukan booking.');
+        toast.error(result.message || 'Gagal melakukan booking.');
+        const schedResult = await getSchedulesByDay(selectedDate.dayName, selectedDate.iso);
+        if (schedResult.success && schedResult.data) {
+          setSchedules(schedResult.data);
+        }
       }
-      setStep(4);
-    } else {
-      if (result.message?.toLowerCase().includes('verification token')) {
-        handleCancel();
-        toast.error('Sesi verifikasi berakhir. Silakan verifikasi ulang.');
-        return;
+    } catch (err: any) {
+      setError(err?.message || 'Gagal melakukan booking.');
+      toast.error(err?.message || 'Gagal melakukan booking.');
+      const schedResult = await getSchedulesByDay(selectedDate.dayName, selectedDate.iso);
+      if (schedResult.success && schedResult.data) {
+        setSchedules(schedResult.data);
       }
-      setError(result.message || 'Gagal melakukan booking.');
-      toast.error(result.message || 'Gagal melakukan booking.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -935,15 +979,22 @@ export default function LamaForm() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                   {filteredSchedules.map((sched, i) => {
                     const sel = selectedSchedule === sched;
+                    const isFull = sched.sisa_kuota !== undefined && sched.sisa_kuota <= 0;
                     return (
                       <button
                         key={i}
                         type="button"
+                        aria-disabled={isFull}
                         onClick={() => {
+                          if (isFull) {
+                            toast.warning('Kuota dokter untuk jadwal ini sudah penuh.');
+                            return;
+                          }
                           triggerHaptic();
                           setSelectedSchedule(sched);
                         }}
-                        className={`lf-sched-card${sel ? ' lf-sched-card--sel' : ''}`}
+                        style={isFull ? { opacity: 0.55, cursor: 'not-allowed', borderColor: 'var(--color-neutral-200)' } : undefined}
+                        className={`lf-sched-card${sel ? ' lf-sched-card--sel' : ''}${isFull ? ' lf-sched-card--full' : ''}`}
                       >
                         <div className={`lf-sched-icon${sel ? ' lf-si-sel' : ''}`}>
                           <Stethoscope size={18} />
@@ -955,7 +1006,15 @@ export default function LamaForm() {
                             <span className="lf-sched-time">
                               <Clock size={11} /> {sched.jam_mulai.substring(0, 5)} – {sched.jam_selesai.substring(0, 5)}
                             </span>
-                            {sched.kuota > 0 && <span className="lf-sched-kuota">{sched.kuota} slot</span>}
+                            {isFull ? (
+                              <span className="lf-sched-kuota lf-sched-kuota-full">Kuota Penuh</span>
+                            ) : (
+                              sched.sisa_kuota !== undefined ? (
+                                <span className="lf-sched-kuota">Sisa {sched.sisa_kuota} slot</span>
+                              ) : (
+                                sched.kuota > 0 && <span className="lf-sched-kuota">{sched.kuota} slot</span>
+                              )
+                            )}
                           </div>
                         </div>
                         <div className={`lf-sched-radio${sel ? ' lf-sr-sel' : ''}`}>

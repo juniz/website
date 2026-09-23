@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { X, Search, Check, Stethoscope, Clock, User } from 'lucide-react';
+import { toast } from 'sonner';
 import { Schedule } from '@/types/api';
 
 interface MobileBottomSheetProps {
@@ -116,12 +117,20 @@ export default function MobileBottomSheet({
             <div className="mbs-list">
               {schedules.map((sched, idx) => {
                 const isSelected = selectedSchedule === sched || selectedSchedule?.kd_dokter === sched.kd_dokter && selectedSchedule?.kd_poli === sched.kd_poli;
+                const isFull = sched.sisa_kuota !== undefined && sched.sisa_kuota <= 0;
                 return (
                   <button
                     key={`${sched.kd_poli}-${sched.kd_dokter}-${idx}`}
                     type="button"
-                    onClick={() => handleSelect(sched)}
-                    className={`mbs-item ${isSelected ? 'mbs-item--selected' : ''}`}
+                    aria-disabled={isFull}
+                    onClick={() => {
+                      if (isFull) {
+                        toast.warning('Kuota dokter untuk jadwal ini sudah penuh.');
+                        return;
+                      }
+                      handleSelect(sched);
+                    }}
+                    className={`mbs-item ${isSelected ? 'mbs-item--selected' : ''}${isFull ? ' mbs-item--full' : ''}`}
                   >
                     <div className="mbs-item-avatar">
                       <Stethoscope size={20} />
@@ -135,8 +144,14 @@ export default function MobileBottomSheet({
                           <Clock size={11} />
                           {sched.jam_mulai?.substring(0, 5)} - {sched.jam_selesai?.substring(0, 5)}
                         </span>
-                        {sched.kuota > 0 && (
-                          <span className="mbs-item-kuota">{sched.kuota} slot tersedia</span>
+                        {isFull ? (
+                          <span className="mbs-item-kuota mbs-item-kuota--full">Kuota Penuh</span>
+                        ) : (
+                          sched.sisa_kuota !== undefined ? (
+                            <span className="mbs-item-kuota">Sisa {sched.sisa_kuota} slot</span>
+                          ) : sched.kuota > 0 ? (
+                            <span className="mbs-item-kuota">{sched.kuota} slot tersedia</span>
+                          ) : null
                         )}
                       </div>
                     </div>
@@ -401,6 +416,22 @@ export default function MobileBottomSheet({
           background: #d1fae5;
           padding: 1px 6px;
           border-radius: 4px;
+        }
+
+        .mbs-item-kuota--full {
+          color: #991B1B !important;
+          background: #FEE2E2 !important;
+          border: 1px solid #FECACA !important;
+        }
+
+        .mbs-item--full {
+          opacity: 0.55;
+          cursor: not-allowed !important;
+        }
+
+        .mbs-item--full:hover {
+          background: transparent !important;
+          border-color: var(--color-neutral-200) !important;
         }
 
         .mbs-check {

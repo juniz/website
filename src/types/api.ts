@@ -30,7 +30,9 @@ export interface Schedule {
   jam_mulai: string;
   jam_selesai: string;
   kuota: number;
-  registrasi: number;
+  registrasi?: number;
+  terisi?: number;
+  sisa_kuota?: number;
 }
 
 export interface BookingResult {
