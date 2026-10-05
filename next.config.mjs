@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Bundle minimal untuk Docker image (lihat Dockerfile). Jalankan via `node server.js`.
+  output: 'standalone',
   allowedDevOrigins: ['127.0.0.1'],
   experimental: {
     serverActions: {
