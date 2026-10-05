@@ -8,13 +8,10 @@ import DOMPurify from 'isomorphic-dompurify';
 import { Briefcase, Calendar, ChevronLeft, ArrowRight, User } from 'lucide-react';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 interface PejabatDetailPageProps {
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  const allPejabat = await getPublicPejabat();
-  return allPejabat.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: PejabatDetailPageProps): Promise<Metadata> {

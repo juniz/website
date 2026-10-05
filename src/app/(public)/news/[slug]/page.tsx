@@ -7,13 +7,10 @@ import DOMPurify from 'isomorphic-dompurify';
 import PageHero from '@/components/PageHero';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 interface NewsDetailPageProps {
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  const allNews = await getNews();
-  return allNews.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: NewsDetailPageProps): Promise<Metadata> {

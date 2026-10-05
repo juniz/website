@@ -6,13 +6,10 @@ import { getSchedules, getScheduleStatus } from '@/lib/data/schedule';
 import PageHero from '@/components/PageHero';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 interface DoctorDetailPageProps {
   params: Promise<{ id: string }>;
-}
-
-export async function generateStaticParams(): Promise<{ id: string }[]> {
-  const allDocs = await getDoctors();
-  return allDocs.map((d) => ({ id: String(d.id) }));
 }
 
 export async function generateMetadata({ params }: DoctorDetailPageProps): Promise<Metadata> {
