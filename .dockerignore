@@ -1,0 +1,45 @@
+# Dependencies & build output (di-install / di-build ulang di dalam image)
+node_modules
+.next
+out
+build
+coverage
+*.tsbuildinfo
+
+# Secrets — jangan pernah masuk image
+.env
+.env.*
+!.env.example
+
+# VCS
+.git
+.gitignore
+
+# Docker files sendiri
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Dev tooling, docs, storybook, tests
+.storybook
+storybook-static
+*storybook.log
+**/*.spec.*
+**/*.stories.*
+vitest.config.js
+docs
+scratch
+graphify-out
+design-system
+.agents
+.impeccable
+*.md
+
+# Local DB & one-off scripts
+dev.db
+test-db.js
+fix_*.js
+
+# Misc
+*.log
+.DS_Store
