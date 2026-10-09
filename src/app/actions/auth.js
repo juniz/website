@@ -20,6 +20,9 @@ export async function checkLogin(prevState, formData) {
   });
 
   if (!result.success) {
+    if (result.error && (result.error.toLowerCase().includes('captcha') || result.error.includes('Forbidden'))) {
+      return `Verifikasi Captcha gagal (${result.error}). Silakan coba lagi.`;
+    }
     return 'Email atau password salah.';
   }
 

@@ -30,6 +30,7 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
   const [timeline, setTimeline] = useState(pejabat?.timeline || []);
   const [slug, setSlug] = useState(pejabat?.slug || '');
   const [slugEdited, setSlugEdited] = useState(mode === 'edit');
+  const [isActive, setIsActive] = useState(pejabat?.isActive !== false);
 
   function handleNameChange(e) {
     const value = e.target.value;
@@ -132,6 +133,7 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
 
     formData.set('bio', bio);
     formData.set('timeline', JSON.stringify(timeline));
+    formData.set('isActive', String(isActive));
 
     startTransition(async () => {
       const result =
@@ -496,16 +498,12 @@ export default function PejabatForm({ mode = 'create', pejabat = null }) {
                       id="pf-active"
                       name="isActive"
                       type="checkbox"
-                      value="true"
-                      defaultChecked={pejabat?.isActive !== false}
-                      style={{ opacity: 0, width: 0, height: 0 }}
-                      onChange={(e) => {
-                        const slider = e.target.nextSibling;
-                        if (slider) slider.style.background = e.target.checked ? 'var(--admin-primary)' : 'var(--admin-border)';
-                      }}
+                      checked={isActive}
+                      style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+                      onChange={(e) => setIsActive(e.target.checked)}
                     />
-                    <span style={{ position: 'absolute', cursor: 'pointer', inset: 0, background: pejabat?.isActive !== false ? 'var(--admin-primary)' : 'var(--admin-border)', borderRadius: '999px', transition: '0.2s' }}>
-                      <span style={{ position: 'absolute', height: 16, width: 16, left: 3, bottom: 3, background: 'white', borderRadius: '50%', transition: '0.2s', transform: pejabat?.isActive !== false ? 'translateX(18px)' : 'none' }} />
+                    <span style={{ position: 'absolute', cursor: 'pointer', inset: 0, background: isActive ? 'var(--admin-primary)' : 'var(--admin-border)', borderRadius: '999px', transition: '0.2s' }}>
+                      <span style={{ position: 'absolute', height: 16, width: 16, left: 3, bottom: 3, background: 'white', borderRadius: '50%', transition: '0.2s', transform: isActive ? 'translateX(18px)' : 'none' }} />
                     </span>
                   </label>
                 </div>

@@ -19,7 +19,7 @@ export async function createPejabat(formData) {
     body.append('pangkat', formData.get('pangkat') || '');
     body.append('bio', formData.get('bio') || '');
     body.append('sortOrder', formData.get('sortOrder') || '0');
-    body.append('isActive', formData.get('isActive') || 'true');
+    body.append('isActive', formData.get('isActive') === 'false' ? 'false' : 'true');
     body.append('timeline', formData.get('timeline') || '[]');
 
     const photo = formData.get('photo');
@@ -48,7 +48,7 @@ export async function updatePejabat(id, formData) {
     body.append('pangkat', formData.get('pangkat') || '');
     body.append('bio', formData.get('bio') || '');
     body.append('sortOrder', formData.get('sortOrder') || '0');
-    body.append('isActive', formData.get('isActive') || 'true');
+    body.append('isActive', formData.get('isActive') === 'false' ? 'false' : 'true');
     body.append('timeline', formData.get('timeline') || '[]');
 
     const photo = formData.get('photo');
