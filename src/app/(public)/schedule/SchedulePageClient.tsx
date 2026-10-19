@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, X, Loader2 } from 'lucide-react';
@@ -67,6 +67,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
   const [schedules, setSchedules] = useState<DoctorSchedule[]>(initialSchedules);
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
   const days = useMemo(() => buildDateStrip(), []);
+  const currentRequestId = useRef(0);
   const handleSelectDay = (dayKey: number) => {
     setSelectedDay(dayKey);
 
@@ -74,24 +75,24 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
     if (!day) return;
 
     const isoDate = formatDateToIso(day.dateObj);
-    let active = true;
+    const requestId = ++currentRequestId.current;
     setIsLoadingSchedules(true);
 
     getLiveSchedules(isoDate)
       .then((data) => {
-        if (active) {
+        if (requestId === currentRequestId.current) {
           setSchedules(data);
         }
       })
       .catch((err) => {
-        console.error('Failed to load live schedules:', err);
-        toast.error('Gagal memuat jadwal dokter terbaru');
-        if (active) {
+        if (requestId === currentRequestId.current) {
+          console.error('Failed to load live schedules:', err);
+          toast.error('Gagal memuat jadwal dokter terbaru');
           setSchedules([]);
         }
       })
       .finally(() => {
-        if (active) {
+        if (requestId === currentRequestId.current) {
           setIsLoadingSchedules(false);
         }
       });
