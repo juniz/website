@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, X, Loader2 } from 'lucide-react';
@@ -67,15 +67,10 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
   const [schedules, setSchedules] = useState<DoctorSchedule[]>(initialSchedules);
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
   const days = useMemo(() => buildDateStrip(), []);
-  const isInitialMount = useRef(true);
+  const handleSelectDay = (dayKey: number) => {
+    setSelectedDay(dayKey);
 
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-
-    const day = days[selectedDay];
+    const day = days[dayKey];
     if (!day) return;
 
     const isoDate = formatDateToIso(day.dateObj);
@@ -100,11 +95,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
           setIsLoadingSchedules(false);
         }
       });
-
-    return () => {
-      active = false;
-    };
-  }, [selectedDay, days]);
+  };
 
   const visibleSchedule = useMemo(() => {
     let filtered = schedules;
@@ -159,7 +150,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                 <button
                   key={day.key}
                   type="button"
-                  onClick={() => setSelectedDay(day.key)}
+                  onClick={() => handleSelectDay(day.key)}
                   aria-pressed={isSelected}
                   aria-label={`${day.labelFull} ${day.date} ${day.month}${day.isToday ? ' (hari ini)' : ''}`}
                   style={{

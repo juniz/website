@@ -415,40 +415,6 @@ export default function LamaForm() {
   /* Verification state */
   const [verifiedPatient, setVerifiedPatient] = useState<Patient | null>(null);
 
-  /* Restore draft after mount (prevents SSR hydration mismatch) */
-  useEffect(() => {
-    try {
-      const savedDraft = sessionStorage.getItem('nganjuk_registration_draft');
-      if (savedDraft) {
-        const draft = JSON.parse(savedDraft);
-        if (draft?.verifiedPatient) {
-          setVerifiedPatient(draft.verifiedPatient);
-          setStep(2);
-          if (draft.selectedDate) {
-            setSelectedDate(draft.selectedDate);
-            getSchedulesByDay(draft.selectedDate.dayName, draft.selectedDate.iso).then((res) => {
-              if (res.success && res.data) {
-                setSchedules(res.data);
-                if (draft.selectedSchedule) {
-                  const match = res.data.find(
-                    (s) =>
-                      s.kd_dokter === draft.selectedSchedule.kd_dokter &&
-                      s.kd_poli === draft.selectedSchedule.kd_poli,
-                  );
-                  if (match && (match.sisa_kuota === undefined || match.sisa_kuota > 0)) {
-                    setSelectedSchedule(match);
-                  }
-                }
-              }
-            });
-          }
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
   /* Schedule selection state */
   const [availableDates] = useState<DateOption[]>(() => {
     const days: DateOption[] = [];
@@ -492,6 +458,42 @@ export default function LamaForm() {
 
   /* Mobile Bottom Sheet State */
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+
+  /* Restore draft after mount (prevents SSR hydration mismatch) */
+  useEffect(() => {
+    try {
+      const savedDraft = sessionStorage.getItem('nganjuk_registration_draft');
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        if (draft?.verifiedPatient) {
+          queueMicrotask(() => {
+            setVerifiedPatient(draft.verifiedPatient);
+            setStep(2);
+            if (draft.selectedDate) {
+              setSelectedDate(draft.selectedDate);
+              getSchedulesByDay(draft.selectedDate.dayName, draft.selectedDate.iso).then((res) => {
+                if (res.success && res.data) {
+                  setSchedules(res.data);
+                  if (draft.selectedSchedule) {
+                    const match = res.data.find(
+                      (s) =>
+                        s.kd_dokter === draft.selectedSchedule.kd_dokter &&
+                        s.kd_poli === draft.selectedSchedule.kd_poli,
+                    );
+                    if (match && (match.sisa_kuota === undefined || match.sisa_kuota > 0)) {
+                      setSelectedSchedule(match);
+                    }
+                  }
+                }
+              });
+            }
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   /* Ref for PDF/Receipt image generation */
   const receiptRef = useRef<HTMLDivElement>(null);
