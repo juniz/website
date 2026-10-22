@@ -390,7 +390,8 @@ export default function HeroSection({ data }: HeroSectionProps) {
           .hero-anim-sub,
           .hero-anim-cta,
           .hero-anim-stat,
-          .hero-anim-trust {
+          .hero-anim-trust,
+          .hero-bg-image {
             animation: none !important;
             opacity: 1 !important;
             transform: none !important;

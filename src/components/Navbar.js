@@ -65,10 +65,18 @@ export default function Navbar({ data, pageStatuses = [] }) {
     return () => document.removeEventListener('keydown', handleKey);
   }, []);
 
-  // Lock body scroll when menu open
+  // Lock body scroll when menu open & reset on desktop resize
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    const mq = window.matchMedia('(min-width: 960px)');
+    const handleMediaChange = (e) => {
+      if (e.matches) setMenuOpen(false);
+    };
+    mq.addEventListener('change', handleMediaChange);
+    return () => {
+      document.body.style.overflow = '';
+      mq.removeEventListener('change', handleMediaChange);
+    };
   }, [menuOpen]);
 
   return (
@@ -86,8 +94,8 @@ export default function Navbar({ data, pageStatuses = [] }) {
           zIndex: 100,
           backgroundColor: 'var(--color-primary-800)',
           boxShadow: scrolled
-            ? '0 2px 20px rgba(4, 44, 83, 0.5)'
-            : '0 1px 0 rgba(255,255,255,0.08)',
+            ? '0 4px 20px rgba(2, 48, 71, 0.45)'
+            : '0 1px 0 rgba(255, 255, 255, 0.08)',
           transition: 'box-shadow 200ms ease-out',
         }}
       >
@@ -97,7 +105,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
             display: 'flex',
             alignItems: 'center',
             height: '64px',
-            gap: '2rem',
+            gap: '1.5rem',
           }}
         >
           {/* Logo */}
@@ -105,11 +113,12 @@ export default function Navbar({ data, pageStatuses = [] }) {
             href="/"
             aria-label="RS Bhayangkara Nganjuk — Halaman Utama"
             style={{
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '0.625rem',
               textDecoration: 'none',
               flexShrink: 0,
+              minHeight: '44px',
             }}
           >
             {/* Medical cross SVG / Logo RS */}
@@ -122,7 +131,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                overflow: 'hidden'
+                overflow: 'hidden',
               }}
               aria-hidden="true"
             >
@@ -138,8 +147,8 @@ export default function Navbar({ data, pageStatuses = [] }) {
               <div
                 style={{
                   fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: 'var(--color-primary-50)',
+                  fontWeight: 700,
+                  color: 'var(--color-neutral-50)',
                   fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)',
                   lineHeight: 1.2,
                 }}
@@ -148,7 +157,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
               </div>
               <div
                 style={{
-                  fontSize: '0.6875rem',
+                  fontSize: '0.75rem',
                   color: 'var(--color-primary-200)',
                   lineHeight: 1.2,
                 }}
@@ -165,24 +174,26 @@ export default function Navbar({ data, pageStatuses = [] }) {
             className="desktop-nav"
           >
             {filteredNavLinks.map((link) => {
-              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(`${link.href}/`));
               return (
                 <Link
                   key={link.key}
                   href={link.href}
                   aria-current={isActive ? 'page' : undefined}
                   style={{
+                    fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)',
                     fontSize: '0.875rem',
-                    fontWeight: 500,
-                    color: isActive ? 'var(--color-primary-50)' : 'var(--color-primary-200)',
+                    fontWeight: isActive ? 600 : 500,
+                    color: isActive ? 'var(--color-neutral-50)' : 'var(--color-primary-200)',
                     textDecoration: 'none',
                     padding: '0.5rem 0.75rem',
                     borderRadius: '6px',
-                    borderBottom: isActive ? '1.5px solid var(--color-primary-400)' : '1.5px solid transparent',
-                    transition: 'color 150ms ease-out, border-color 150ms ease-out, background 150ms ease-out',
-                    display: 'flex',
+                    borderBottom: isActive ? '2px solid var(--color-primary-400)' : '2px solid transparent',
+                    transition: 'color 150ms ease-out, border-color 150ms ease-out, background-color 150ms ease-out',
+                    display: 'inline-flex',
                     minHeight: '44px',
                     alignItems: 'center',
+                    whiteSpace: 'nowrap',
                   }}
                   className="nav-link"
                 >
@@ -190,7 +201,6 @@ export default function Navbar({ data, pageStatuses = [] }) {
                 </Link>
               );
             })}
-
 
             {/* CTA */}
             {showRegisterCTA && (
@@ -201,15 +211,17 @@ export default function Navbar({ data, pageStatuses = [] }) {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.375rem',
-                  padding: '0.5rem 1rem',
+                  padding: '0.5rem 1.125rem',
                   borderRadius: '8px',
                   backgroundColor: 'var(--color-primary-600)',
-                  color: '#ffffff',
+                  color: 'var(--color-neutral-50)',
+                  fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)',
                   fontSize: '0.875rem',
-                  fontWeight: 500,
+                  fontWeight: 600,
                   textDecoration: 'none',
-                  transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out',
+                  transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out, transform 150ms ease-out',
                   minHeight: '44px',
+                  whiteSpace: 'nowrap',
                 }}
                 className="nav-cta"
               >
@@ -227,7 +239,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
           {/* Hamburger button (mobile only) */}
           <button
             type="button"
-            aria-label={menuOpen ? 'Tutup menu' : 'Buka menu'}
+            aria-label={menuOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi'}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -237,14 +249,14 @@ export default function Navbar({ data, pageStatuses = [] }) {
               justifyContent: 'center',
               width: '44px',
               height: '44px',
-              background: 'transparent',
-              border: '1px solid rgba(133, 183, 235, 0.25)',
+              background: menuOpen ? 'rgba(142, 202, 230, 0.14)' : 'transparent',
+              border: '1px solid rgba(142, 202, 230, 0.25)',
               borderRadius: '8px',
               cursor: 'pointer',
-              color: 'var(--color-primary-50)',
+              color: 'var(--color-neutral-50)',
               marginLeft: 'auto',
               flexShrink: 0,
-              transition: 'background 150ms ease-out',
+              transition: 'background-color 150ms ease-out, border-color 150ms ease-out',
             }}
             className="hamburger-btn"
           >
@@ -264,12 +276,11 @@ export default function Navbar({ data, pageStatuses = [] }) {
       </header>
 
       {/* Mobile menu overlay */}
-      <div
+      <nav
         id="mobile-menu"
-        role="dialog"
-        aria-label="Menu navigasi"
-        aria-modal="true"
+        aria-label="Navigasi seluler"
         aria-hidden={!menuOpen}
+        inert={!menuOpen ? true : undefined}
         style={{
           position: 'fixed',
           top: '64px',
@@ -291,26 +302,28 @@ export default function Navbar({ data, pageStatuses = [] }) {
         className="mobile-menu-overlay"
       >
         {filteredNavLinks.map((link) => {
-          const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+          const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(`${link.href}/`));
           return (
             <Link
               key={link.key}
               href={link.href}
               aria-current={isActive ? 'page' : undefined}
               style={{
-                fontSize: '1rem',
-                fontWeight: 500,
-                color: isActive ? 'var(--color-primary-50)' : 'var(--color-primary-200)',
+                fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)',
+                fontSize: '1.125rem',
+                fontWeight: isActive ? 600 : 500,
+                color: isActive ? 'var(--color-neutral-50)' : 'var(--color-primary-200)',
                 textDecoration: 'none',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
-                background: isActive ? 'rgba(133, 183, 235, 0.1)' : 'transparent',
+                background: isActive ? 'rgba(142, 202, 230, 0.12)' : 'transparent',
                 boxShadow: isActive ? 'inset 3px 0 var(--color-primary-400)' : 'none',
-                transition: 'background 150ms ease-out, color 150ms ease-out',
+                transition: 'background-color 150ms ease-out, color 150ms ease-out',
                 display: 'flex',
                 alignItems: 'center',
-                minHeight: '44px',
+                minHeight: '48px',
               }}
+              className="mobile-nav-link"
             >
               {link.label}
             </Link>
@@ -329,12 +342,15 @@ export default function Navbar({ data, pageStatuses = [] }) {
               padding: '0.875rem 1rem',
               borderRadius: '10px',
               backgroundColor: 'var(--color-primary-600)',
-              color: 'var(--color-primary-50)',
-              fontSize: '0.9375rem',
+              color: 'var(--color-neutral-50)',
+              fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)',
+              fontSize: '0.875rem',
               fontWeight: 600,
               textDecoration: 'none',
               minHeight: '48px',
+              transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out',
             }}
+            className="mobile-nav-cta"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -351,7 +367,7 @@ export default function Navbar({ data, pageStatuses = [] }) {
           style={{
             marginTop: 'auto',
             paddingTop: '1.5rem',
-            borderTop: '0.5px solid rgba(133, 183, 235, 0.2)',
+            borderTop: '1px solid rgba(142, 202, 230, 0.2)',
             fontSize: '0.75rem',
             color: 'var(--color-primary-200)',
             lineHeight: 1.6,
@@ -360,23 +376,34 @@ export default function Navbar({ data, pageStatuses = [] }) {
           {data?.address && <div>Alamat: {data.address}</div>}
           {data?.phone && <div style={{ marginTop: '0.25rem' }}>Telepon: {data.phone}</div>}
         </div>
-      </div>
+      </nav>
 
       <style>{`
-        @media (max-width: 767px) {
+        @media (max-width: 959px) {
           .desktop-nav { display: none !important; }
           .hamburger-btn { display: flex !important; }
         }
-        @media (min-width: 768px) {
+        @media (min-width: 960px) {
           .mobile-menu-overlay { display: none !important; }
         }
-        .nav-link:hover {
-          color: var(--color-primary-50) !important;
-          background: rgba(133, 183, 235, 0.08);
+        .nav-link:hover,
+        .mobile-nav-link:hover {
+          color: var(--color-neutral-50) !important;
+          background: rgba(142, 202, 230, 0.1);
         }
-        .nav-cta:hover {
+        .hamburger-btn:hover {
+          background: rgba(142, 202, 230, 0.14) !important;
+          border-color: rgba(142, 202, 230, 0.4) !important;
+        }
+        .nav-cta:hover,
+        .mobile-nav-cta:hover {
           background-color: var(--color-primary-600) !important;
-          box-shadow: 0 4px 16px rgba(55, 138, 221, 0.4);
+          box-shadow: 0 4px 16px rgba(33, 158, 188, 0.35);
+          transform: translateY(-1px);
+        }
+        .nav-cta:active,
+        .mobile-nav-cta:active {
+          transform: translateY(0) scale(0.99);
         }
       `}</style>
     </>

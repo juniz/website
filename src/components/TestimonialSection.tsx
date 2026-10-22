@@ -33,7 +33,7 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
 
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', 
           gap: '1.5rem' 
         }}>
           {data.map((item) => (
@@ -56,13 +56,18 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
                 <Quote size={44} fill="currentColor" stroke="none" />
               </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-cta)' }}>
+              <div
+                role="img"
+                aria-label={`Rating ${item.rating} dari 5 bintang`}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-cta)' }}
+              >
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
                     size={14} 
                     fill={i < item.rating ? "currentColor" : "none"} 
                     stroke={i < item.rating ? "none" : "currentColor"} 
+                    aria-hidden="true"
                   />
                 ))}
               </div>
@@ -112,7 +117,7 @@ export default function TestimonialSection({ data = [] }: TestimonialSectionProp
           border-color: rgba(255, 255, 255, 0.25) !important;
           background: rgba(255, 255, 255, 0.08) !important;
           transform: translateY(-4px);
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 12px 30px rgba(2, 48, 71, 0.4);
         }
       `}</style>
     </section>

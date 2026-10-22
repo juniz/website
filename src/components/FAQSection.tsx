@@ -87,7 +87,6 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
 
         /* Layout */
         .faq-inner {
-          max-width: 1120px; margin: 0 auto; padding: 0 1.5rem;
           display: grid; grid-template-columns: 320px 1fr; gap: 3.5rem; align-items: start;
         }
         @media (max-width: 900px) { .faq-inner { grid-template-columns: 1fr; gap: 2rem; } }
@@ -100,7 +99,7 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
           display: inline-flex; align-items: center; gap: 6px;
           padding: 5px 12px; border-radius: 999px;
           background: rgba(255, 255, 255, 0.08); color: var(--color-primary-200);
-          font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+          font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
           margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.12);
         }
         .faq-heading {
@@ -110,7 +109,7 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
         }
         .faq-heading span { color: var(--color-primary-400); }
         .faq-sub {
-          font-size: 0.9375rem; color: var(--color-primary-200); line-height: 1.7; margin-bottom: 1.75rem;
+          font-size: 0.875rem; color: var(--color-primary-200); line-height: 1.7; margin-bottom: 1.75rem;
         }
 
         /* CTA Card */
@@ -123,7 +122,8 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
         .faq-cta-btns { display: flex; flex-direction: column; gap: 8px; }
         .faq-cta-btn {
           display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 10px;
-          font-size: 0.8125rem; font-weight: 700; text-decoration: none;
+          min-height: 44px;
+          font-size: 0.875rem; font-weight: 700; text-decoration: none;
           transition: background-color 150ms ease, color 150ms ease;
           cursor: pointer;
         }
@@ -135,6 +135,7 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
         /* View all link */
         .faq-viewall {
           display: inline-flex; align-items: center; gap: 6px; margin-top: 1.25rem;
+          min-height: 44px;
           font-size: 0.875rem; font-weight: 700; color: var(--color-primary-400); text-decoration: none;
           transition: gap 150ms ease, color 150ms ease;
           cursor: pointer;
@@ -146,7 +147,7 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
 
         /* Item */
         .faq-item {
-          border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.08);
+          border-radius: 16px; border: 1.5px solid rgba(255,255,255,0.08);
           background: rgba(255,255,255,0.05); overflow: hidden; transition: border-color 200ms, box-shadow 200ms;
           backdrop-filter: blur(4px);
         }
@@ -199,7 +200,7 @@ export default function FAQSection({ data = [], compact = false }: FAQSectionPro
         }
       `}</style>
 
-      <div className="faq-inner">
+      <div className="container-site faq-inner">
 
         {/* ── Sidebar ─────────────────────────── */}
         <aside className="faq-sidebar">

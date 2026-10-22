@@ -11,14 +11,11 @@ function PartnerLogo({ partner }: PartnerLogoProps) {
   const webUrl = partner.website_url || partner.link;
 
   const inner = (
-    <figure
-      className="ps-logo-card"
-      aria-label={`Logo mitra: ${partner.name}`}
-    >
+    <div className="ps-logo-card">
       {logoUrl ? (
         <Image
           src={getImageUrl(logoUrl) || ''}
-          alt={partner.name}
+          alt={`Logo ${partner.name}`}
           width={160}
           height={72}
           className="ps-logo-img"
@@ -29,7 +26,7 @@ function PartnerLogo({ partner }: PartnerLogoProps) {
           {partner.name.slice(0, 2).toUpperCase()}
         </span>
       )}
-    </figure>
+    </div>
   );
 
   if (webUrl) {
@@ -39,7 +36,7 @@ function PartnerLogo({ partner }: PartnerLogoProps) {
         target="_blank"
         rel="noopener noreferrer"
         className="ps-logo-link"
-        title={`Kunjungi situs ${partner.name}`}
+        aria-label={`Kunjungi situs ${partner.name}`}
       >
         {inner}
       </a>
@@ -279,7 +276,7 @@ export default function PartnerSection({ data = [] }: PartnerSectionProps) {
 
         .ps-logo-link:not(.ps-logo-no-link):hover .ps-logo-card {
           border-color: var(--color-primary-200);
-          box-shadow: 0 6px 20px rgba(24, 95, 165, 0.12);
+          box-shadow: 0 6px 20px rgba(4, 105, 155, 0.15);
           transform: translateY(-2px);
         }
 

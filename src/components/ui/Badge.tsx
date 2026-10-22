@@ -15,23 +15,23 @@ export function Badge({ variant = 'info', color, dot = false, children, classNam
   const variantStyles = {
     success: {
       background: 'var(--color-accent-teal-light)',
-      color: '#085041',
+      color: 'var(--color-primary-900)',
     },
     warning: {
       background: 'var(--color-warning-light)',
-      color: '#633806',
+      color: 'var(--color-cta-text)',
     },
     danger: {
       background: 'var(--color-danger-light)',
-      color: '#791F1F',
+      color: 'var(--color-danger)',
     },
     info: {
       background: 'var(--color-primary-50)',
       color: 'var(--color-primary-800)',
     },
     neutral: {
-      background: '#f3f4f6',
-      color: '#374151',
+      background: 'var(--color-neutral-100)',
+      color: 'var(--color-neutral-900)',
     },
   };
 
@@ -40,7 +40,7 @@ export function Badge({ variant = 'info', color, dot = false, children, classNam
     warning: 'var(--color-warning)',
     danger: 'var(--color-danger)',
     info: 'var(--color-primary-400)',
-    neutral: '#9ca3af',
+    neutral: 'var(--color-neutral-500)',
   };
 
   const style = variantStyles[activeVariant] ?? variantStyles.info;
@@ -51,12 +51,12 @@ export function Badge({ variant = 'info', color, dot = false, children, classNam
         display: 'inline-flex',
         alignItems: 'center',
         gap: '0.375rem',
-        padding: '0.1875rem 0.625rem',
+        padding: '0.2rem 0.625rem',
         borderRadius: '999px',
-        fontSize: '0.6875rem',
-        fontWeight: 500,
-        lineHeight: 1.5,
-        letterSpacing: '0.01em',
+        fontSize: '0.75rem',
+        fontWeight: 600,
+        lineHeight: 1.4,
+        letterSpacing: '0.02em',
         background: style.background,
         color: style.color,
       }}

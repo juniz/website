@@ -36,11 +36,13 @@ export default async function NewsPreview() {
               fontSize: '0.75rem',
               color: 'var(--color-primary-600)',
               textDecoration: 'none',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '0.25rem',
               fontWeight: 600,
               flexShrink: 0,
+              minHeight: '44px',
+              padding: '0.25rem 0.5rem',
             }}
             className="see-all-link"
           >
@@ -55,7 +57,7 @@ export default async function NewsPreview() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
             gap: '1.25rem',
           }}
         >

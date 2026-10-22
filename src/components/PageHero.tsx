@@ -49,18 +49,21 @@ export default function PageHero({ breadcrumb, title, subtitle, children }: Page
                   color: 'var(--color-primary-200)',
                   textDecoration: 'none',
                   transition: 'color 150ms',
+                  minHeight: '44px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
                 }}
                 className="page-hero-breadcrumb-link"
               >
                 Beranda
               </Link>
             </li>
-            <li aria-hidden="true">
+            <li aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center' }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </li>
-            <li aria-current="page" style={{ color: 'var(--color-primary-50)', fontWeight: 500 }}>
+            <li aria-current="page" style={{ color: 'var(--color-primary-50)', fontWeight: 500, minHeight: '44px', display: 'inline-flex', alignItems: 'center' }}>
               {breadcrumb}
             </li>
           </ol>
@@ -72,7 +75,7 @@ export default function PageHero({ breadcrumb, title, subtitle, children }: Page
             display: 'flex',
             alignItems: 'center',
             gap: '0.875rem',
-            fontSize: 'clamp(1.5rem, 3vw, 2.125rem)',
+            fontSize: 'clamp(1.5rem, 3vw, 2rem)',
             fontWeight: 700,
             color: 'var(--color-primary-50)',
             fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)',
@@ -87,7 +90,7 @@ export default function PageHero({ breadcrumb, title, subtitle, children }: Page
               display: 'inline-block',
               width: '3px',
               height: '1.25em',
-              borderRadius: '2px',
+              borderRadius: '999px',
               background: 'var(--color-cta)',
               flexShrink: 0,
               alignSelf: 'center',
@@ -100,7 +103,7 @@ export default function PageHero({ breadcrumb, title, subtitle, children }: Page
         {subtitle && (
           <p style={{
             color: 'var(--color-primary-200)',
-            fontSize: '0.9375rem',
+            fontSize: '0.875rem',
             lineHeight: 1.6,
             marginLeft: 'calc(3px + 0.875rem)', /* align with title text, past the bar */
             maxWidth: '680px',

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { formatDateId } from '@/lib/data/news';
 import { getImageUrl } from '@/lib/utils';
 import { NewsArticle } from '@/types/api';
@@ -25,6 +26,8 @@ export default function NewsCard({ article, featured = false }: NewsCardProps) {
     read_time,
   } = article;
 
+  const imageUrl = image ? getImageUrl(image) : null;
+
   return (
     <Link
       href={`/news/${slug}`}
@@ -47,26 +50,38 @@ export default function NewsCard({ article, featured = false }: NewsCardProps) {
         {/* Cover image placeholder */}
         <div
           style={{
-            background: image ? `url(${getImageUrl(image)}) center/cover no-repeat` : coverBg,
             height: featured ? '200px' : '160px',
             position: 'relative',
+            overflow: 'hidden',
             display: 'flex',
             alignItems: 'flex-end',
             padding: '0.875rem',
+            background: !imageUrl ? (coverBg || 'var(--color-primary-900)') : undefined,
           }}
-          aria-hidden="true"
         >
+          {imageUrl && (
+            <Image
+              src={imageUrl}
+              alt=""
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              style={{ objectFit: 'cover' }}
+            />
+          )}
+
           {/* Subtle overlay pattern */}
           <div
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)',
+              background: 'linear-gradient(135deg, rgba(2,48,71,0.2) 0%, transparent 60%)',
               pointerEvents: 'none',
+              zIndex: 1,
             }}
           />
-          {/* RS logo watermark */}
-          {!image && (
+
+          {/* RS logo watermark when no image */}
+          {!imageUrl && (
             <div
               style={{
                 position: 'absolute',
@@ -75,12 +90,14 @@ export default function NewsCard({ article, featured = false }: NewsCardProps) {
                 transform: 'translate(-50%,-50%)',
                 opacity: 0.12,
               }}
+              aria-hidden="true"
             >
               <svg width="56" height="56" viewBox="0 0 24 24" fill="white">
                 <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H9a1 1 0 1 1 0-2h2V7a1 1 0 0 1 1-1z"/>
               </svg>
             </div>
           )}
+
           {/* Category badge on image */}
           <span
             style={{
@@ -88,12 +105,12 @@ export default function NewsCard({ article, featured = false }: NewsCardProps) {
               alignItems: 'center',
               padding: '0.2rem 0.625rem',
               borderRadius: '999px',
-              fontSize: '0.6875rem',
+              fontSize: '0.75rem',
               fontWeight: 600,
               background: categoryBg,
               color: categoryColor,
               position: 'relative',
-              zIndex: 1,
+              zIndex: 2,
             }}
           >
             {category}

@@ -27,9 +27,9 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
   const initials = getInitials(name);
 
   const availabilityConfig = {
-    today:       { color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0', label: 'Tersedia hari ini', dot: true },
-    tomorrow:    { color: '#d97706', bg: '#fffbeb', border: '#fde68a', label: 'Besok tersedia',    dot: true },
-    unavailable: { color: '#dc2626', bg: '#fef2f2', border: '#fecaca', label: 'Tidak tersedia',   dot: true },
+    today:       { color: 'var(--color-primary-900)', bg: 'var(--color-accent-teal-light)', border: 'var(--color-primary-200)', label: 'Tersedia hari ini', dot: true },
+    tomorrow:    { color: 'var(--color-cta-text)', bg: 'var(--color-warning-light)', border: 'var(--color-cta)', label: 'Besok tersedia', dot: true },
+    unavailable: { color: 'var(--color-neutral-600)', bg: 'var(--color-neutral-100)', border: 'var(--color-neutral-200)', label: 'Tidak tersedia', dot: true },
   };
 
   const avail = availabilityConfig[availability] ?? availabilityConfig.unavailable;
@@ -172,7 +172,8 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
           justify-content: center;
           gap: 0.4rem;
           width: 100%;
-          padding: 0.6rem 1rem;
+          min-height: 44px;
+          padding: 0.625rem 1rem;
           border-radius: 8px;
           border: 1.5px solid var(--color-primary-300);
           background: transparent;

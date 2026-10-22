@@ -24,28 +24,44 @@ interface DateStripOption {
 }
 
 function formatDateToIso(d: Date): string {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(d.getUTCDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 }
 
-/* Days for the date strip (today + 6 days) */
+/* Days for the date strip (today + 6 days) locked to Asia/Jakarta */
 function buildDateStrip(): DateStripOption[] {
   const days: DateStripOption[] = [];
   const dayNamesShort = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
   const dayNamesFull = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-  const today = new Date();
+
+  // Base on Jakarta time
+  const now = new Date();
+  const jakartaDateParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(now);
+
+  const year = Number(jakartaDateParts.find((p) => p.type === 'year')?.value);
+  const month = Number(jakartaDateParts.find((p) => p.type === 'month')?.value) - 1;
+  const day = Number(jakartaDateParts.find((p) => p.type === 'day')?.value);
+
+  const baseDate = new Date(Date.UTC(year, month, day, 12, 0, 0));
+
   for (let i = 0; i < 7; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
+    const d = new Date(baseDate);
+    d.setUTCDate(baseDate.getUTCDate() + i);
+
     days.push({
       key: i,
-      label: dayNamesShort[d.getDay()]!,
-      labelFull: dayNamesFull[d.getDay()]!,
-      date: d.getDate(),
-      month: monthNames[d.getMonth()]!,
+      label: dayNamesShort[d.getUTCDay()]!,
+      labelFull: dayNamesFull[d.getUTCDay()]!,
+      date: d.getUTCDate(),
+      month: monthNames[d.getUTCMonth()]!,
       isToday: i === 0,
       dateObj: d,
     });
@@ -170,7 +186,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                   <span style={{ fontSize: '0.875rem', fontWeight: 700, color: isSelected ? 'var(--color-cta-text)' : 'rgba(255,255,255,0.9)' }}>
                     {day.date}
                   </span>
-                  <span style={{ fontSize: '0.625rem', fontWeight: 500, opacity: 0.7 }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 500, opacity: 0.85 }}>
                     {day.month}
                   </span>
                   {day.isToday && (
@@ -189,6 +205,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
             <input
               type="text"
               placeholder="Cari nama dokter atau poliklinik..."
+              aria-label="Cari nama dokter atau poliklinik"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -199,7 +216,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                 background: 'rgba(255, 255, 255, 0.08)',
                 color: '#ffffff',
                 fontSize: '0.875rem',
-                outline: 'none',
+                minHeight: '44px',
                 transition: 'all 200ms ease-out',
               }}
               className="sch-search-input"
@@ -208,6 +225,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
+                aria-label="Hapus pencarian"
                 style={{
                   position: 'absolute',
                   top: '50%',
@@ -217,18 +235,21 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                   border: 'none',
                   color: 'rgba(255, 255, 255, 0.5)',
                   cursor: 'pointer',
-                  padding: '2px',
+                  padding: '8px',
+                  minHeight: '44px',
+                  minWidth: '44px',
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                <X size={14} />
+                <X size={16} />
               </button>
             )}
           </div>
 
           {/* Poli filter chips */}
-          <div role="group" aria-label="Filter poli" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div role="group" aria-label="Filter poli" className="sch-chips-container">
             {scheduleFilters.map((f) => {
               const isActive = activeFilter === f.code;
               return (
@@ -238,13 +259,14 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                   onClick={() => setActiveFilter(f.code)}
                   aria-pressed={isActive}
                   style={{
-                    padding: '0.4rem 1.125rem', borderRadius: '999px',
+                    padding: '0.5rem 1.125rem', borderRadius: '999px',
                     border: isActive ? '1.5px solid var(--color-cta)' : '1.5px solid rgba(255, 255, 255, 0.15)',
                     background: isActive ? 'var(--color-cta)' : 'rgba(255, 255, 255, 0.08)',
-                    color: isActive ? 'var(--color-cta-text)' : 'rgba(255, 255, 255, 0.8)',
-                    fontSize: '0.8125rem', fontWeight: isActive ? 700 : 500,
+                    color: isActive ? 'var(--color-cta-text)' : 'rgba(255, 255, 255, 0.85)',
+                    fontSize: '0.875rem', fontWeight: isActive ? 700 : 500,
                     cursor: 'pointer', transition: 'all 200ms ease-out',
-                    minHeight: '34px', whiteSpace: 'nowrap',
+                    minHeight: '44px', display: 'inline-flex', alignItems: 'center',
+                    whiteSpace: 'nowrap', flexShrink: 0,
                   }}
                   className="sch-filter-chip"
                 >
@@ -262,10 +284,10 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
           {/* Date label */}
           <div style={{ marginBottom: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-neutral-900)', fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)', letterSpacing: '-0.01em' }}>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-neutral-900)', fontFamily: 'var(--font-figtree, Figtree, system-ui, sans-serif)', letterSpacing: '-0.01em' }}>
                 Jadwal Hari {days[selectedDay]?.labelFull}
                 <span style={{ color: 'var(--color-neutral-600)', fontWeight: 500, marginLeft: '0.5rem', fontSize: '0.875rem' }}>
-                  ({days[selectedDay]?.date} {days[selectedDay]?.month} {days[selectedDay]?.dateObj.getFullYear()})
+                  ({days[selectedDay]?.date} {days[selectedDay]?.month} {days[selectedDay]?.dateObj.getUTCFullYear()})
                 </span>
               </h2>
             </div>
@@ -282,6 +304,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                 fontSize: '0.875rem', 
                 fontWeight: 700, 
                 textDecoration: 'none', 
+                minHeight: '44px',
                 transition: 'all 150ms ease-out',
                 boxShadow: '0 2px 8px rgba(255, 183, 3, 0.25)' 
               }} 
@@ -298,29 +321,36 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
           </div>
 
           {isLoadingSchedules ? (
-            <div style={{ background: '#fff', border: '1px solid var(--color-neutral-200)', borderRadius: '16px', padding: '4rem 2rem', textAlign: 'center', color: 'var(--color-neutral-600)' }}>
+            <div
+              role="status"
+              aria-live="polite"
+              style={{ background: '#fff', border: '1px solid var(--color-neutral-200)', borderRadius: '16px', padding: '4rem 2rem', textAlign: 'center', color: 'var(--color-neutral-600)' }}
+            >
               <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'var(--color-primary-50)', color: 'var(--color-primary-600)', marginBottom: '1rem' }}>
                 <Loader2 size={24} className="animate-spin" />
               </div>
-              <p style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--color-neutral-900)' }}>Memuat jadwal dokter...</p>
+              <p style={{ fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-neutral-900)' }}>Memuat jadwal dokter...</p>
               <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Mengambil ketersediaan kuota real-time</p>
             </div>
           ) : visibleSchedule.length === 0 ? (
-            <div style={{ background: '#fff', border: '1px solid var(--color-neutral-200)', borderRadius: '16px', padding: '4rem 2rem', textAlign: 'center', color: 'var(--color-neutral-600)' }}>
+            <div
+              role="status"
+              style={{ background: '#fff', border: '1px solid var(--color-neutral-200)', borderRadius: '16px', padding: '4rem 2rem', textAlign: 'center', color: 'var(--color-neutral-600)' }}
+            >
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.35, marginBottom: '1rem' }} aria-hidden="true">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
                 <line x1="8" y1="2" x2="8" y2="6"/>
                 <line x1="3" y1="10" x2="21" y2="10"/>
               </svg>
-              <p style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--color-neutral-900)' }}>Jadwal belum tersedia untuk tanggal ini</p>
+              <p style={{ fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-neutral-900)' }}>Jadwal belum tersedia untuk tanggal ini</p>
               <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Silakan pilih tanggal lain atau hubungi kami langsung</p>
             </div>
           ) : (
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 250px), 1fr))',
                 gap: '1.5rem',
               }}
             >
@@ -368,7 +398,6 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                           fill
                           sizes="(max-width: 640px) 100vw, 280px"
                           style={{ objectFit: 'cover', objectPosition: 'top center' }}
-                          unoptimized
                         />
                       ) : (
                         <div
@@ -400,7 +429,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                           color: '#ffffff',
                           padding: '0.25rem 0.625rem',
                           borderRadius: '999px',
-                          fontSize: '0.6875rem',
+                          fontSize: '0.75rem',
                           fontWeight: 700,
                           letterSpacing: '0.02em',
                         }}
@@ -411,17 +440,16 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
 
                     {/* Card Content info */}
                     <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-                      <div>
+                      <h3 style={{ margin: 0, fontSize: '1.125rem', lineHeight: 1.35 }}>
                         {Boolean(row.doctorId) && !String(row.doctorId).startsWith('D') && !isNaN(Number(row.doctorId)) ? (
                           <Link 
                             href={`/doctors/${row.doctorId}`} 
                             style={{ 
-                              fontSize: '1rem', 
+                              fontSize: '1.125rem', 
                               fontWeight: 700, 
                               color: 'var(--color-primary-900)', 
                               textDecoration: 'none',
                               fontFamily: 'var(--font-figtree, Figtree, sans-serif)',
-                              lineHeight: 1.35,
                             }} 
                             className="sch-doc-card-link"
                           >
@@ -430,17 +458,16 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                         ) : (
                           <span 
                             style={{ 
-                              fontSize: '1rem', 
+                              fontSize: '1.125rem', 
                               fontWeight: 700, 
                               color: 'var(--color-primary-900)', 
                               fontFamily: 'var(--font-figtree, Figtree, sans-serif)',
-                              lineHeight: 1.35,
                             }}
                           >
                             {row.doctorName}
                           </span>
                         )}
-                      </div>
+                      </h3>
 
                       {/* Time and Status */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--color-primary-50)', padding: '0.75rem 1rem', borderRadius: '10px' }}>
@@ -469,8 +496,15 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                             {filledQuota} / {totalQuota}
                           </span>
                         </div>
-                        <div style={{ width: '100%', height: '5px', background: 'var(--color-primary-50)', borderRadius: '2.5px', overflow: 'hidden' }}>
-                          <div style={{ width: `${percent}%`, height: '100%', background: isFull ? 'var(--color-danger)' : 'var(--color-primary-600)', borderRadius: '2.5px' }} />
+                        <div
+                          role="progressbar"
+                          aria-valuenow={filledQuota}
+                          aria-valuemin={0}
+                          aria-valuemax={totalQuota}
+                          aria-label={`Kuota pasien ${row.doctorName}`}
+                          style={{ width: '100%', height: '6px', background: 'var(--color-primary-50)', borderRadius: '999px', overflow: 'hidden' }}
+                        >
+                          <div style={{ width: `${percent}%`, height: '100%', background: isFull ? 'var(--color-danger)' : 'var(--color-primary-600)', borderRadius: '999px' }} />
                         </div>
                       </div>
                     </div>
@@ -489,12 +523,12 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                             borderRadius: '10px',
                             background: 'var(--color-neutral-200)',
                             color: 'var(--color-neutral-600)',
-                            fontSize: '0.8125rem',
+                            fontSize: '0.875rem',
                             fontWeight: 600,
                             cursor: 'not-allowed',
                             width: '100%',
                             textAlign: 'center',
-                            minHeight: '38px',
+                            minHeight: '44px',
                             opacity: 0.7,
                             border: 'none',
                           }}
@@ -511,16 +545,16 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
                             justifyContent: 'center', 
                             padding: '0.625rem 1rem', 
                             borderRadius: '10px', 
-                            background: 'var(--color-primary-600)', 
-                            color: '#ffffff', 
-                            fontSize: '0.8125rem', 
+                            background: 'var(--color-cta)', 
+                            color: 'var(--color-cta-text)', 
+                            fontSize: '0.875rem', 
                             fontWeight: 700, 
                             textDecoration: 'none', 
                             width: '100%', 
                             textAlign: 'center', 
-                            minHeight: '38px', 
+                            minHeight: '44px', 
                             transition: 'all 150ms ease-out',
-                            boxShadow: '0 2px 6px rgba(4, 105, 155, 0.15)'
+                            boxShadow: '0 2px 6px rgba(255, 183, 3, 0.25)'
                           }}
                           className="sch-card-daftar-btn"
                           aria-label={`Daftar ke ${row.doctorName}`}
@@ -551,7 +585,7 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-600)" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: '1px' }} aria-hidden="true">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-primary-800)', lineHeight: 1.6, fontWeight: 500 }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-primary-800)', lineHeight: 1.6, fontWeight: 500 }}>
               Jadwal dapat berubah sewaktu-waktu. Konfirmasi akan dikirim via WhatsApp. Hadir 15 menit sebelum waktu praktik dan bawa identitas diri.
             </p>
           </div>
@@ -565,43 +599,67 @@ export default function SchedulePageClient({ initialSchedules = [] }: SchedulePa
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(208, 149, 0, 0.35);
         }
-        .sch-search-input:focus {
-          border-color: var(--color-cta) !important;
+        .sch-search-input:focus-visible {
+          border-color: var(--color-primary-400) !important;
           background: rgba(255, 255, 255, 0.12) !important;
-          box-shadow: 0 0 0 3px rgba(255, 183, 3, 0.2);
+          outline: 2.5px solid var(--color-primary-400) !important;
+          outline-offset: 2px !important;
         }
         .sch-search-input::placeholder {
           color: rgba(255, 255, 255, 0.45);
         }
-        .sch-date-pill:hover {
+        .sch-date-pill[aria-pressed="false"]:hover {
           background: rgba(255, 255, 255, 0.15) !important;
         }
-        .sch-filter-chip:hover {
+        .sch-date-pill[aria-pressed="true"]:hover {
+          background: var(--color-cta-dark) !important;
+        }
+        .sch-filter-chip[aria-pressed="false"]:hover {
           background: rgba(255, 255, 255, 0.15) !important;
+        }
+        .sch-filter-chip[aria-pressed="true"]:hover {
+          background: var(--color-cta-dark) !important;
+        }
+        .sch-chips-container {
+          display: flex;
+          gap: 0.5rem;
+          overflow-x: auto;
+          padding-bottom: 4px;
+          -webkit-overflow-scrolling: touch;
+        }
+        @media (min-width: 768px) {
+          .sch-chips-container {
+            flex-wrap: wrap;
+            overflow-x: visible;
+          }
         }
         .sch-doctor-card:hover {
           border-color: var(--color-primary-300) !important;
-          box-shadow: 0 8px 24px rgba(24, 95, 165, 0.1);
+          box-shadow: 0 8px 24px rgba(2, 48, 71, 0.12);
           transform: translateY(-3px);
         }
         .sch-doc-card-link:hover {
           color: var(--color-primary-600) !important;
         }
         .sch-card-daftar-btn:hover {
-          background: var(--color-primary-800) !important;
+          background: var(--color-cta-dark) !important;
+          color: var(--color-cta-text) !important;
           transform: translateY(-1.5px);
-          box-shadow: 0 4px 12px rgba(4, 105, 155, 0.25);
+          box-shadow: 0 4px 12px rgba(208, 149, 0, 0.35);
         }
         /* Custom date strip scroll */
-        .date-strip-scroll::-webkit-scrollbar {
+        .date-strip-scroll::-webkit-scrollbar,
+        .sch-chips-container::-webkit-scrollbar {
           height: 4px;
         }
-        .date-strip-scroll::-webkit-scrollbar-track {
+        .date-strip-scroll::-webkit-scrollbar-track,
+        .sch-chips-container::-webkit-scrollbar-track {
           background: transparent;
         }
-        .date-strip-scroll::-webkit-scrollbar-thumb {
+        .date-strip-scroll::-webkit-scrollbar-thumb,
+        .sch-chips-container::-webkit-scrollbar-thumb {
           background: rgba(255, 255, 255, 0.15);
-          border-radius: 2px;
+          border-radius: 999px;
         }
       `}</style>
     </>
